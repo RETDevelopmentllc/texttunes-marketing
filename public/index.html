@@ -851,7 +851,7 @@ async function runAIGenerate(){
     const scene=await generateAI(scenario);
     currentAd={
       contact:scene.contact,emoji:scene.emoji,color:scene.color,
-      songTitle:scene.songTitle,songFile:scene.songFile||'TextTune.mp3',
+      songTitle:scene.songTitle,songFile:(scene.songTitle||'TextTune').replace(/[^a-zA-Z0-9 ]/g,'').replace(/\s+/g,'')+'.mp3',
       lyrics:scene.lyrics,
       preview:scene.messages[0]?.text||'',
       messages:scene.messages.map(m=>({s:m.side,t:m.text})),
