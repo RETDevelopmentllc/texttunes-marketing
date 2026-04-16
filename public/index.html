@@ -378,6 +378,8 @@ async function playAd(){
       await showPlayer(sc);
       await sleep(600);
       await showReactions(sc);
+      await sleep(400);
+      await showAfterSongMessages(sc);
       break;
 
     } else if(msg.s==='them'){
@@ -562,6 +564,49 @@ async function showReactions(sc){
   }
 }
 
+async function showAfterSongMessages(sc){
+  if(adAbortFlag)return;
+  // Use AI-generated afterSongMessages or default fallback
+  const msgs=sc.afterSongMessages||[
+    {side:'them',text:'😂'},
+    {side:'them',text:'how did you make that'},
+    {side:'me',text:'TextTunes App'}
+  ];
+  const area=document.getElementById('msgArea');
+  const iField=document.getElementById('inputField');
+  const iSend=document.getElementById('inputSend');
+  const iMic=document.getElementById('inputMic');
+  for(const msg of msgs){
+    if(adAbortFlag)return;
+    if(msg.side==='them'){
+      const trow=makeTyping();area.appendChild(trow);scrollDown();
+      await sleep(40);trow.classList.add('vis');
+      await sleep(800+Math.random()*400);
+      trow.remove();
+      const row=makeBubble({s:'them',t:msg.text});area.appendChild(row);scrollDown();
+      await sleep(40);row.classList.add('vis');
+      playTone('received');
+      await sleep(1000+Math.random()*500);
+    } else {
+      await sleep(350);
+      iField.textContent='';iField.style.color='#fff';
+      for(let c=0;c<=msg.text.length;c++){
+        if(adAbortFlag)return;
+        iField.textContent=msg.text.slice(0,c);
+        if(c===msg.text.length-1){iSend.classList.add('vis');iMic.style.opacity='0';}
+        await sleep(36+Math.random()*24);
+      }
+      await sleep(320);
+      const row=makeBubble({s:'me',t:msg.text});area.appendChild(row);scrollDown();
+      await sleep(40);row.classList.add('vis');
+      playTone('sent');
+      iField.textContent='iMessage';iField.style.color='#8e8e93';
+      iSend.classList.remove('vis');iMic.style.opacity='1';
+      await sleep(800);
+    }
+  }
+}
+
 /* ══════════════════════════
    VIDEO RECORDING
 ══════════════════════════ */
@@ -707,13 +752,21 @@ async function generateAI(scenario) {
   const elevenKey = localStorage.getItem('tt_eleven') || '';
   if (!anthropicKey) throw new Error('Enter your Anthropic key in Settings');
 
+  const voice = selectedVoice;
+  const genre = document.getElementById('ttGenre').value;
+  const senderGender = voice === 'male' ? 'a guy' : 'a girl';
+  const senderEmoji = voice === 'male' ? '🧑' : '👩';
   const prompt = `Write a funny viral iMessage conversation for a TextTunes app ad. TextTunes turns texts into real songs.
 Scenario: "${scenario}"
+Song genre: ${genre}
+IMPORTANT: The "me" side (the person sending the song) is ${senderGender}. Make sure the conversation reads naturally for that — their name, emoji, personality, and the way others talk to them should reflect this. The contact (the "them" side) can be anyone.
 Return ONLY raw JSON. No markdown. No explanation. Start with { end with }
-{"contact":"Mom","emoji":"👩","color":"#ff6b9d","messages":[{"side":"them","text":"did you eat today"},{"side":"me","text":"mom its 11pm"},{"side":"them","text":"thats not an answer"},{"side":"me","text":"i had a granola bar"},{"side":"them","text":"I raised you for THIS"},{"side":"me","text":"made this into a song for you"}],"songTitle":"Why Wont You Call Me Back","songFile":"MomSong.mp3","lyrics":"Mama dont cry tonight I swear that I ate just fine, granola never tasted so sweet","reactionEmojis":["this goes hard","I cannot stop laughing","calling u rn","sending to everyone"]}
+{"contact":"Mom","emoji":"${senderEmoji}","color":"#ff6b9d","messages":[{"side":"them","text":"did you eat today"},{"side":"me","text":"mom its 11pm"},{"side":"them","text":"thats not an answer"},{"side":"me","text":"i had a granola bar"},{"side":"them","text":"I raised you for THIS"},{"side":"me","text":"made this into a song for you"}],"songTitle":"Why Wont You Call Me Back","songFile":"MomSong.mp3","lyrics":"Mama dont cry tonight I swear that I ate just fine, granola never tasted so sweet","reactionEmojis":["this goes hard","I cannot stop laughing","calling u rn","sending to everyone"],"afterSongMessages":[{"side":"them","text":"💀"},{"side":"them","text":"how did you make that"},{"side":"me","text":"TextTunes App"}]}
 Rules:
-- 6-8 messages. Last message from me hints at a song. No apostrophes. Make it genuinely funny.
-- CRITICAL: The "lyrics" field must be SHORT SINGABLE song lyrics (25-200 characters max). Do NOT repeat or narrate the conversation. Write original catchy lyrics INSPIRED BY the vibe/theme of the convo. Think pop song chorus — melodic, rhyming, fun to sing. No spoken word or narration.`;
+- 6-8 messages before the song. Last message from "me" hints at making a song. No apostrophes. Make it genuinely funny.
+- The "me" side is ${senderGender}. The song will be SUNG by a ${voice} voice in the ${genre} genre, so write lyrics that fit that style.
+- CRITICAL: The "lyrics" field must be SHORT SINGABLE song lyrics (25-200 characters max). Do NOT repeat or narrate the conversation. Write original catchy lyrics INSPIRED BY the vibe/theme of the convo. Think ${genre} song chorus — melodic, rhyming, fun to sing. No spoken word or narration.
+- CRITICAL: You MUST include an "afterSongMessages" array with EXACTLY 3 messages that appear after the song: (1) from "them" — a single emoji reaction that fits the vibe of the convo (like 😂 💀 😭 🔥 etc), (2) from "them" — "how did you make that" or similar question asking how they made the song, (3) from "me" — "TextTunes App". Always include these 3 messages.`;
 
   const r = await fetch('/api/claude', {
     method: 'POST',
@@ -784,6 +837,7 @@ async function runAIGenerate(){
       messages:scene.messages.map(m=>({s:m.side,t:m.text})),
       reactions:scene.reactionEmojis||['this goes hard','I cannot stop'],
       audioUrl:scene.audioUrl,
+      afterSongMessages:scene.afterSongMessages||null,
     };
     currentAd.messages[currentAd.messages.length-1].file=true;
     setAIStatus('🎬 Playing your ad!','#00ff88');
