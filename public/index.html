@@ -390,11 +390,9 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60p
 </div><!-- end tab-ai -->
 
 <!-- ══ CUSTOM BUILDER TAB ══ -->
-<div id="tab-custom" style="display:none;width:100%;max-width:700px;flex-direction:column;align-items:center;">
+<div id="tab-custom" style="display:none;width:100%;max-width:400px;flex-direction:column;align-items:center;">
 
-  <!-- Phone center + speed control right -->
-  <div style="display:flex;gap:16px;align-items:flex-start;justify-content:center;">
-  <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;">
+  <div style="display:flex;flex-direction:column;align-items:center;">
     <!-- THE PHONE IS THE EDITOR -->
     <div class="phone-wrap">
       <div class="phone">
@@ -470,27 +468,25 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60p
         <button class="cb-create-btn" style="flex:1;font-size:12px;padding:10px;background:linear-gradient(135deg,#3a3a3c,#555);" onclick="cbBackToEditor()">✏ Back to Editor</button>
       </div>
     </div>
-  </div>
 
-  <!-- RIGHT: Speed Control -->
-  <div style="width:120px;flex-shrink:0;padding-top:20px;">
-    <div style="background:#0f0f1c;border:1px solid #1c1c30;border-radius:14px;padding:14px 10px;display:flex;flex-direction:column;align-items:center;">
-      <div style="font-size:9px;color:#6b6b8e;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;">Speed</div>
-      <div style="position:relative;height:200px;width:40px;display:flex;align-items:center;justify-content:center;">
-        <input type="range" id="cbSpeed" min="0.3" max="2" value="1" step="0.1" orient="vertical"
-          style="writing-mode:vertical-lr;direction:rtl;width:200px;height:30px;accent-color:#7C3AED;cursor:pointer;transform:rotate(180deg);"
+    <!-- Speed Control (horizontal, below phone) -->
+    <div style="width:300px;margin-top:10px;background:#0f0f1c;border:1px solid #1c1c30;border-radius:12px;padding:10px 14px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+        <span style="font-size:9px;color:#6b6b8e;font-weight:600;letter-spacing:1px;text-transform:uppercase;">Text Speed</span>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span id="cbSpeedLabel" style="font-size:13px;font-weight:800;color:#f0f0ff;font-family:var(--display);">1.0x</span>
+          <button onclick="document.getElementById('cbSpeed').value=50;cbUpdateSpeedLabel();" style="padding:2px 6px;border-radius:5px;border:1px solid #2c2c3e;background:none;color:#6b6b8e;font-size:8px;cursor:pointer;font-family:DM Sans,sans-serif;">Reset</button>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:9px;color:#00ff88;">Fast</span>
+        <input type="range" id="cbSpeed" min="0" max="100" value="50" step="1"
+          style="flex:1;accent-color:#7C3AED;cursor:pointer;"
           oninput="cbUpdateSpeedLabel()"/>
+        <span style="font-size:9px;color:#ff9f0a;">Slow</span>
       </div>
-      <div id="cbSpeedLabel" style="font-size:16px;font-weight:800;color:#f0f0ff;margin-top:8px;font-family:var(--display);">1.0x</div>
-      <div style="font-size:8px;color:#6b6b8e;margin-top:2px;text-align:center;line-height:1.3;">
-        <div>Slow ↑</div>
-        <div>Fast ↓</div>
-      </div>
-      <button onclick="document.getElementById('cbSpeed').value=1;cbUpdateSpeedLabel();" style="margin-top:8px;padding:3px 8px;border-radius:6px;border:1px solid #2c2c3e;background:none;color:#6b6b8e;font-size:9px;cursor:pointer;font-family:DM Sans,sans-serif;">Reset</button>
     </div>
   </div>
-
-  </div><!-- end flex row -->
 
   <!-- Song Popup (hidden, shown on +Song click) -->
   <div id="cbSongPopup" class="cb-song-popup">
@@ -670,10 +666,14 @@ async function playAd(){
       // show player — waits for song to fully finish
       await showPlayer(sc);
       await sleep(1500);
-      await showReactions(sc);
-      await sleep(1000);
-      await showAfterSongMessages(sc);
-      break;
+      // If there are afterSongMessages, show them; otherwise continue loop for remaining messages
+      if(sc.afterSongMessages&&sc.afterSongMessages.length>0){
+        await showReactions(sc);
+        await sleep(1000);
+        await showAfterSongMessages(sc);
+        break;
+      }
+      // No break — continue to play any messages after the song
 
     } else if(msg.s==='them'){
       if(i>0){
@@ -1377,11 +1377,18 @@ function switchTab(tab){
 ══════════════════════════ */
 
 // Inline time editing — click the time text, it becomes an input
-let cbSpeedMult=1; // lower = faster
+let cbSpeedMult=1;
 function cbUpdateSpeedLabel(){
-  const v=parseFloat(document.getElementById('cbSpeed').value);
-  cbSpeedMult=v;
-  document.getElementById('cbSpeedLabel').textContent=v.toFixed(1)+'x';
+  // Slider 0=fast(3x speed), 50=normal(1x), 100=slow(0.4x speed)
+  const raw=parseFloat(document.getElementById('cbSpeed').value);
+  let speed;
+  if(raw<=50){
+    speed=3.0-((raw/50)*2.0); // 3.0x down to 1.0x
+  } else {
+    speed=1.0-(((raw-50)/50)*0.6); // 1.0x down to 0.4x
+  }
+  cbSpeedMult=1/speed; // convert speed to delay multiplier
+  document.getElementById('cbSpeedLabel').textContent=speed.toFixed(1)+'x';
 }
 
 function cbEditSbarTime(){
