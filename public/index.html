@@ -780,14 +780,22 @@ async function generateAI(scenario) {
   const prompt = `Write a funny viral iMessage conversation for a TextTunes app ad. TextTunes turns texts into real songs.
 Scenario: "${scenario}"
 Song genre: ${genre}
-IMPORTANT: The "me" side (the person sending the song) is ${senderGender}. Make sure the conversation reads naturally for that — their name, emoji, personality, and the way others talk to them should reflect this. The contact (the "them" side) can be anyone.
+
+ROLES — READ CAREFULLY:
+- "me" = the person who has the TextTunes app. They are ${senderGender}. They SEND the song at the end.
+- "them" = the contact (labeled in "contact" field). They RECEIVE the song. They do NOT have the app. They react to it.
+- The "contact" field is the name of "them" (the person who RECEIVES the song), NOT "me".
+
+The last message in the messages array MUST be from "me" and should hint at sending a song (e.g. "made this into a song for you", "hold on i made something", "you gotta hear this"). This is the message right before the song file gets sent. NEVER have "them" send the song.
+
 Return ONLY raw JSON. No markdown. No explanation. Start with { end with }
-{"contact":"Mom","emoji":"${senderEmoji}","color":"#ff6b9d","messages":[{"side":"them","text":"did you eat today"},{"side":"me","text":"mom its 11pm"},{"side":"them","text":"thats not an answer"},{"side":"me","text":"i had a granola bar"},{"side":"them","text":"I raised you for THIS"},{"side":"me","text":"made this into a song for you"}],"songTitle":"Why Wont You Call Me Back","songFile":"MomSong.mp3","lyrics":"Mama dont cry tonight I swear that I ate just fine, granola never tasted so sweet","reactionEmojis":["this goes hard","I cannot stop laughing","calling u rn","sending to everyone"],"afterSongMessages":[{"side":"them","text":"💀"},{"side":"them","text":"how did you make that"},{"side":"me","text":"TextTunes App"}]}
+{"contact":"Mom","emoji":"${senderEmoji}","color":"#ff6b9d","messages":[{"side":"them","text":"did you eat today"},{"side":"me","text":"mom its 11pm"},{"side":"them","text":"thats not an answer"},{"side":"me","text":"i had a granola bar"},{"side":"them","text":"I raised you for THIS"},{"side":"me","text":"made this into a song for you"}],"songTitle":"Why Wont You Call Me Back","lyrics":"Mama dont cry tonight I swear that I ate just fine, granola never tasted so sweet","reactionEmojis":["this goes hard","I cannot stop laughing","calling u rn","sending to everyone"],"afterSongMessages":[{"side":"them","text":"💀"},{"side":"them","text":"how did you make that"},{"side":"me","text":"TextTunes App"}]}
 Rules:
-- 6-8 messages before the song. Last message from "me" hints at making a song. No apostrophes. Make it genuinely funny.
-- The "me" side is ${senderGender}. The song will be SUNG by a ${voice} voice in the ${genre} genre, so write lyrics that fit that style.
+- 6-8 messages. The LAST message MUST be from "me" hinting at a song. No apostrophes. Make it genuinely funny.
+- "me" is ${senderGender} and is the one who SENDS the song. "them" is the one who RECEIVES it and reacts.
+- The song will be SUNG by a ${voice} voice in the ${genre} genre, so write lyrics that fit that style.
 - CRITICAL: The "lyrics" field must be SHORT SINGABLE song lyrics (25-200 characters max). Do NOT repeat or narrate the conversation. Write original catchy lyrics INSPIRED BY the vibe/theme of the convo. Think ${genre} song chorus — melodic, rhyming, fun to sing. No spoken word or narration.
-- CRITICAL: You MUST include an "afterSongMessages" array with EXACTLY 3 messages that appear after the song: (1) from "them" — a single emoji reaction that fits the vibe of the convo (like 😂 💀 😭 🔥 etc), (2) from "them" — "how did you make that" or similar question asking how they made the song, (3) from "me" — "TextTunes App". Always include these 3 messages.`;
+- CRITICAL: You MUST include an "afterSongMessages" array with EXACTLY 3 messages: (1) from "them" — a single emoji reaction that fits the vibe (like 😂 💀 😭 🔥 etc), (2) from "them" — asking how they made the song, (3) from "me" — "TextTunes App". Always include these 3 messages.`;
 
   const r = await fetch('/api/claude', {
     method: 'POST',
