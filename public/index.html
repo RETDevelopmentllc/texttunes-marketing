@@ -8,8 +8,8 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
-  --bg:#07070f;--surface:#0f0f1c;--border:#1c1c30;--accent:#6c47ff;
-  --pink:#ff3cac;--green:#00ff88;--muted:#6b6b8e;--text:#f0f0ff;
+  --bg:#07070f;--surface:#0f0f1c;--border:#1c1c30;--accent:#7C3AED;
+  --pink:#9B6FFF;--green:#00ff88;--muted:#6b6b8e;--text:#f0f0ff;
   --font:'DM Sans',system-ui,sans-serif;--display:'Syne',system-ui,sans-serif;
 }
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);overflow-x:hidden;}
@@ -27,7 +27,7 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60p
   width:300px;height:620px;
   border-radius:48px;
   background:linear-gradient(160deg,#252525,#0f0f0f);
-  box-shadow:0 0 0 1px #333,0 0 0 2px #0a0a0a,0 40px 80px rgba(0,0,0,.85),0 0 50px rgba(108,71,255,.1);
+  box-shadow:0 0 0 1px #333,0 0 0 2px #0a0a0a,0 40px 80px rgba(0,0,0,.85),0 0 50px rgba(124,58,237,.1);
   position:relative;overflow:hidden;
 }
 .phone::before{content:'';position:absolute;left:-3px;top:120px;width:3px;height:28px;background:#252525;border-radius:2px 0 0 2px;box-shadow:0 44px 0 #252525,0 88px 0 #252525;}
@@ -133,18 +133,21 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60p
 </head>
 <body>
 
-<div class="logo">Text<em>Tunes</em></div>
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+  <img src="/logo.svg" alt="TextTunes" style="width:40px;height:40px;border-radius:10px;"/>
+  <div class="logo" style="margin-bottom:0;">Text<em>Tunes</em></div>
+</div>
 <div class="tagline">Turn any text convo into a song 🎵</div>
 <div style="display:flex;gap:8px;margin-bottom:16px;width:100%;max-width:400px;">
   <input id="ttScenario" placeholder="Type your own scenario..." style="flex:1;background:#0f0f1c;border:1px solid #1c1c30;border-radius:12px;padding:10px 14px;color:#f0f0ff;font-size:14px;font-family:DM Sans,sans-serif;outline:none;"/>
-  <button onclick="runAIGenerate()" style="background:linear-gradient(135deg,#6c47ff,#ff3cac);border:none;border-radius:12px;padding:10px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;">✨ AI</button>
+  <button onclick="runAIGenerate()" style="background:linear-gradient(135deg,#7C3AED,#9B6FFF);border:none;border-radius:12px;padding:10px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;">✨ AI</button>
   <button onclick="toggleSettings()" style="background:#0f0f1c;border:1px solid #1c1c30;border-radius:12px;padding:10px 14px;color:#6b6b8e;font-size:16px;cursor:pointer;">⚙️</button>
 </div>
 <div id="settingsPanel" style="display:none;width:100%;max-width:400px;background:#0f0f1c;border:1px solid #1c1c30;border-radius:14px;padding:16px;margin-bottom:16px;">
   <div style="font-size:11px;color:#6b6b8e;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">API Keys</div>
   <input id="ttAnthropicKey" type="password" placeholder="Anthropic key (sk-ant-...)" style="width:100%;background:#07070f;border:1px solid #1c1c30;border-radius:10px;padding:9px 12px;color:#f0f0ff;font-size:13px;margin-bottom:8px;outline:none;"/>
   <input id="ttElevenKey" type="password" placeholder="ElevenLabs key (optional — real song)" style="width:100%;background:#07070f;border:1px solid #1c1c30;border-radius:10px;padding:9px 12px;color:#f0f0ff;font-size:13px;margin-bottom:8px;outline:none;"/>
-  <button onclick="saveKeys()" style="width:100%;padding:10px;background:#6c47ff;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;">Save Keys</button>
+  <button onclick="saveKeys()" style="width:100%;padding:10px;background:#7C3AED;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;">Save Keys</button>
   <div id="keyStatus" style="font-size:11px;color:#6b6b8e;margin-top:8px;text-align:center;"></div>
 </div>
 <div id="aiStatus" style="width:100%;max-width:400px;min-height:20px;text-align:center;margin-bottom:8px;"></div>
@@ -563,7 +566,7 @@ function saveKeys(){
 async function runAIGenerate(){
   const scenario=document.getElementById('ttScenario').value.trim();
   if(!scenario){setAIStatus('Type a scenario first!','#ff453a');return;}
-  setAIStatus('✍️ Claude is writing the convo...','#6c47ff');
+  setAIStatus('✍️ Claude is writing the convo...','#7C3AED');
   try{
     const scene=await generateAI(scenario);
     currentAd={
