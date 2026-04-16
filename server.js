@@ -40,13 +40,22 @@ app.post('/api/elevenlabs', async (req, res) => {
     const genreMap = {
       'pop': 'catchy upbeat pop',
       'hip-hop': 'hip-hop with a bouncy trap beat',
+      'rap': 'rap with hard-hitting bars and a heavy 808 beat',
       'r&b': 'smooth R&B with a groovy beat',
+      'reggae': 'chill reggae with an offbeat rhythm and island vibes',
       'country': 'upbeat country with acoustic guitar and twang',
       'rock': 'energetic rock with electric guitar and drums',
+      'indie': 'dreamy indie with warm guitars and soft vibes',
       'edm': 'high-energy EDM with synths and a heavy drop',
       'latin': 'reggaeton / latin pop with a dembow rhythm',
+      'afrobeat': 'afrobeat with percussive grooves and infectious rhythm',
       'jazz': 'smooth jazz with piano and brass',
+      'soul': 'soulful funk with groovy bass and brass',
       'acoustic': 'warm acoustic with gentle guitar',
+      'lo-fi': 'chill lo-fi with mellow beats and vinyl crackle',
+      'punk': 'fast punk rock with raw energy and power chords',
+      'gospel': 'uplifting gospel with soulful harmonies and choir energy',
+      'kpop': 'catchy K-pop with polished production and dance beat',
       'random': 'fun and surprising genre blend'
     };
     const genreDesc = genreMap[genre] || genreMap['pop'];
