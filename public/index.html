@@ -180,6 +180,20 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60p
 /* Inline time edit input */
 .cb-time-edit{background:transparent;border:1px solid #7C3AED;border-radius:4px;color:#fff;font-size:14px;font-weight:700;text-align:center;outline:none;padding:1px 4px;font-family:var(--font);letter-spacing:-.3px;}
 
+/* Message emoji picker */
+.cb-emoji-trigger{position:absolute;bottom:-14px;left:50%;transform:translateX(-50%);width:18px;height:18px;border-radius:50%;background:#1c1c2e;border:1px solid #2c2c3e;color:#6b6b8e;font-size:10px;cursor:pointer;display:none;align-items:center;justify-content:center;z-index:10;line-height:1;padding:0;}
+.cb-msg-wrap:hover .cb-emoji-trigger,.cb-msg-wrap:focus-within .cb-emoji-trigger{display:flex;}
+.cb-msg-emoji-panel{position:fixed;z-index:400;background:#1c1c2e;border:1px solid #2c2c3e;border-radius:14px;padding:8px;box-shadow:0 8px 24px rgba(0,0,0,.6);width:260px;max-height:280px;display:none;flex-direction:column;}
+.cb-msg-emoji-panel.open{display:flex;}
+.cb-emoji-tabs{display:flex;gap:2px;margin-bottom:6px;overflow-x:auto;padding-bottom:4px;}
+.cb-emoji-tabs::-webkit-scrollbar{height:0;display:none;}
+.cb-emoji-tab{padding:4px 6px;border-radius:6px;border:none;background:none;color:#6b6b8e;font-size:13px;cursor:pointer;flex-shrink:0;transition:background .12s;}
+.cb-emoji-tab:hover,.cb-emoji-tab.active{background:#2c2c3e;color:#fff;}
+.cb-emoji-grid2{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;overflow-y:auto;max-height:200px;padding:2px;}
+.cb-emoji-grid2::-webkit-scrollbar{width:0;display:none;}
+.cb-eg-btn{width:30px;height:30px;border:none;background:none;font-size:17px;cursor:pointer;border-radius:6px;display:flex;align-items:center;justify-content:center;padding:0;}
+.cb-eg-btn:hover{background:#2c2c3e;}
+
 /* Video player controls */
 .cb-vid-btn{width:36px;height:36px;border-radius:50%;border:none;background:#1c1c2e;color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s;}
 .cb-vid-btn:hover{background:#2c2c3e;}
@@ -1528,14 +1542,170 @@ function cbRenderPhoneMsgs(){
       del.style.cssText='font-size:9px;cursor:pointer;color:#ff453a;position:absolute;'+(msg.side==='me'?'left:-8px;top:-6px;':'right:-8px;top:-6px;');
       del.addEventListener('click',()=>cbDeleteMsg(i));
       const wrap=document.createElement('div');
+      wrap.className='cb-msg-wrap';
       wrap.style.cssText='position:relative;display:inline-block;';
+      // Emoji trigger button
+      const emojiTrig=document.createElement('button');
+      emojiTrig.className='cb-emoji-trigger';
+      emojiTrig.textContent='😊';
+      emojiTrig.addEventListener('click',(e)=>{e.stopPropagation();cbOpenMsgEmojiPicker(emojiTrig,bub,i);});
       wrap.appendChild(bub);
       wrap.appendChild(sideLabel);
       wrap.appendChild(del);
+      wrap.appendChild(emojiTrig);
       row.appendChild(wrap);
       area.appendChild(row);
     }
   });
+}
+
+// === Message Emoji Picker ===
+let cbMsgEmojiPanel=null;
+let cbMsgEmojiBubble=null;
+let cbMsgEmojiIdx=-1;
+const cbEmojiData={
+  '😀 Smileys':[
+    '😀','😃','😄','😁','😆','😅','🤣','😂','🙂','😊','😇','🥰','😍','🤩','😘','😗','😋','😛','😜','🤪',
+    '😝','🤑','🤗','🤭','🫢','🤫','🤔','🫡','🤐','🤨','😐','😑','😶','🫥','😏','😒','🙄','😬','😮‍💨','🤥',
+    '😌','😔','😪','🤤','😴','😷','🤒','🤕','🤢','🤮','🥵','🥶','🥴','😵','🤯','🤠','🥳','🥸','😎','🤓',
+    '🧐','😕','🫤','😟','🙁','☹️','😮','😯','😲','😳','🥺','🥹','😦','😧','😨','😰','😥','😢','😭','😱',
+    '😖','😣','😞','😓','😩','😫','🥱','😤','😡','😠','🤬','😈','👿','💀','☠️','💩','🤡','👹','👺','👻',
+    '👽','👾','🤖','🎃','😺','😸','😹','😻','😼','😽','🙀','😿','😾'
+  ],
+  '👋 People':{
+    base:['👋','🤚','🖐️','✋','🖖','🫱','🫲','🫳','🫴','👌','🤌','🤏','✌️','🤞','🫰','🤟','🤘','🤙','👈','👉',
+      '👆','🖕','👇','☝️','🫵','👍','👎','✊','👊','🤛','🤜','👏','🙌','🫶','👐','🤲','🤝','🙏','✍️','💪',
+      '🦾','🦿','🦵','🦶','👂','🦻','👃','👶','🧒','👦','👧','🧑','👱','👨','🧔','👩','🧓','👴','👵',
+      '🙍','🙎','🙅','🙆','💁','🙋','🧏','🙇','🤦','🤷','👮','🕵️','💂','🥷','👷','🫅','🤴','👸','👳',
+      '👲','🧕','🤵','👰','🤰','🫃','🫄','🤱','👼','🎅','🤶','🦸','🦹','🧙','🧚','🧛','🧜','🧝','🧞','🧟',
+      '💆','💇','🚶','🧍','🧎','🏃','💃','🕺','🕴️','👯','🧖','🧗','🤸','⛹️','🏋️','🚴','🚵','🤼','🤽',
+      '🤾','🤺','🏇','⛷️','🏂','🏌️','🏄','🚣','🏊','🤽','🧘','🛀','🛌'],
+    tones:['🏻','🏼','🏽','🏾','🏿']
+  },
+  '❤️ Hearts':['❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','💔','❤️‍🔥','❤️‍🩹','❣️','💕','💞','💓','💗','💖','💘','💝','💟','♥️','🫀','💋','👄','👅','🫂','👥','👤'],
+  '🐱 Animals':['🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐻‍❄️','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🙈','🙉','🙊','🐒','🐔','🐧','🐦','🐤','🦆','🦅','🦉','🦇','🐺','🐗','🐴','🦄','🐝','🪱','🐛','🦋','🐌','🐞','🐜','🪰','🪲','🪳','🦟','🦗','🕷️','🦂','🐢','🐍','🦎','🦖','🦕','🐙','🦑','🦐','🦞','🦀','🐡','🐠','🐟','🐬','🐳','🐋','🦈','🐊','🐅','🐆','🦓','🦍','🦧','🐘','🦛','🦏','🐪','🐫','🦒','🦘','🦬','🐃','🐂','🐄','🐎','🐖','🐏','🐑','🦙','🐐','🦌','🐕','🐈','🐓','🦃','🦤','🦚','🦜','🦢','🦩','🕊️','🐇','🦝','🦨','🦡','🦫','🦦','🦥','🐁','🐀','🐿️','🦔'],
+  '🍕 Food':['🍏','🍎','🍐','🍊','🍋','🍌','🍉','🍇','🍓','🫐','🍈','🍒','🍑','🥭','🍍','🥥','🥝','🍅','🍆','🥑','🥦','🥬','🥒','🌶️','🫑','🥕','🧅','🧄','🥔','🍠','🫘','🥐','🍞','🥖','🥨','🧀','🥚','🍳','🧈','🥞','🧇','🥓','🥩','🍗','🍖','🌭','🍔','🍟','🍕','🫓','🥪','🥙','🧆','🌮','🌯','🫔','🥗','🥘','🫕','🍝','🍜','🍲','🍛','🍣','🍱','🥟','🦪','🍤','🍙','🍚','🍘','🍥','🥠','🥮','🍢','🍡','🍧','🍨','🍦','🥧','🧁','🍰','🎂','🍮','🍭','🍬','🍫','🍿','🍩','🍪','🌰','🥜','🍯','🥛','🍼','🫖','☕','🍵','🧃','🥤','🧋','🍶','🍺','🍻','🥂','🍷','🥃','🍸','🍹','🧉','🍾','🧊','🥄','🍴','🍽️','🥣','🥡','🥢','🧂'],
+  '⚽ Activity':['⚽','🏀','🏈','⚾','🥎','🎾','🏐','🏉','🥏','🎱','🪀','🏓','🏸','🏒','🏑','🥍','🏏','🪃','🥅','⛳','🪁','🏹','🎣','🤿','🥊','🥋','🎽','🛹','🛼','🛷','⛸️','🥌','🎿','⛷️','🏂','🪂','🏋️','🤼','🤸','⛹️','🤺','🤾','🏌️','🏇','🧘','🏄','🏊','🤽','🚣','🧗','🚵','🚴','🏆','🥇','🥈','🥉','🏅','🎖️','🏵️','🎗️','🎫','🎟️','🎪','🎭','🎨','🎬','🎤','🎧','🎼','🎹','🥁','🪘','🎷','🎺','🪗','🎸','🪕','🎻','🎲','♟️','🎯','🎳','🎮','🕹️','🧩'],
+  '🚗 Travel':['🚗','🚕','🚙','🚌','🚎','🏎️','🚓','🚑','🚒','🚐','🛻','🚚','🚛','🚜','🏍️','🛵','🚲','🛴','🛺','🚔','🚍','🚘','🚖','🛞','🚡','🚠','🚟','🚃','🚋','🚞','🚝','🚄','🚅','🚈','🚂','🚆','🚇','🚊','🚉','✈️','🛫','🛬','🛩️','💺','🛰️','🚀','🛸','🚁','🛶','⛵','🚤','🛥️','🛳️','⛴️','🚢','⚓','🪝','⛽','🚧','🚦','🚥','🗺️','🗿','🗽','🗼','🏰','🏯','🏟️','🎡','🎢','🎠','⛲','⛱️','🏖️','🏝️','🏜️','🌋','⛰️','🏔️','🗻','🏕️','🛖','🏠','🏡','🏘️','🏚️','🏗️','🏢','🏬','🏣','🏤','🏥','🏦','🏨','🏪','🏫','🏩','💒','🏛️','⛪','🕌','🕍','🛕','🕋','⛩️'],
+  '💡 Objects':['⌚','📱','📲','💻','⌨️','🖥️','🖨️','🖱️','🖲️','🕹️','🗜️','💾','💿','📀','📼','📷','📸','📹','🎥','📽️','🎞️','📞','☎️','📟','📠','📺','📻','🎙️','🎚️','🎛️','🧭','⏱️','⏲️','⏰','🕰️','⌛','⏳','📡','🔋','🪫','🔌','💡','🔦','🕯️','🪔','🧯','🛢️','💸','💵','💴','💶','💷','🪙','💰','💳','💎','⚖️','🪜','🧰','🪛','🔧','🔨','⚒️','🛠️','⛏️','🪚','🔩','⚙️','🪤','🧱','⛓️','🧲','🔫','💣','🧨','🪓','🔪','🗡️','⚔️','🛡️','🚬','⚰️','🪦','⚱️','🏺','🔮','📿','🧿','🪬','💈','⚗️','🔭','🔬','🕳️','🩹','🩺','🩻','🩼','💊','💉','🩸','🧬','🦠','🧫','🧪','🌡️','🧹','🪠','🧺','🧻','🪣','🧽','🫧','🧼','🪥','🧴','🛎️','🔑','🗝️','🚪','🪑','🛋️','🛏️','🛌','🧸','🪆','🖼️','🪞','🪟','🛍️','🛒','🎁','🎈','🎏','🎀','🪄','🪅','🎊','🎉','🎎','🏮','🎐','🧧','✉️','📩','📨','📧','💌','📥','📤','📦','🏷️','🪧','📪','📫','📬','📭','📮','📯','📜','📃','📄','📑','🧾','📊','📈','📉','🗒️','🗓️','📆','📅','🗑️','📇','🗃️','🗳️','🗄️','📋','📁','📂','🗂️','🗞️','📰','📓','📔','📒','📕','📗','📘','📙','📚','📖','🔖','🧷','🔗','📎','🖇️','📐','📏','🧮','📌','📍','✂️','🖊️','🖋️','✒️','🖌️','🖍️','📝','✏️','🔍','🔎','🔏','🔐','🔒','🔓']
+};
+// Skin-tone-able people emojis (subset for performance)
+const cbSkinBase=['👋','🤚','🖐️','✋','🖖','🫱','🫲','🫳','🫴','👌','🤌','🤏','✌️','🤞','🫰','🤟','🤘','🤙','👈','👉','👆','🖕','👇','☝️','🫵','👍','👎','✊','👊','🤛','🤜','👏','🙌','🫶','👐','🤲','🙏','✍️','💪','👶','🧒','👦','👧','🧑','👱','👨','🧔','👩','🧓','👴','👵','👮','💂','👷','🤴','👸','👳','🤵','👰','🤰','🤱','👼','🎅','🤶','🦸','🦹','🧙','🧚','🧛','🧜','🧝','💆','💇','🚶','🧍','🧎','🏃','💃','🕺','🧖','🧗','🤸','🏋️','🚴','🚵','🤽','🤾','🏌️','🏄','🚣','🏊','🧘','🛀','🙍','🙎','🙅','🙆','💁','🙋','🧏','🙇','🤦','🤷'];
+const cbSkinTones=['','🏻','🏼','🏽','🏾','🏿'];
+
+function cbOpenMsgEmojiPicker(triggerEl,bubbleEl,msgIdx){
+  // Close existing
+  if(cbMsgEmojiPanel&&cbMsgEmojiPanel.classList.contains('open')){
+    cbMsgEmojiPanel.classList.remove('open');
+    if(cbMsgEmojiBubble===bubbleEl){cbMsgEmojiPanel.classList.remove('open');cbMsgEmojiPanel=null;return;}
+  }
+  cbMsgEmojiBubble=bubbleEl;
+  cbMsgEmojiIdx=msgIdx;
+  // Create or reuse panel
+  let panel=document.getElementById('cbMsgEmojiPanel');
+  if(!panel){
+    panel=document.createElement('div');
+    panel.id='cbMsgEmojiPanel';
+    panel.className='cb-msg-emoji-panel';
+    document.body.appendChild(panel);
+    document.addEventListener('click',(e)=>{
+      const p=document.getElementById('cbMsgEmojiPanel');
+      if(p&&p.classList.contains('open')&&!p.contains(e.target)&&!e.target.classList.contains('cb-emoji-trigger')){
+        p.classList.remove('open');
+      }
+    });
+  }
+  cbMsgEmojiPanel=panel;
+  // Build tabs
+  const cats=Object.keys(cbEmojiData);
+  let tabsHtml='<div class="cb-emoji-tabs">';
+  cats.forEach((c,ci)=>{
+    const icon=c.split(' ')[0];
+    tabsHtml+=`<button class="cb-emoji-tab${ci===0?' active':''}" data-cat="${ci}" onclick="cbSwitchEmojiTab(${ci})">${icon}</button>`;
+  });
+  tabsHtml+='</div>';
+  // Skin tone selector for People tab
+  let skinHtml='<div id="cbSkinToneBar" style="display:none;gap:2px;margin-bottom:4px;justify-content:center;">';
+  cbSkinTones.forEach((t,ti)=>{
+    const label=ti===0?'👋':('👋'+t);
+    skinHtml+=`<button class="cb-eg-btn${ti===0?' active':''}" data-skin="${ti}" onclick="cbPickSkinTone(${ti})" style="width:28px;height:28px;font-size:15px;">${label}</button>`;
+  });
+  skinHtml+='</div>';
+  panel.innerHTML=tabsHtml+skinHtml+'<div class="cb-emoji-grid2" id="cbEmojiGrid2"></div>';
+  cbBuildEmojiGrid(0,0);
+  // Position
+  const r=triggerEl.getBoundingClientRect();
+  panel.style.left=Math.max(4,Math.min(r.left-120,window.innerWidth-270))+'px';
+  panel.style.top=(r.bottom+6)+'px';
+  if(r.bottom+290>window.innerHeight) panel.style.top=(r.top-290)+'px';
+  panel.classList.add('open');
+}
+
+let cbCurrentSkin=0;
+function cbPickSkinTone(idx){
+  cbCurrentSkin=idx;
+  document.querySelectorAll('#cbSkinToneBar .cb-eg-btn').forEach((b,i)=>{b.classList.toggle('active',i===idx);});
+  // Find active cat index
+  const activeTab=document.querySelector('.cb-emoji-tab.active');
+  const catIdx=activeTab?parseInt(activeTab.dataset.cat):1;
+  cbBuildEmojiGrid(catIdx,idx);
+}
+
+function cbSwitchEmojiTab(catIdx){
+  document.querySelectorAll('.cb-emoji-tab').forEach((t,i)=>{t.classList.toggle('active',i===catIdx);});
+  const skinBar=document.getElementById('cbSkinToneBar');
+  if(skinBar) skinBar.style.display=catIdx===1?'flex':'none';
+  cbBuildEmojiGrid(catIdx,cbCurrentSkin);
+}
+
+function cbBuildEmojiGrid(catIdx,skinIdx){
+  const grid=document.getElementById('cbEmojiGrid2');
+  if(!grid)return;
+  const cats=Object.keys(cbEmojiData);
+  const key=cats[catIdx];
+  const val=cbEmojiData[key];
+  const skinBar=document.getElementById('cbSkinToneBar');
+  let emojis;
+  if(val&&val.base){
+    // People category with skin tones
+    if(skinBar) skinBar.style.display='flex';
+    const tone=cbSkinTones[skinIdx]||'';
+    emojis=val.base.map(e=>tone?e+tone:e);
+  } else {
+    if(skinBar) skinBar.style.display='none';
+    emojis=val;
+  }
+  grid.innerHTML='';
+  emojis.forEach(em=>{
+    const btn=document.createElement('button');
+    btn.className='cb-eg-btn';
+    btn.textContent=em;
+    btn.addEventListener('click',()=>cbInsertMsgEmoji(em));
+    grid.appendChild(btn);
+  });
+}
+
+function cbInsertMsgEmoji(emoji){
+  if(!cbMsgEmojiBubble)return;
+  // Insert at cursor if focused, else append
+  const sel=window.getSelection();
+  if(cbMsgEmojiBubble===document.activeElement&&sel.rangeCount>0){
+    const range=sel.getRangeAt(0);
+    if(cbMsgEmojiBubble.contains(range.commonAncestorContainer)){
+      range.deleteContents();
+      range.insertNode(document.createTextNode(emoji));
+      range.collapse(false);
+      sel.removeAllRanges();
+      sel.addRange(range);
+    } else {
+      cbMsgEmojiBubble.textContent+=emoji;
+    }
+  } else {
+    cbMsgEmojiBubble.textContent+=emoji;
+  }
+  if(cbMsgEmojiIdx>=0&&cbMsgEmojiIdx<cbMessages.length){
+    cbMessages[cbMsgEmojiIdx].text=cbMsgEmojiBubble.textContent;
+  }
 }
 
 // Keep placeholder styling for empty bubbles
