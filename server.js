@@ -56,6 +56,9 @@ app.post('/api/elevenlabs', async (req, res) => {
       'punk': 'fast punk rock with raw energy and power chords',
       'gospel': 'uplifting gospel with soulful harmonies and choir energy',
       'kpop': 'catchy K-pop with polished production and dance beat',
+      'funk': 'groovy funk with slap bass and tight rhythm guitar',
+      'metal': 'heavy metal with distorted guitars and pounding double bass drums',
+      'techno': 'driving techno with pulsing synths and a four-on-the-floor beat',
       'random': 'fun and surprising genre blend'
     };
     const genreDesc = genreMap[genre] || genreMap['pop'];
