@@ -29,11 +29,29 @@ app.post('/api/claude', async (req, res) => {
 });
 
 app.post('/api/elevenlabs', async (req, res) => {
-  const { lyrics, elevenKey, songTitle } = req.body;
+  const { lyrics, elevenKey, songTitle, voice, genre } = req.body;
   if (!elevenKey) return res.status(400).json({ error: 'Missing ElevenLabs key' });
   try {
+    // Build voice description based on selection
+    const voiceDesc = voice === 'male'
+      ? 'strong sung male vocals, confident and fun male singer'
+      : 'strong sung female vocals, energetic and fun female singer';
+    // Map genre to style description
+    const genreMap = {
+      'pop': 'catchy upbeat pop',
+      'hip-hop': 'hip-hop with a bouncy trap beat',
+      'r&b': 'smooth R&B with a groovy beat',
+      'country': 'upbeat country with acoustic guitar and twang',
+      'rock': 'energetic rock with electric guitar and drums',
+      'edm': 'high-energy EDM with synths and a heavy drop',
+      'latin': 'reggaeton / latin pop with a dembow rhythm',
+      'jazz': 'smooth jazz with piano and brass',
+      'acoustic': 'warm acoustic with gentle guitar',
+      'random': 'fun and surprising genre blend'
+    };
+    const genreDesc = genreMap[genre] || genreMap['pop'];
     // Use ElevenLabs Music API to generate an actual sung song
-    const prompt = `A 20-second catchy upbeat pop song with strong sung female vocals, fun melody, and a full instrumental beat. The singer should SING melodically, not speak or rap. The song is humorous and inspired by this theme: "${songTitle || 'Untitled'}". Sung lyrics: ${lyrics}`;
+    const prompt = `A 20-second ${genreDesc} song with ${voiceDesc}, fun melody, and a full instrumental beat. The singer should SING melodically, not speak or rap. The song is humorous and inspired by this theme: "${songTitle || 'Untitled'}". Sung lyrics: ${lyrics}`;
     const r = await axios.post(
       'https://api.elevenlabs.io/v1/music/compose',
       { prompt, music_length_ms: 20000 },

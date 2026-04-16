@@ -150,10 +150,28 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60p
   <div class="logo" style="margin-bottom:0;">Text<em>Tunes</em></div>
 </div>
 <div class="tagline">Turn any text convo into a song 🎵</div>
-<div style="display:flex;gap:8px;margin-bottom:16px;width:100%;max-width:400px;">
+<div style="display:flex;gap:8px;margin-bottom:8px;width:100%;max-width:400px;">
   <input id="ttScenario" placeholder="Type your own scenario..." style="flex:1;background:#0f0f1c;border:1px solid #1c1c30;border-radius:12px;padding:10px 14px;color:#f0f0ff;font-size:14px;font-family:DM Sans,sans-serif;outline:none;"/>
   <button onclick="runAIGenerate()" style="background:linear-gradient(135deg,#7C3AED,#9B6FFF);border:none;border-radius:12px;padding:10px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;">✨ AI</button>
   <button onclick="toggleSettings()" style="background:#0f0f1c;border:1px solid #1c1c30;border-radius:12px;padding:10px 14px;color:#6b6b8e;font-size:16px;cursor:pointer;">⚙️</button>
+</div>
+<div style="display:flex;gap:8px;margin-bottom:16px;width:100%;max-width:400px;align-items:center;">
+  <div style="display:flex;gap:4px;background:#0f0f1c;border:1px solid #1c1c30;border-radius:12px;padding:4px;flex-shrink:0;">
+    <button id="voiceMale" onclick="setVoice('male')" style="padding:6px 12px;border-radius:9px;border:none;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:#6b6b8e;font-family:DM Sans,sans-serif;">🧑 Male</button>
+    <button id="voiceFemale" onclick="setVoice('female')" style="padding:6px 12px;border-radius:9px;border:none;font-size:12px;font-weight:700;cursor:pointer;background:#7C3AED;color:#fff;font-family:DM Sans,sans-serif;">👩 Female</button>
+  </div>
+  <select id="ttGenre" style="flex:1;background:#0f0f1c;border:1px solid #1c1c30;border-radius:12px;padding:8px 12px;color:#f0f0ff;font-size:13px;font-family:DM Sans,sans-serif;outline:none;cursor:pointer;appearance:auto;">
+    <option value="pop">🎵 Pop</option>
+    <option value="hip-hop">🎤 Hip-Hop</option>
+    <option value="r&b">🎶 R&B</option>
+    <option value="country">🤠 Country</option>
+    <option value="rock">🎸 Rock</option>
+    <option value="edm">🎧 EDM</option>
+    <option value="latin">💃 Latin / Reggaeton</option>
+    <option value="jazz">🎷 Jazz</option>
+    <option value="acoustic">🪕 Acoustic</option>
+    <option value="random">🎲 Surprise Me</option>
+  </select>
 </div>
 <div id="settingsPanel" style="display:none;width:100%;max-width:400px;background:#0f0f1c;border:1px solid #1c1c30;border-radius:14px;padding:16px;margin-bottom:16px;">
   <div style="font-size:11px;color:#6b6b8e;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">API Keys</div>
@@ -665,6 +683,15 @@ function setDLStatus(msg,color){
 ══════════════════════════ */
 (function(){const now=new Date();let h=now.getHours()%12||12,m=now.getMinutes();document.getElementById('sbarTime').textContent=`${h}:${String(m).padStart(2,'0')}`;})();
 
+// ── Voice & Genre selection ──
+let selectedVoice='female';
+function setVoice(v){
+  selectedVoice=v;
+  const m=document.getElementById('voiceMale'),f=document.getElementById('voiceFemale');
+  if(v==='male'){m.style.background='#7C3AED';m.style.color='#fff';f.style.background='transparent';f.style.color='#6b6b8e';}
+  else{f.style.background='#7C3AED';f.style.color='#fff';m.style.background='transparent';m.style.color='#6b6b8e';}
+}
+
 // ── AI Generation via local server ──
 async function generateAI(scenario) {
   const anthropicKey = localStorage.getItem('tt_anthropic') || '';
@@ -706,7 +733,7 @@ Rules:
       const er = await fetch('/api/elevenlabs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ lyrics: json.lyrics, elevenKey, songTitle: json.songTitle })
+        body: JSON.stringify({ lyrics: json.lyrics, elevenKey, songTitle: json.songTitle, voice: selectedVoice, genre: document.getElementById('ttGenre').value })
       });
       if (er.ok) {
         const blob = await er.blob();
