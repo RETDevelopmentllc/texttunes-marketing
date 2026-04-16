@@ -152,8 +152,12 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60p
 <div class="tagline">Turn any text convo into a song 🎵</div>
 <div style="display:flex;gap:8px;margin-bottom:8px;width:100%;max-width:400px;">
   <input id="ttScenario" placeholder="Type your own scenario..." style="flex:1;background:#0f0f1c;border:1px solid #1c1c30;border-radius:12px;padding:10px 14px;color:#f0f0ff;font-size:14px;font-family:DM Sans,sans-serif;outline:none;"/>
-  <button onclick="runAIGenerate()" style="background:linear-gradient(135deg,#7C3AED,#9B6FFF);border:none;border-radius:12px;padding:10px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;">✨ AI</button>
+  <button onclick="runAIGenerate('custom')" style="background:linear-gradient(135deg,#7C3AED,#9B6FFF);border:none;border-radius:12px;padding:10px 14px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;">✨ AI</button>
   <button onclick="toggleSettings()" style="background:#0f0f1c;border:1px solid #1c1c30;border-radius:12px;padding:10px 14px;color:#6b6b8e;font-size:16px;cursor:pointer;">⚙️</button>
+</div>
+<div style="display:flex;gap:8px;margin-bottom:8px;width:100%;max-width:400px;">
+  <button onclick="runAIGenerate('random')" style="flex:1;background:linear-gradient(135deg,#0f0f1c,#1c1c30);border:1px solid #2c2c3e;border-radius:12px;padding:10px 14px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif;">🎲 Random AI Scenario</button>
+  <button onclick="runAIGenerate('viral')" style="flex:1;background:linear-gradient(135deg,#FF4500,#FF8C00);border:none;border-radius:12px;padding:10px 14px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif;">🔥 Viral</button>
 </div>
 <div style="display:flex;gap:8px;margin-bottom:16px;width:100%;max-width:400px;align-items:center;">
   <div style="display:flex;gap:4px;background:#0f0f1c;border:1px solid #1c1c30;border-radius:12px;padding:4px;flex-shrink:0;">
@@ -777,8 +781,18 @@ async function generateAI(scenario) {
   const genre = document.getElementById('ttGenre').value;
   const senderGender = voice === 'male' ? 'a guy' : 'a girl';
   const senderEmoji = voice === 'male' ? '🧑' : '👩';
+
+  let scenarioBlock = '';
+  if(scenario==='__VIRAL__'){
+    scenarioBlock = `Think of a REAL viral text conversation trend from social media (Reddit, TikTok, Twitter, Instagram). Pick from well-known text convo formats that went viral — like the "wrong number" texts, "mom found out" texts, "ex texting back" texts, "autocorrect fail" texts, "group chat chaos" texts, "caught lying" texts, breakup texts, sibling roasts, landlord texts, boss texts gone wrong, etc. Recreate one of these viral text formats but make it original and hilarious. It should feel like something that would get millions of views.`;
+  } else if(scenario==='__RANDOM__'){
+    scenarioBlock = `Come up with your own hilarious and creative scenario for a text conversation. Think of something universally relatable and funny — awkward situations, family drama, relationship moments, friend group chaos, work fails, pet owners, roommate problems, dating disasters, etc. Be creative and unexpected. Make it something people would share.`;
+  } else {
+    scenarioBlock = `Scenario: "${scenario}"`;
+  }
+
   const prompt = `Write a funny viral iMessage conversation for a TextTunes app ad. TextTunes turns texts into real songs.
-Scenario: "${scenario}"
+${scenarioBlock}
 Song genre: ${genre}
 
 ROLES — READ CAREFULLY:
@@ -852,10 +866,13 @@ function saveKeys(){
   document.getElementById('keyStatus').style.color='#00ff88';
   setTimeout(()=>document.getElementById('settingsPanel').style.display='none',800);
 }
-async function runAIGenerate(){
-  const scenario=document.getElementById('ttScenario').value.trim();
-  if(!scenario){setAIStatus('Type a scenario first!','#ff453a');return;}
-  setAIStatus('✍️ Claude is writing the convo...','#7C3AED');
+async function runAIGenerate(mode='custom'){
+  let scenario=document.getElementById('ttScenario').value.trim();
+  if(mode==='custom'&&!scenario){setAIStatus('Type a scenario first!','#ff453a');return;}
+  if(mode==='random'){scenario='__RANDOM__';}
+  if(mode==='viral'){scenario='__VIRAL__';}
+  const statusMsg=mode==='viral'?'🔥 Finding a viral convo...':mode==='random'?'🎲 AI is cooking up a scenario...':'✍️ Claude is writing the convo...';
+  setAIStatus(statusMsg,'#7C3AED');
   try{
     const scene=await generateAI(scenario);
     currentAd={
