@@ -168,6 +168,38 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60p
 .cb-create-btn{width:100%;padding:12px;background:linear-gradient(135deg,#7C3AED,#9B6FFF);border:none;border-radius:12px;color:#fff;font-size:14px;font-weight:800;cursor:pointer;font-family:var(--display);margin-top:10px;transition:transform .15s;}
 .cb-create-btn:hover{transform:scale(1.02);}
 @media(max-width:760px){.cb-side-panel:first-child{display:none!important;}}
+
+/* Avatar menu */
+.av-menu{position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:6px;background:#1c1c2e;border:1px solid #2c2c3e;border-radius:12px;padding:6px;z-index:200;min-width:160px;box-shadow:0 8px 24px rgba(0,0,0,.6);display:none;flex-direction:column;gap:2px;}
+.av-menu.open{display:flex;}
+.av-menu-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;border:none;background:none;color:#f0f0ff;font-size:12px;font-weight:600;cursor:pointer;font-family:DM Sans,sans-serif;white-space:nowrap;transition:background .15s;}
+.av-menu-item:hover{background:#2c2c3e;}
+.av-menu-sep{height:1px;background:#2c2c3e;margin:2px 0;}
+
+/* Emoji picker grid */
+.av-emoji-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;padding:6px;max-height:180px;overflow-y:auto;}
+.av-emoji-grid::-webkit-scrollbar{width:0;display:none;}
+.av-emoji-btn{width:30px;height:30px;border:none;background:none;font-size:18px;cursor:pointer;border-radius:6px;display:flex;align-items:center;justify-content:center;transition:background .12s;}
+.av-emoji-btn:hover{background:#2c2c3e;}
+
+/* Color picker grid */
+.av-color-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:8px;}
+.av-color-swatch{width:28px;height:28px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:transform .12s,border-color .12s;}
+.av-color-swatch:hover{transform:scale(1.15);}
+.av-color-swatch.sel{border-color:#fff;transform:scale(1.15);}
+
+/* Crop modal */
+.crop-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:500;display:none;align-items:center;justify-content:center;flex-direction:column;}
+.crop-overlay.open{display:flex;}
+.crop-container{position:relative;width:280px;height:280px;overflow:hidden;border-radius:16px;background:#111;touch-action:none;}
+.crop-img{position:absolute;transform-origin:0 0;cursor:grab;user-select:none;-webkit-user-select:none;}
+.crop-img.grabbing{cursor:grabbing;}
+.crop-circle{position:absolute;inset:0;pointer-events:none;border-radius:50%;box-shadow:0 0 0 140px rgba(0,0,0,.6);}
+.crop-controls{display:flex;gap:10px;margin-top:12px;align-items:center;}
+.crop-controls input[type=range]{width:160px;accent-color:#7C3AED;}
+.crop-btn{padding:8px 20px;border-radius:10px;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif;}
+.crop-done{background:#7C3AED;color:#fff;}
+.crop-cancel{background:#3a3a3c;color:#fff;}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
@@ -367,10 +399,18 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60p
             <!-- Editable nav - tap name/emoji/avatar to change -->
             <div class="nav">
               <div class="nav-back"><span class="nav-chev">‹</span><span class="nav-badge">3</span></div>
-              <div class="nav-center">
-                <div class="nav-avatar" id="cbNavAvatar" style="background:#ff6b9d;cursor:pointer;" onclick="cbCycleColor()">
-                  <span id="cbNavEmoji" contenteditable="true" style="cursor:text;outline:none;">👩</span>
+              <div class="nav-center" style="position:relative;">
+                <div class="nav-avatar" id="cbNavAvatar" style="background:#ff6b9d;cursor:pointer;" onclick="cbToggleAvatarMenu(event)">
+                  <span id="cbNavEmoji">👩</span>
                   <div class="nav-dot"></div>
+                </div>
+                <!-- Avatar popup menu -->
+                <div class="av-menu" id="cbAvatarMenu">
+                  <button class="av-menu-item" onclick="cbShowEmojiPicker()">😀 Change Emoji</button>
+                  <div class="av-menu-sep"></div>
+                  <button class="av-menu-item" onclick="cbShowColorPicker()">🎨 Change Color</button>
+                  <div class="av-menu-sep"></div>
+                  <button class="av-menu-item" onclick="cbTriggerImageUpload()">📷 Upload Image</button>
                 </div>
                 <div id="cbNavName" contenteditable="true" style="color:#fff;font-size:14px;font-weight:600;cursor:text;outline:none;min-width:30px;">Mom</div>
               </div>
@@ -388,7 +428,7 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60p
             <div style="padding:6px 8px;background:#1c1c1e;display:flex;gap:4px;">
               <button onclick="cbAddMsg('them')" style="flex:1;padding:7px;border-radius:8px;border:none;background:#3a3a3c;color:#fff;font-size:10px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif;">+ Them</button>
               <button onclick="cbAddMsg('me')" style="flex:1;padding:7px;border-radius:8px;border:none;background:#0a84ff;color:#fff;font-size:10px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif;">+ Me</button>
-              <button onclick="cbAddSongMsg()" style="flex:1;padding:7px;border-radius:8px;border:none;background:#7C3AED;color:#fff;font-size:10px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif;">🎵 Song</button>
+              <button onclick="cbAddSongMsg()" style="flex:1;padding:7px;border-radius:8px;border:none;background:#7C3AED;color:#fff;font-size:10px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif;">+ Song</button>
             </div>
           </div>
         </div>
@@ -522,8 +562,21 @@ async function playAd(){
   const sc=currentAd;
 
   // Set nav
-  document.getElementById('navAvatar').style.background=sc.color;
-  document.getElementById('navEmoji').textContent=sc.emoji;
+  const navAv=document.getElementById('navAvatar');
+  const navEm=document.getElementById('navEmoji');
+  if(sc.avatarImage){
+    navAv.style.backgroundImage=`url(${sc.avatarImage})`;
+    navAv.style.backgroundSize='cover';navAv.style.backgroundPosition='center';
+    navAv.style.background=sc.color;
+    navAv.style.backgroundImage=`url(${sc.avatarImage})`;
+    navAv.style.backgroundSize='cover';
+    navEm.style.display='none';
+  } else {
+    navAv.style.background=sc.color;
+    navAv.style.backgroundImage='none';
+    navEm.style.display='';
+    navEm.textContent=sc.emoji;
+  }
   document.getElementById('navName').innerHTML=sc.contact+' <span style="color:#8e8e93;font-size:12px">›</span>';
 
   // Clear messages
@@ -582,10 +635,12 @@ async function playAd(){
       break;
 
     } else if(msg.s==='them'){
-      const trow=makeTyping();area.appendChild(trow);scrollDown();
-      await sleep(80);trow.classList.add('vis');
-      await sleep(1200+msg.t.length*40+Math.random()*600);
-      trow.remove();
+      if(i>0){
+        const trow=makeTyping();area.appendChild(trow);scrollDown();
+        await sleep(80);trow.classList.add('vis');
+        await sleep(1200+msg.t.length*40+Math.random()*600);
+        trow.remove();
+      }
 
       const row=makeBubble(msg,i);area.appendChild(row);scrollDown();
       await sleep(60);row.classList.add('vis');
@@ -1480,6 +1535,7 @@ function cbCreateAd(){
   const msgs=cbMessages.map(m=>({s:m.side,t:m.text,file:m.file||false}));
   currentAd={
     contact,emoji,color,
+    avatarImage:cbAvatarImage||null,
     songTitle,songFile:songTitle.replace(/[^a-zA-Z0-9 ]/g,'').replace(/\s+/g,'')+'.mp3',
     lyrics,
     preview:msgs[0]?.t||'',
@@ -1500,6 +1556,214 @@ function cbCreateAd(){
   setAIStatus('🎬 Playing your custom ad!','#00ff88');
   playAd();
 }
+
+/* ══════════════════════════
+   AVATAR MENU / CROP
+══════════════════════════ */
+let cbAvatarImage=null; // data URL if custom image
+
+function cbToggleAvatarMenu(e){
+  e.stopPropagation();
+  const menu=document.getElementById('cbAvatarMenu');
+  // Close any sub-pickers first
+  closeCbSubPickers();
+  menu.classList.toggle('open');
+}
+function closeCbAvatarMenu(){
+  document.getElementById('cbAvatarMenu').classList.remove('open');
+  closeCbSubPickers();
+}
+function closeCbSubPickers(){
+  const old=document.getElementById('cbEmojiPicker');if(old)old.remove();
+  const old2=document.getElementById('cbColorPicker');if(old2)old2.remove();
+}
+document.addEventListener('click',e=>{
+  const menu=document.getElementById('cbAvatarMenu');
+  if(menu&&!menu.contains(e.target)&&!document.getElementById('cbNavAvatar').contains(e.target)){
+    closeCbAvatarMenu();
+  }
+});
+
+// ─── Emoji Picker ───
+function cbShowEmojiPicker(){
+  closeCbSubPickers();
+  const emojis=['👩','👨','👧','👦','👵','👴','🧑','👶','👩‍💼','👨‍💼','👩‍🎤','👨‍🎤','👩‍💻','👨‍💻','👩‍🍳','👨‍🍳','👩‍🎓','👨‍🎓','🦸‍♀️','🦸‍♂️','👸','🤴','🧙‍♀️','🧙‍♂️','🐶','🐱','🐻','🦊','🐸','🐵','🦁','🐼','🐨','🐯','🐷','🐮','🦄','🐙','👽','🤖','💀','👻','😎','🤠','🥳','😈'];
+  const grid=document.createElement('div');
+  grid.id='cbEmojiPicker';
+  grid.className='av-emoji-grid';
+  grid.style.cssText='position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:4px;background:#1c1c2e;border:1px solid #2c2c3e;border-radius:12px;z-index:210;box-shadow:0 8px 24px rgba(0,0,0,.6);';
+  emojis.forEach(em=>{
+    const btn=document.createElement('button');
+    btn.className='av-emoji-btn';
+    btn.textContent=em;
+    btn.addEventListener('click',()=>{
+      document.getElementById('cbNavEmoji').textContent=em;
+      // Remove any custom image, show emoji again
+      cbAvatarImage=null;
+      const av=document.getElementById('cbNavAvatar');
+      av.style.backgroundImage='none';
+      av.style.backgroundSize='';
+      document.getElementById('cbNavEmoji').style.display='';
+      closeCbAvatarMenu();
+    });
+    grid.appendChild(btn);
+  });
+  document.getElementById('cbAvatarMenu').appendChild(grid);
+}
+
+// ─── Color Picker ───
+function cbShowColorPicker(){
+  closeCbSubPickers();
+  const colors=['#ff6b9d','#0a84ff','#30d158','#ff9f0a','#bf5af2','#ff453a','#64d2ff','#ffd60a','#5856d6','#ff2d55','#ac8e68','#34c759','#007aff','#af52de','#ff6347','#1abc9c'];
+  const grid=document.createElement('div');
+  grid.id='cbColorPicker';
+  grid.className='av-color-grid';
+  grid.style.cssText='position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:4px;background:#1c1c2e;border:1px solid #2c2c3e;border-radius:12px;z-index:210;box-shadow:0 8px 24px rgba(0,0,0,.6);';
+  const cur=document.getElementById('cbNavAvatar').style.backgroundColor||cbColors[cbColorIdx];
+  colors.forEach(c=>{
+    const sw=document.createElement('div');
+    sw.className='av-color-swatch';
+    sw.style.background=c;
+    if(c===cur)sw.classList.add('sel');
+    sw.addEventListener('click',()=>{
+      document.getElementById('cbNavAvatar').style.background=c;
+      cbColorIdx=cbColors.indexOf(c);if(cbColorIdx===-1)cbColorIdx=0;
+      closeCbAvatarMenu();
+    });
+    grid.appendChild(sw);
+  });
+  document.getElementById('cbAvatarMenu').appendChild(grid);
+}
+
+// ─── Image Upload + Circle Crop ───
+function cbTriggerImageUpload(){
+  closeCbAvatarMenu();
+  let inp=document.getElementById('cbAvatarFileInput');
+  if(!inp){
+    inp=document.createElement('input');
+    inp.type='file';inp.accept='image/*';inp.id='cbAvatarFileInput';inp.style.display='none';
+    inp.addEventListener('change',e=>{
+      const file=e.target.files[0];
+      if(!file)return;
+      const reader=new FileReader();
+      reader.onload=ev=>cbOpenCropModal(ev.target.result);
+      reader.readAsDataURL(file);
+      inp.value='';
+    });
+    document.body.appendChild(inp);
+  }
+  inp.click();
+}
+
+let cropState={};
+function cbOpenCropModal(dataUrl){
+  // Remove old modal if any
+  let m=document.getElementById('cbCropOverlay');
+  if(m)m.remove();
+
+  m=document.createElement('div');
+  m.id='cbCropOverlay';m.className='crop-overlay open';
+  m.innerHTML=`
+    <div style="color:#fff;font-size:14px;font-weight:700;margin-bottom:10px;font-family:DM Sans,sans-serif;">Crop Avatar</div>
+    <div class="crop-container" id="cropBox">
+      <img class="crop-img" id="cropImg" src="${dataUrl}" draggable="false"/>
+      <div class="crop-circle"></div>
+    </div>
+    <div class="crop-controls">
+      <span style="color:#8e8e93;font-size:11px;">Zoom</span>
+      <input type="range" id="cropZoom" min="100" max="400" value="100" step="1"/>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:10px;">
+      <button class="crop-btn crop-cancel" onclick="cbCloseCrop()">Cancel</button>
+      <button class="crop-btn crop-done" onclick="cbApplyCrop()">Done</button>
+    </div>
+  `;
+  document.body.appendChild(m);
+
+  const img=document.getElementById('cropImg');
+  const box=document.getElementById('cropBox');
+  const zoom=document.getElementById('cropZoom');
+
+  img.onload=()=>{
+    const bw=280,bh=280;
+    const aspect=img.naturalWidth/img.naturalHeight;
+    let w,h;
+    if(aspect>=1){h=bh;w=bh*aspect;}else{w=bw;h=bw/aspect;}
+    cropState={x:(bw-w)/2,y:(bh-h)/2,w,h,bw,bh,scale:1,baseW:w,baseH:h,dragging:false};
+    applyCropTransform();
+  };
+
+  zoom.addEventListener('input',()=>{
+    const s=zoom.value/100;
+    cropState.scale=s;
+    cropState.w=cropState.baseW*s;
+    cropState.h=cropState.baseH*s;
+    applyCropTransform();
+  });
+
+  // Drag
+  let startX,startY,startCX,startCY;
+  box.addEventListener('pointerdown',e=>{
+    cropState.dragging=true;
+    startX=e.clientX;startY=e.clientY;
+    startCX=cropState.x;startCY=cropState.y;
+    img.classList.add('grabbing');
+    box.setPointerCapture(e.pointerId);
+  });
+  box.addEventListener('pointermove',e=>{
+    if(!cropState.dragging)return;
+    cropState.x=startCX+(e.clientX-startX);
+    cropState.y=startCY+(e.clientY-startY);
+    applyCropTransform();
+  });
+  box.addEventListener('pointerup',()=>{cropState.dragging=false;img.classList.remove('grabbing');});
+
+  // Prevent scroll on crop
+  m.addEventListener('touchmove',e=>e.preventDefault(),{passive:false});
+}
+
+function applyCropTransform(){
+  const img=document.getElementById('cropImg');
+  if(!img)return;
+  img.style.width=cropState.w+'px';
+  img.style.height=cropState.h+'px';
+  img.style.left=cropState.x+'px';
+  img.style.top=cropState.y+'px';
+}
+
+function cbCloseCrop(){
+  const m=document.getElementById('cbCropOverlay');if(m)m.remove();
+}
+
+function cbApplyCrop(){
+  const img=document.getElementById('cropImg');
+  const canvas=document.createElement('canvas');
+  const size=280;
+  canvas.width=size;canvas.height=size;
+  const ctx=canvas.getContext('2d');
+
+  // Clip to circle
+  ctx.beginPath();
+  ctx.arc(size/2,size/2,size/2,0,Math.PI*2);
+  ctx.clip();
+
+  // Draw image at crop position
+  ctx.drawImage(img,cropState.x,cropState.y,cropState.w,cropState.h);
+
+  const dataUrl=canvas.toDataURL('image/png');
+  cbAvatarImage=dataUrl;
+
+  // Apply to avatar
+  const av=document.getElementById('cbNavAvatar');
+  av.style.backgroundImage=`url(${dataUrl})`;
+  av.style.backgroundSize='cover';
+  av.style.backgroundPosition='center';
+  document.getElementById('cbNavEmoji').style.display='none';
+
+  cbCloseCrop();
+}
 </script>
+
+<!-- Crop overlay lives outside phone -->
 </body>
 </html>
