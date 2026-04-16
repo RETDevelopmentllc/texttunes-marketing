@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>TextTunes — Marketing HQ</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#07070f;--surface:#0f0f1c;--surface2:#13132a;--border:#1c1c30;
+  --accent:#6c47ff;--pink:#ff3cac;--green:#00ff88;--amber:#ff9f0a;
+  --red:#ff453a;--blue:#0a84ff;--cyan:#00e5ff;
+  --muted:#6b6b8e;--text:#f0f0ff;--text2:#b0b0d0;
+  --font:'DM Sans',system-ui,sans-serif;--display:'Syne',system-ui,sans-serif;
+  --sidebar:240px;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);overflow:hidden;}
+
+/* LAYOUT */
+.app{display:flex;height:100vh;}
+.sidebar{width:var(--sidebar);background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;}
+.main{flex:1;overflow-y:auto;padding:32px 40px 60px;}
+
+/* SIDEBAR */
+.sb-logo{padding:20px 20px 6px;font-family:var(--display);font-size:20px;font-weight:800;letter-spacing:-.3px;}
+.sb-logo em{color:var(--pink);font-style:normal;}
+.sb-sub{padding:0 20px 20px;font-size:11px;color:var(--muted);letter-spacing:.5px;}
+.sb-nav{flex:1;padding:0 10px;display:flex;flex-direction:column;gap:2px;}
+.sb-item{
+  display:flex;align-items:center;gap:12px;padding:11px 14px;
+  border-radius:10px;cursor:pointer;transition:all .15s;
+  border:1px solid transparent;font-size:13px;font-weight:500;color:var(--text2);
+}
+.sb-item:hover{background:var(--surface2);color:var(--text);}
+.sb-item.active{background:var(--surface2);border-color:var(--border);color:var(--text);font-weight:600;}
+.sb-item.active .sb-dot{opacity:1;}
+.sb-icon{font-size:18px;width:24px;text-align:center;flex-shrink:0;}
+.sb-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);margin-left:auto;opacity:0;transition:opacity .15s;}
+.sb-footer{padding:16px 20px;border-top:1px solid var(--border);font-size:11px;color:var(--muted);}
+.sb-footer a{color:var(--accent);text-decoration:none;}
+
+/* PANELS */
+.panel{display:none;animation:fadeUp .25s ease;}
+.panel.active{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* COMMON */
+.page-title{font-family:var(--display);font-size:28px;font-weight:800;margin-bottom:4px;}
+.page-title em{color:var(--pink);font-style:normal;}
+.page-sub{font-size:13px;color:var(--muted);margin-bottom:28px;max-width:520px;line-height:1.6;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:16px;}
+.card-sm{padding:16px;}
+.card-title{font-size:15px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.card-title .ct-icon{font-size:18px;}
+.label{font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px;}
+.input{
+  width:100%;background:var(--bg);border:1px solid var(--border);border-radius:10px;
+  padding:10px 14px;color:var(--text);font-size:14px;font-family:var(--font);outline:none;
+  transition:border-color .15s;
+}
+.input:focus{border-color:var(--accent);}
+.input::placeholder{color:#4a4a6a;}
+textarea.input{resize:vertical;min-height:80px;line-height:1.5;}
+select.input{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%236b6b8e' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;}
+.btn-ai{
+  display:inline-flex;align-items:center;gap:8px;
+  background:linear-gradient(135deg,var(--accent),var(--pink));
+  border:none;border-radius:12px;padding:12px 24px;
+  color:#fff;font-size:14px;font-weight:700;font-family:var(--display);
+  cursor:pointer;transition:all .18s;letter-spacing:.2px;
+}
+.btn-ai:hover{transform:translateY(-1px);box-shadow:0 0 30px rgba(108,71,255,.4);}
+.btn-ai:active{transform:scale(.97);}
+.btn-ai:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none;}
+.btn-outline{
+  display:inline-flex;align-items:center;gap:6px;
+  background:transparent;border:1px solid var(--border);border-radius:10px;
+  padding:9px 16px;color:var(--text2);font-size:12px;font-weight:600;
+  cursor:pointer;transition:all .15s;font-family:var(--font);
+}
+.btn-outline:hover{border-color:var(--accent);color:var(--text);}
+.status-msg{font-size:12px;margin-top:12px;font-family:monospace;min-height:18px;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+.tag{display:inline-block;font-size:10px;color:var(--cyan);padding:3px 8px;background:rgba(0,229,255,.07);border-radius:6px;border:1px solid rgba(0,229,255,.15);font-family:monospace;margin:2px 4px 2px 0;}
+.divider{height:1px;background:var(--border);margin:20px 0;}
+.empty-state{text-align:center;padding:60px 20px;color:var(--muted);font-size:14px;line-height:1.8;}
+.empty-state .es-icon{font-size:48px;margin-bottom:12px;opacity:.5;}
+
+/* PERSONA CARDS */
+.persona{border-left:3px solid var(--accent);padding-left:16px;margin-bottom:20px;}
+.persona:nth-child(2){border-color:var(--pink);}
+.persona:nth-child(3){border-color:var(--green);}
+.persona-name{font-size:16px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:8px;}
+.persona-demo{font-size:12px;color:var(--muted);margin-bottom:8px;}
+.persona-body{font-size:13px;color:var(--text2);line-height:1.7;}
+.persona-body strong{color:var(--text);font-weight:600;}
+
+/* CALENDAR */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.cal-header{font-size:10px;color:var(--muted);font-weight:700;text-align:center;padding:8px 0;text-transform:uppercase;letter-spacing:1px;}
+.cal-day{
+  background:var(--surface2);border:1px solid var(--border);border-radius:8px;
+  padding:6px;min-height:80px;font-size:10px;transition:border-color .15s;cursor:default;
+}
+.cal-day:hover{border-color:var(--accent);}
+.cal-day-num{font-weight:700;color:var(--text);margin-bottom:4px;font-size:11px;}
+.cal-item{background:rgba(108,71,255,.15);color:var(--text2);padding:2px 5px;border-radius:4px;margin-bottom:2px;font-size:9px;line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.cal-item.tiktok{background:rgba(255,0,80,.15);color:#ff6090;}
+.cal-item.instagram{background:rgba(225,48,108,.15);color:#e1306c;}
+.cal-item.youtube{background:rgba(255,0,0,.12);color:#ff4444;}
+.cal-item.twitter{background:rgba(255,255,255,.08);color:#ccc;}
+.cal-item.linkedin{background:rgba(0,119,181,.15);color:#4db8e8;}
+.cal-item.reddit{background:rgba(255,69,0,.12);color:#ff6b3a;}
+
+/* KPI */
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;text-align:center;}
+.kpi-value{font-family:var(--display);font-size:32px;font-weight:800;margin-bottom:2px;}
+.kpi-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;}
+.kpi-bar{height:6px;background:var(--bg);border-radius:3px;overflow:hidden;margin-bottom:4px;}
+.kpi-fill{height:100%;border-radius:3px;transition:width .6s ease;}
+.kpi-pct{font-size:11px;color:var(--muted);font-family:monospace;}
+.kpi-input-row{display:flex;gap:8px;align-items:center;margin-top:8px;}
+.kpi-input{width:100px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:6px 10px;color:var(--text);font-size:13px;font-family:var(--font);outline:none;text-align:center;}
+.kpi-input:focus{border-color:var(--accent);}
+.kpi-save{background:var(--accent);border:none;border-radius:8px;padding:6px 14px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;}
+
+/* WIZARD */
+.wizard-steps{display:flex;gap:4px;margin-bottom:24px;}
+.wz-step{flex:1;height:4px;background:var(--border);border-radius:2px;transition:background .3s;}
+.wz-step.done{background:var(--accent);}
+.wz-step.current{background:var(--pink);}
+.wizard-content{min-height:200px;}
+.wz-option{
+  display:flex;align-items:center;gap:12px;padding:14px 18px;
+  background:var(--surface2);border:1px solid var(--border);border-radius:12px;
+  cursor:pointer;transition:all .15s;margin-bottom:8px;
+}
+.wz-option:hover{border-color:var(--accent);}
+.wz-option.selected{border-color:var(--pink);background:rgba(255,60,172,.06);}
+.wz-option-icon{font-size:22px;}
+.wz-option-text{font-size:14px;font-weight:600;}
+.wz-option-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+.btn-row{display:flex;gap:10px;margin-top:20px;}
+
+/* AD COPY OUTPUT */
+.ad-output{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;}
+.ad-platform{font-size:12px;font-weight:700;color:var(--accent);margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+.ad-text{font-size:13px;color:var(--text2);line-height:1.7;white-space:pre-wrap;}
+.copy-btn{background:transparent;border:1px solid var(--border);border-radius:8px;padding:6px 12px;color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;margin-top:8px;}
+.copy-btn:hover{border-color:var(--accent);color:var(--accent);}
+
+/* LOADING */
+.loading{display:inline-flex;gap:4px;align-items:center;padding:8px 0;}
+.loading-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:ldBounce 1.2s ease-in-out infinite;}
+.loading-dot:nth-child(2){animation-delay:.15s;}
+.loading-dot:nth-child(3){animation-delay:.3s;}
+@keyframes ldBounce{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-6px);opacity:1}}
+
+@media(max-width:768px){
+  :root{--sidebar:60px;}
+  .sb-label,.sb-sub,.sb-footer{display:none;}
+  .sb-logo{padding:14px 0;text-align:center;font-size:16px;}
+  .sb-item{justify-content:center;padding:12px;}
+  .sb-icon{margin:0;}
+  .main{padding:20px 16px 60px;}
+  .grid-2,.grid-3{grid-template-columns:1fr;}
+  .cal-grid{grid-template-columns:repeat(7,1fr);}
+  .cal-day{min-height:50px;padding:4px;}
+  .cal-item{font-size:8px;}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sb-logo">Text<em>Tunes</em></div>
+    <div class="sb-sub">Marketing HQ</div>
+    <nav class="sb-nav">
+      <div class="sb-item active" onclick="openModule('video')">
+        <span class="sb-icon">🎬</span><span class="sb-label">Video Ad Creator</span><span class="sb-dot"></span>
+      </div>
+      <div class="sb-item" onclick="openModule('gtm')">
+        <span class="sb-icon">🚀</span><span class="sb-label">GTM Strategy</span><span class="sb-dot"></span>
+      </div>
+      <div class="sb-item" onclick="openModule('personas')">
+        <span class="sb-icon">👥</span><span class="sb-label">Audience Personas</span><span class="sb-dot"></span>
+      </div>
+      <div class="sb-item" onclick="openModule('adcopy')">
+        <span class="sb-icon">✍️</span><span class="sb-label">Ad Copy Generator</span><span class="sb-dot"></span>
+      </div>
+      <div class="sb-item" onclick="openModule('calendar')">
+        <span class="sb-icon">📅</span><span class="sb-label">Content Calendar</span><span class="sb-dot"></span>
+      </div>
+      <div class="sb-item" onclick="openModule('kpi')">
+        <span class="sb-icon">📊</span><span class="sb-label">KPI Tracker</span><span class="sb-dot"></span>
+      </div>
+    </nav>
+    <div class="sb-footer">
+      <a href="#" onclick="toggleSettings();return false;">⚙️ API Settings</a>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main" id="mainArea">
+
+    <!-- SETTINGS OVERLAY -->
+    <div id="settingsOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;display:none;align-items:center;justify-content:center;">
+      <div class="card" style="max-width:420px;width:90%;">
+        <div class="card-title"><span class="ct-icon">⚙️</span> API Keys</div>
+        <div class="label">Anthropic Key</div>
+        <input class="input" id="dAnthropicKey" type="password" placeholder="sk-ant-..." style="margin-bottom:12px;"/>
+        <div class="label">ElevenLabs Key (for songs)</div>
+        <input class="input" id="dElevenKey" type="password" placeholder="Optional" style="margin-bottom:16px;"/>
+        <div style="display:flex;gap:10px;">
+          <button class="btn-ai" onclick="saveAPIKeys()" style="flex:1;">Save Keys</button>
+          <button class="btn-outline" onclick="toggleSettings()">Cancel</button>
+        </div>
+        <div id="dKeyStatus" class="status-msg"></div>
+      </div>
+    </div>
+
+    <!-- 1. VIDEO AD CREATOR -->
+    <div class="panel active" id="panel-video">
+      <div class="page-title">Video Ad <em>Creator</em></div>
+      <div class="page-sub">Generate AI-powered iMessage ad videos with original songs. Type a scenario, and the AI builds the full conversation + music.</div>
+      <div class="card">
+        <div class="card-title"><span class="ct-icon">🎬</span> Launch the Studio</div>
+        <p style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:16px;">
+          The Video Ad Creator generates a full iMessage conversation animation with an AI-composed song. Screen-record it for TikTok, Reels, or Shorts.
+        </p>
+        <a href="/index.html" target="_blank" class="btn-ai" style="text-decoration:none;">Open Video Studio →</a>
+      </div>
+    </div>
+
+    <!-- 2. GTM STRATEGY -->
+    <div class="panel" id="panel-gtm">
+      <div class="page-title">GTM <em>Strategy</em></div>
+      <div class="page-sub">Answer a few questions and get a tailored go-to-market launch plan for TextTunes.</div>
+      <div class="card">
+        <div class="wizard-steps" id="wzSteps">
+          <div class="wz-step current"></div>
+          <div class="wz-step"></div>
+          <div class="wz-step"></div>
+          <div class="wz-step"></div>
+        </div>
+        <div class="wizard-content" id="wzContent"></div>
+        <div class="btn-row" id="wzBtns"></div>
+      </div>
+      <div id="gtmResult"></div>
+    </div>
+
+    <!-- 3. AUDIENCE PERSONAS -->
+    <div class="panel" id="panel-personas">
+      <div class="page-title">Audience <em>Personas</em></div>
+      <div class="page-sub">Generate detailed user personas for TextTunes based on your target market.</div>
+      <div class="card">
+        <div class="label">Target Market Focus (optional)</div>
+        <input class="input" id="personaFocus" placeholder="e.g. Gen Z college students, young professionals, parents..." style="margin-bottom:16px;"/>
+        <button class="btn-ai" id="personaBtn" onclick="generatePersonas()">✨ Generate Personas</button>
+        <div id="personaStatus" class="status-msg"></div>
+      </div>
+      <div id="personaResults"></div>
+    </div>
+
+    <!-- 4. AD COPY GENERATOR -->
+    <div class="panel" id="panel-adcopy">
+      <div class="page-title">Ad Copy <em>Generator</em></div>
+      <div class="page-sub">Generate scroll-stopping ad copy tailored for each platform.</div>
+      <div class="card">
+        <div class="grid-2" style="margin-bottom:16px;">
+          <div>
+            <div class="label">Platform</div>
+            <select class="input" id="adPlatform">
+              <option value="tiktok">TikTok</option>
+              <option value="instagram">Instagram Reels</option>
+              <option value="youtube">YouTube Shorts</option>
+              <option value="twitter">X / Twitter</option>
+              <option value="linkedin">LinkedIn</option>
+              <option value="reddit">Reddit</option>
+              <option value="all">All Platforms</option>
+            </select>
+          </div>
+          <div>
+            <div class="label">Tone</div>
+            <select class="input" id="adTone">
+              <option value="funny">Funny / Viral</option>
+              <option value="professional">Professional</option>
+              <option value="edgy">Edgy / Bold</option>
+              <option value="heartfelt">Heartfelt</option>
+            </select>
+          </div>
+        </div>
+        <div class="label">What are you promoting?</div>
+        <input class="input" id="adTopic" placeholder="e.g. New feature launch, app download, specific scenario..." style="margin-bottom:16px;"/>
+        <button class="btn-ai" id="adCopyBtn" onclick="generateAdCopy()">✨ Generate Ad Copy</button>
+        <div id="adCopyStatus" class="status-msg"></div>
+      </div>
+      <div id="adCopyResults"></div>
+    </div>
+
+    <!-- 5. CONTENT CALENDAR -->
+    <div class="panel" id="panel-calendar">
+      <div class="page-title">Content <em>Calendar</em></div>
+      <div class="page-sub">Generate a 30-day content schedule optimized for each platform's best posting times.</div>
+      <div class="card" style="margin-bottom:16px;">
+        <div class="grid-2" style="margin-bottom:16px;">
+          <div>
+            <div class="label">Launch Focus</div>
+            <input class="input" id="calFocus" placeholder="e.g. App launch, viral campaign, holiday push..."/>
+          </div>
+          <div>
+            <div class="label">Posts Per Day</div>
+            <select class="input" id="calFreq">
+              <option value="1">1 per day</option>
+              <option value="2" selected>2 per day</option>
+              <option value="3">3 per day</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn-ai" id="calBtn" onclick="generateCalendar()">✨ Generate 30-Day Plan</button>
+        <div id="calStatus" class="status-msg"></div>
+      </div>
+      <div id="calResults"></div>
+    </div>
+
+    <!-- 6. KPI TRACKER -->
+    <div class="panel" id="panel-kpi">
+      <div class="page-title">KPI <em>Tracker</em></div>
+      <div class="page-sub">Set goals and track your marketing performance across key metrics.</div>
+      <div class="grid-3" id="kpiGrid"></div>
+      <div style="margin-top:16px;">
+        <button class="btn-outline" onclick="addKPI()">+ Add Metric</button>
+        <button class="btn-outline" onclick="resetKPIs()" style="margin-left:8px;">Reset All</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════
+   MODULE NAVIGATION
+══════════════════════════ */
+function openModule(id){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(s=>s.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+/* ══════════════════════════
+   API SETTINGS
+══════════════════════════ */
+function toggleSettings(){
+  const o=document.getElementById('settingsOverlay');
+  const vis=o.style.display==='flex';
+  o.style.display=vis?'none':'flex';
+  if(!vis){
+    document.getElementById('dAnthropicKey').value=localStorage.getItem('tt_anthropic')||'';
+    document.getElementById('dElevenKey').value=localStorage.getItem('tt_eleven')||'';
+  }
+}
+function saveAPIKeys(){
+  const ak=document.getElementById('dAnthropicKey').value.trim();
+  const ek=document.getElementById('dElevenKey').value.trim();
+  if(ak)localStorage.setItem('tt_anthropic',ak);
+  if(ek)localStorage.setItem('tt_eleven',ek);
+  document.getElementById('dKeyStatus').textContent='✓ Saved!';
+  document.getElementById('dKeyStatus').style.color='var(--green)';
+  setTimeout(()=>toggleSettings(),600);
+}
+
+/* ══════════════════════════
+   AI HELPER
+══════════════════════════ */
+async function callClaude(prompt){
+  const key=localStorage.getItem('tt_anthropic');
+  if(!key)throw new Error('Add your Anthropic key in Settings (bottom-left)');
+  const r=await fetch('/api/claude',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({prompt,anthropicKey:key})
+  });
+  if(!r.ok){
+    let msg='AI error';
+    try{const d=await r.json();msg=d.error||msg;}catch(e){}
+    throw new Error(msg);
+  }
+  const d=await r.json();
+  return d.content[0].text;
+}
+
+function showLoading(el){el.innerHTML='<div class="loading"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div>';}
+
+/* ══════════════════════════
+   2. GTM STRATEGY WIZARD
+══════════════════════════ */
+const wzData={step:0,answers:{}};
+const wzQuestions=[
+  {q:'What stage is TextTunes at?',opts:[
+    {icon:'🌱',text:'Pre-launch',sub:'Building hype before release'},
+    {icon:'🚀',text:'Just launched',sub:'First 30 days, need traction'},
+    {icon:'📈',text:'Growing',sub:'Have users, want to scale'},
+    {icon:'🔄',text:'Pivoting',sub:'Trying a new angle'}
+  ]},
+  {q:'What is your primary goal?',opts:[
+    {icon:'📲',text:'App downloads',sub:'Maximize installs'},
+    {icon:'👀',text:'Brand awareness',sub:'Get people talking'},
+    {icon:'💰',text:'Revenue',sub:'Convert to paid users'},
+    {icon:'🤝',text:'Community',sub:'Build a loyal user base'}
+  ]},
+  {q:'What is your budget?',opts:[
+    {icon:'🆓',text:'$0 — Organic only',sub:'Pure hustle and content'},
+    {icon:'💵',text:'Under $500/mo',sub:'Small paid experiments'},
+    {icon:'💰',text:'$500–$2K/mo',sub:'Moderate ad spend'},
+    {icon:'🏦',text:'$2K+/mo',sub:'Serious paid acquisition'}
+  ]},
+  {q:'Who is your #1 audience?',opts:[
+    {icon:'🎓',text:'Gen Z (16–24)',sub:'TikTok-native, meme culture'},
+    {icon:'💼',text:'Millennials (25–35)',sub:'Instagram, nostalgia, sharing'},
+    {icon:'👨‍👩‍👧',text:'Parents',sub:'Family humor, relatable chaos'},
+    {icon:'🌎',text:'Everyone',sub:'Mass market appeal'}
+  ]}
+];
+
+function renderWizard(){
+  const s=wzData.step;
+  // steps
+  document.querySelectorAll('#wzSteps .wz-step').forEach((el,i)=>{
+    el.className='wz-step'+(i<s?' done':'')+(i===s?' current':'');
+  });
+  const content=document.getElementById('wzContent');
+  const btns=document.getElementById('wzBtns');
+
+  if(s<wzQuestions.length){
+    const wq=wzQuestions[s];
+    content.innerHTML=`<div class="label" style="margin-bottom:16px;font-size:13px;color:var(--text);letter-spacing:0;text-transform:none;">${wq.q}</div>
+      ${wq.opts.map((o,i)=>`<div class="wz-option${wzData.answers[s]===i?' selected':''}" onclick="wzSelect(${s},${i})">
+        <span class="wz-option-icon">${o.icon}</span>
+        <div><div class="wz-option-text">${o.text}</div><div class="wz-option-sub">${o.sub}</div></div>
+      </div>`).join('')}`;
+    btns.innerHTML=`${s>0?'<button class="btn-outline" onclick="wzBack()">← Back</button>':''}
+      <button class="btn-ai" onclick="wzNext()" ${wzData.answers[s]===undefined?'disabled':''}>Next →</button>`;
+  }
+}
+
+function wzSelect(step,idx){
+  wzData.answers[step]=idx;
+  document.querySelectorAll('.wz-option').forEach((o,i)=>o.classList.toggle('selected',i===idx));
+  document.querySelector('#wzBtns .btn-ai').disabled=false;
+}
+function wzNext(){
+  if(wzData.answers[wzData.step]===undefined)return;
+  wzData.step++;
+  if(wzData.step>=wzQuestions.length){generateGTM();return;}
+  renderWizard();
+}
+function wzBack(){wzData.step=Math.max(0,wzData.step-1);renderWizard();}
+
+async function generateGTM(){
+  const content=document.getElementById('wzContent');
+  const btns=document.getElementById('wzBtns');
+  showLoading(content);
+  btns.innerHTML='';
+  document.querySelectorAll('#wzSteps .wz-step').forEach(el=>el.className='wz-step done');
+
+  const answers=Object.entries(wzData.answers).map(([i,a])=>`${wzQuestions[i].q} → ${wzQuestions[i].opts[a].text}`).join('\n');
+
+  try{
+    const text=await callClaude(`You are a marketing strategist for TextTunes, a mobile app that turns text conversations into short funny songs using AI.
+
+Based on these answers:
+${answers}
+
+Generate a detailed 30-day go-to-market launch plan. Structure it as:
+1. WEEK 1 (Days 1-7): Title — 3-4 specific action items
+2. WEEK 2 (Days 8-14): Title — 3-4 specific action items
+3. WEEK 3 (Days 15-21): Title — 3-4 specific action items
+4. WEEK 4 (Days 22-30): Title — 3-4 specific action items
+
+Then add:
+- TOP 3 CHANNELS to focus on (with why)
+- KEY METRICS to track
+- ONE BIG BET — the single highest-impact thing to do
+
+Be specific to TextTunes. No generic advice. Use plain text, no markdown formatting.`);
+
+    content.innerHTML='';
+    document.getElementById('gtmResult').innerHTML=`<div class="card"><div class="card-title"><span class="ct-icon">📋</span> Your GTM Plan</div><div style="font-size:13px;color:var(--text2);line-height:1.8;white-space:pre-wrap;">${text}</div></div>`;
+    btns.innerHTML='<button class="btn-outline" onclick="wzData.step=0;wzData.answers={};document.getElementById(\'gtmResult\').innerHTML=\'\';renderWizard();">Start Over</button>';
+  }catch(e){
+    content.innerHTML=`<div class="status-msg" style="color:var(--red);">Error: ${e.message}</div>`;
+    btns.innerHTML='<button class="btn-outline" onclick="wzData.step=3;renderWizard();">← Back</button>';
+  }
+}
+
+/* ══════════════════════════
+   3. AUDIENCE PERSONAS
+══════════════════════════ */
+async function generatePersonas(){
+  const focus=document.getElementById('personaFocus').value.trim();
+  const btn=document.getElementById('personaBtn');
+  const status=document.getElementById('personaStatus');
+  const results=document.getElementById('personaResults');
+  btn.disabled=true;
+  status.textContent='Generating personas...';status.style.color='var(--accent)';
+
+  try{
+    const text=await callClaude(`You are a marketing researcher for TextTunes, a mobile app that turns text conversations into short funny AI-generated songs.
+
+Generate exactly 3 detailed user personas${focus?' focused on: '+focus:''}.
+
+For each persona, provide:
+- NAME and emoji (a fictional but realistic name)
+- AGE, LOCATION, OCCUPATION
+- WHY THEY USE TEXTTUNES (2-3 sentences, be specific)
+- HOW THEY DISCOVER IT (the exact channel/moment)
+- FAVORITE FEATURE (what hooks them)
+- POSTING BEHAVIOR (how they share content)
+- PAIN POINT TEXTTUNES SOLVES
+
+Return as JSON array with keys: name, emoji, age, location, occupation, why, discovery, feature, posting, painPoint
+No markdown. Raw JSON only.`);
+
+    let personas;
+    try{personas=JSON.parse(text);}catch{
+      const m=text.match(/\[[\s\S]*\]/);
+      if(m)personas=JSON.parse(m[0]);else throw new Error('Bad response');
+    }
+
+    results.innerHTML=personas.map(p=>`<div class="card"><div class="persona">
+      <div class="persona-name">${p.emoji} ${p.name}</div>
+      <div class="persona-demo">${p.age} · ${p.location} · ${p.occupation}</div>
+      <div class="persona-body">
+        <strong>Why TextTunes:</strong> ${p.why}<br><br>
+        <strong>Discovery:</strong> ${p.discovery}<br><br>
+        <strong>Favorite Feature:</strong> ${p.feature}<br><br>
+        <strong>Sharing:</strong> ${p.posting}<br><br>
+        <strong>Pain Point Solved:</strong> ${p.painPoint}
+      </div>
+    </div></div>`).join('');
+    status.textContent='';
+  }catch(e){
+    status.textContent='Error: '+e.message;status.style.color='var(--red)';
+  }
+  btn.disabled=false;
+}
+
+/* ══════════════════════════
+   4. AD COPY GENERATOR
+══════════════════════════ */
+async function generateAdCopy(){
+  const platform=document.getElementById('adPlatform').value;
+  const tone=document.getElementById('adTone').value;
+  const topic=document.getElementById('adTopic').value.trim()||'TextTunes app — turn any text conversation into a funny song';
+  const btn=document.getElementById('adCopyBtn');
+  const status=document.getElementById('adCopyStatus');
+  const results=document.getElementById('adCopyResults');
+  btn.disabled=true;
+  status.textContent='Writing ad copy...';status.style.color='var(--accent)';
+
+  const platNames={tiktok:'TikTok',instagram:'Instagram Reels',youtube:'YouTube Shorts',twitter:'X / Twitter',linkedin:'LinkedIn',reddit:'Reddit',all:'TikTok, Instagram, YouTube Shorts, X/Twitter, LinkedIn, and Reddit'};
+
+  try{
+    const text=await callClaude(`You are an elite social media copywriter for TextTunes, a mobile app that turns text conversations into short funny AI-generated songs.
+
+Write ad copy for: ${platNames[platform]}
+Tone: ${tone}
+Promoting: ${topic}
+
+${platform==='all'?'Generate one post per platform (6 total).':'Generate 3 variations.'}
+
+For each, include:
+- The platform name
+- The caption/post text (with line breaks where natural)
+- 5-8 relevant hashtags
+
+Return as JSON array: [{platform, caption, hashtags}]
+No markdown. Raw JSON only. Make the copy feel native to each platform. No apostrophes.`);
+
+    let copies;
+    try{copies=JSON.parse(text);}catch{
+      const m=text.match(/\[[\s\S]*\]/);
+      if(m)copies=JSON.parse(m[0]);else throw new Error('Bad response');
+    }
+
+    results.innerHTML=copies.map(c=>`<div class="ad-output">
+      <div class="ad-platform">${getPlatIcon(c.platform)} ${c.platform}</div>
+      <div class="ad-text">${c.caption}</div>
+      <div style="margin-top:8px;">${(c.hashtags||[]).map(h=>`<span class="tag">#${h.replace(/^#/,'')}</span>`).join('')}</div>
+      <button class="copy-btn" onclick="copyText(this,\`${(c.caption+'\n\n'+(c.hashtags||[]).map(h=>'#'+h.replace(/^#/,'')).join(' ')).replace(/`/g,'').replace(/\\/g,'\\\\')}\`)">Copy</button>
+    </div>`).join('');
+    status.textContent='';
+  }catch(e){
+    status.textContent='Error: '+e.message;status.style.color='var(--red)';
+  }
+  btn.disabled=false;
+}
+
+function getPlatIcon(name){
+  const n=(name||'').toLowerCase();
+  if(n.includes('tiktok'))return'🎵';if(n.includes('instagram'))return'📸';
+  if(n.includes('youtube'))return'▶️';if(n.includes('twitter')||n.includes('x '))return'𝕏';
+  if(n.includes('linkedin'))return'💼';if(n.includes('reddit'))return'🤖';return'📱';
+}
+
+function copyText(btn,text){
+  navigator.clipboard.writeText(text).then(()=>{
+    btn.textContent='✓ Copied!';setTimeout(()=>btn.textContent='Copy',1500);
+  }).catch(()=>{});
+}
+
+/* ══════════════════════════
+   5. CONTENT CALENDAR
+══════════════════════════ */
+async function generateCalendar(){
+  const focus=document.getElementById('calFocus').value.trim()||'TextTunes viral launch campaign';
+  const freq=document.getElementById('calFreq').value;
+  const btn=document.getElementById('calBtn');
+  const status=document.getElementById('calStatus');
+  const results=document.getElementById('calResults');
+  btn.disabled=true;
+  status.textContent='Building your 30-day calendar...';status.style.color='var(--accent)';
+
+  try{
+    const text=await callClaude(`You are a content strategist for TextTunes, a mobile app that turns text conversations into short funny AI-generated songs.
+
+Generate a 30-day content calendar.
+Focus: ${focus}
+Frequency: ${freq} posts per day
+
+For each day (1-30), provide ${freq} post(s). Each post needs:
+- day (number 1-30)
+- platform (one of: TikTok, Instagram, YouTube, Twitter, LinkedIn, Reddit)
+- type (e.g. "Video ad", "Meme", "Story", "Thread", "Behind-the-scenes")
+- description (1 short sentence, max 60 chars)
+
+Vary the platforms across the month. Prioritize TikTok early, expand later.
+
+Return as JSON array: [{day, platform, type, description}]
+No markdown. Raw JSON only.`);
+
+    let items;
+    try{items=JSON.parse(text);}catch{
+      const m=text.match(/\[[\s\S]*\]/);
+      if(m)items=JSON.parse(m[0]);else throw new Error('Bad response');
+    }
+
+    // Build calendar grid
+    const today=new Date();
+    const startDate=new Date(today.getFullYear(),today.getMonth(),today.getDate());
+    const dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+    let html='<div class="card" style="padding:16px;overflow-x:auto;"><div class="cal-grid">';
+    dayNames.forEach(d=>{html+=`<div class="cal-header">${d}</div>`;});
+
+    // pad start
+    const startDay=startDate.getDay();
+    for(let i=0;i<startDay;i++)html+='<div></div>';
+
+    for(let d=1;d<=30;d++){
+      const dayItems=items.filter(it=>it.day===d);
+      const date=new Date(startDate);date.setDate(date.getDate()+d-1);
+      const platClass=p=>{const n=(p||'').toLowerCase();if(n.includes('tiktok'))return'tiktok';if(n.includes('instagram'))return'instagram';if(n.includes('youtube'))return'youtube';if(n.includes('twitter'))return'twitter';if(n.includes('linkedin'))return'linkedin';if(n.includes('reddit'))return'reddit';return'';};
+
+      html+=`<div class="cal-day">
+        <div class="cal-day-num">${date.getMonth()+1}/${date.getDate()}</div>
+        ${dayItems.map(it=>`<div class="cal-item ${platClass(it.platform)}" title="${it.platform}: ${it.type} — ${it.description}">${it.type}</div>`).join('')}
+      </div>`;
+    }
+    html+='</div></div>';
+    results.innerHTML=html;
+    status.textContent='';
+  }catch(e){
+    status.textContent='Error: '+e.message;status.style.color='var(--red)';
+  }
+  btn.disabled=false;
+}
+
+/* ══════════════════════════
+   6. KPI TRACKER
+══════════════════════════ */
+const defaultKPIs=[
+  {id:'downloads',label:'App Downloads',goal:10000,current:0,color:'var(--accent)'},
+  {id:'tiktok_followers',label:'TikTok Followers',goal:5000,current:0,color:'var(--pink)'},
+  {id:'monthly_active',label:'Monthly Active Users',goal:2000,current:0,color:'var(--green)'},
+  {id:'revenue',label:'Monthly Revenue ($)',goal:1000,current:0,color:'var(--amber)'},
+  {id:'songs_created',label:'Songs Created',goal:5000,current:0,color:'var(--blue)'},
+  {id:'viral_videos',label:'Viral Videos (10K+)',goal:10,current:0,color:'var(--cyan)'},
+];
+
+function loadKPIs(){
+  const saved=localStorage.getItem('tt_kpis');
+  return saved?JSON.parse(saved):defaultKPIs;
+}
+function saveKPIData(kpis){localStorage.setItem('tt_kpis',JSON.stringify(kpis));}
+
+function renderKPIs(){
+  const kpis=loadKPIs();
+  const grid=document.getElementById('kpiGrid');
+  grid.innerHTML=kpis.map((k,i)=>{
+    const pct=k.goal>0?Math.min(Math.round((k.current/k.goal)*100),100):0;
+    return`<div class="kpi-card">
+      <div class="kpi-value" style="color:${k.color}">${formatNum(k.current)}</div>
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-bar"><div class="kpi-fill" style="width:${pct}%;background:${k.color}"></div></div>
+      <div class="kpi-pct">${pct}% of ${formatNum(k.goal)} goal</div>
+      <div class="kpi-input-row" style="justify-content:center;">
+        <input class="kpi-input" type="number" value="${k.current}" id="kpi-val-${i}" placeholder="Current"/>
+        <input class="kpi-input" type="number" value="${k.goal}" id="kpi-goal-${i}" placeholder="Goal" style="width:80px;"/>
+        <button class="kpi-save" onclick="updateKPI(${i})">Save</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function updateKPI(idx){
+  const kpis=loadKPIs();
+  kpis[idx].current=Number(document.getElementById('kpi-val-'+idx).value)||0;
+  kpis[idx].goal=Number(document.getElementById('kpi-goal-'+idx).value)||1;
+  saveKPIData(kpis);
+  renderKPIs();
+}
+
+function addKPI(){
+  const kpis=loadKPIs();
+  const name=prompt('Metric name:');
+  if(!name)return;
+  const goal=Number(prompt('Goal:'))||100;
+  const colors=['var(--accent)','var(--pink)','var(--green)','var(--amber)','var(--blue)','var(--cyan)','var(--red)'];
+  kpis.push({id:'custom_'+Date.now(),label:name,goal,current:0,color:colors[kpis.length%colors.length]});
+  saveKPIData(kpis);
+  renderKPIs();
+}
+
+function resetKPIs(){
+  if(!confirm('Reset all KPIs to defaults?'))return;
+  localStorage.removeItem('tt_kpis');
+  renderKPIs();
+}
+
+function formatNum(n){
+  if(n>=1000000)return(n/1000000).toFixed(1)+'M';
+  if(n>=1000)return(n/1000).toFixed(1)+'K';
+  return n.toString();
+}
+
+/* ══════════════════════════
+   INIT
+══════════════════════════ */
+renderWizard();
+renderKPIs();
+</script>
+</body>
+</html>
