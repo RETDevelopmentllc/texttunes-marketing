@@ -20,35 +20,6 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60p
 .logo em{color:var(--pink);font-style:normal;}
 .tagline{font-size:13px;color:var(--muted);margin-bottom:28px;text-align:center;}
 
-/* SCENARIO PICKER */
-.picker{width:100%;max-width:400px;margin-bottom:20px;}
-.picker-label{font-size:11px;color:var(--muted);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;}
-.scenarios{display:flex;flex-direction:column;gap:7px;}
-.scene-btn{
-  display:flex;align-items:center;gap:12px;
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:14px;padding:12px 16px;cursor:pointer;
-  transition:all .18s;text-align:left;width:100%;
-}
-.scene-btn:hover,.scene-btn.active{border-color:var(--accent);background:#13132a;}
-.scene-btn.active{border-color:var(--pink);}
-.scene-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
-.scene-info{flex:1;min-width:0;}
-.scene-name{font-size:13px;font-weight:600;color:var(--text);}
-.scene-preview{font-size:12px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-
-/* BUTTONS */
-.btn-row{display:flex;gap:10px;width:100%;max-width:400px;margin-bottom:24px;}
-.btn{
-  flex:1;padding:14px;border:none;border-radius:14px;
-  font-size:15px;font-weight:700;font-family:var(--display);
-  cursor:pointer;transition:all .18s;letter-spacing:.2px;
-}
-.btn-primary{background:linear-gradient(135deg,var(--accent),var(--pink));color:#fff;box-shadow:0 0 24px rgba(108,71,255,.35);}
-.btn-primary:hover{transform:translateY(-1px);box-shadow:0 0 36px rgba(108,71,255,.5);}
-.btn-primary:active{transform:scale(.97);}
-.btn-secondary{background:var(--surface);color:var(--muted);border:1px solid var(--border);}
-.btn-secondary:hover{color:var(--text);border-color:var(--muted);}
 
 /* PHONE */
 .phone-wrap{position:relative;width:300px;flex-shrink:0;}
@@ -158,39 +129,6 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60p
 /* CAPTION BELOW PHONE */
 .phone-caption{margin-top:12px;font-size:11px;color:var(--muted);text-align:center;font-family:monospace;}
 
-/* PLATFORM CARDS */
-.platform-section{width:100%;max-width:400px;margin-top:28px;}
-.section-title{font-family:var(--display);font-size:18px;font-weight:800;margin-bottom:4px;}
-.section-title em{color:var(--pink);font-style:normal;}
-.section-sub{font-size:12px;color:var(--muted);margin-bottom:16px;}
-.platform-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.pcrd{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;}
-.pcrd-head{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
-.pcrd-icon{font-size:18px;}
-.pcrd-name{font-size:12px;font-weight:700;}
-.pcrd-time{font-size:10px;margin-top:2px;font-family:monospace;}
-.pcrd-caption{font-size:11px;color:#c0c0e0;line-height:1.5;margin-bottom:8px;background:#0a0a18;border-radius:8px;padding:8px;border:1px solid var(--border);min-height:48px;}
-.pcrd-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;}
-.tag{font-size:10px;color:#00e5ff;padding:2px 6px;background:rgba(0,229,255,.07);border-radius:5px;border:1px solid rgba(0,229,255,.15);font-family:monospace;}
-.copy-btn{width:100%;padding:7px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:11px;font-weight:700;cursor:pointer;transition:all .18s;font-family:var(--display);}
-.copy-btn:hover{border-color:var(--accent);color:var(--accent);}
-.copy-btn.done{border-color:var(--green);color:var(--green);}
-
-/* STRATEGY */
-.strategy-section{width:100%;max-width:400px;margin-top:28px;}
-.strategy-grid{display:grid;gap:10px;}
-.scrd{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;}
-.scrd-icon{font-size:24px;margin-bottom:8px;}
-.scrd-title{font-size:14px;font-weight:700;margin-bottom:4px;}
-.scrd-body{font-size:12px;color:#9090b0;line-height:1.6;}
-.scrd-body strong{color:var(--text);}
-
-/* TABS */
-.tabs{display:flex;gap:2px;width:100%;max-width:400px;margin-bottom:20px;background:var(--surface);border-radius:12px;padding:4px;}
-.tab-btn{flex:1;padding:9px 6px;border:none;border-radius:9px;font-size:12px;font-weight:700;font-family:var(--display);cursor:pointer;transition:all .18s;background:transparent;color:var(--muted);}
-.tab-btn.active{background:#13132a;color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.4);}
-
-@media(max-width:360px){.platform-grid{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
@@ -211,25 +149,8 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60p
 </div>
 <div id="aiStatus" style="width:100%;max-width:400px;min-height:20px;text-align:center;margin-bottom:8px;"></div>
 
-<!-- TABS -->
-<div class="tabs">
-  <button class="tab-btn active" onclick="setTab('studio',this)">🎬 Studio</button>
-  <button class="tab-btn" onclick="setTab('content',this)">✍️ Content</button>
-  <button class="tab-btn" onclick="setTab('strategy',this)">🧠 Strategy</button>
-</div>
-
 <!-- ══ STUDIO ══ -->
 <div id="tab-studio">
-  <div class="picker">
-    <div class="picker-label">Pick a scenario</div>
-    <div class="scenarios" id="scenarioList"></div>
-  </div>
-
-  <div class="btn-row">
-    <button class="btn btn-primary" id="playBtn" onclick="playAd()">▶ Play Ad</button>
-    <button class="btn btn-secondary" onclick="randomScene()">🎲 Random</button>
-  </div>
-
   <!-- PHONE -->
   <div class="phone-wrap">
     <div class="phone">
@@ -281,218 +202,19 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60p
   <div class="phone-caption">↑ Screen record this for TikTok / Reels</div>
 </div>
 
-<!-- ══ CONTENT ══ -->
-<div id="tab-content" style="display:none;width:100%;max-width:400px;">
-  <div class="section-title" style="margin-bottom:4px;">Content <em>Engine</em></div>
-  <div class="section-sub">Ready-to-paste captions for every platform — tap to copy</div>
-  <div id="contentCards"></div>
-</div>
-
-<!-- ══ STRATEGY ══ -->
-<div id="tab-strategy" style="display:none;width:100%;max-width:400px;">
-  <div class="section-title" style="margin-bottom:4px;">Viral <em>Strategy</em></div>
-  <div class="section-sub">The exact playbook to blow up TextTunes from zero</div>
-  <div class="strategy-grid" id="strategyCards"></div>
-</div>
 
 <script>
 /* ══════════════════════════
-   SCENES
+   CURRENT AD (AI-generated)
 ══════════════════════════ */
-const SCENES = [
-  {
-    id:0, contact:'Mom', emoji:'👩', color:'#ff6b9d',
-    songTitle:'Why Wont You Call Me Back',
-    songFile:'MomSong.mp3',
-    lyrics:'She texts at eleven asking did you eat today. I had a granola bar mom please just go away. She raised me for this she cried into the night. But the granola bar was fire and I am doing alright.',
-    preview:'Did you eat today?',
-    messages:[
-      {s:'them',t:'Did you eat today?'},
-      {s:'me',  t:'Mom it is 11pm'},
-      {s:'them',t:'That is not an answer'},
-      {s:'me',  t:'I had a granola bar'},
-      {s:'them',t:'I RAISED YOU FOR THIS???'},
-      {s:'me',  t:'Goodbye mom'},
-      {s:'them',t:'Fine. I made it into a song.'},
-      {s:'me',  t:'You did NOT', file:true},
-    ],
-    reactions:['😭','😭💀','I CANNOT STOP CRYING','ok this SLAPS','calling u rn omg'],
-  },
-  {
-    id:1, contact:'Jake 🚩', emoji:'😬', color:'#ff453a',
-    songTitle:'Left On Read The Aria',
-    songFile:'LeftOnRead.mp3',
-    lyrics:'He texts at 2am saying hey hey hey. I said it is 2am Jake please go away. So yes he asked. I said no. He said hear me out though. I sent him an opera and now he knows.',
-    preview:'hey... heyyy... you up?',
-    messages:[
-      {s:'them',t:'hey'},
-      {s:'them',t:'heyyy'},
-      {s:'them',t:'you up?'},
-      {s:'me',  t:'It is 2am Jake'},
-      {s:'them',t:'so... yes?'},
-      {s:'me',  t:'No.'},
-      {s:'them',t:'ok hear me out tho'},
-      {s:'me',  t:'I turned this into a song for you', file:true},
-    ],
-    reactions:['💀💀💀','I AM SCREAMING','this is actually art','u need help lmao','sending this to everyone'],
-  },
-  {
-    id:2, contact:'Mr. Peterson 💼', emoji:'👔', color:'#ff9f0a',
-    songTitle:'Autocorrect Did This Not Me',
-    songFile:'Autocorrect.mp3',
-    lyrics:'I said I would be there in ten ducking minutes. Autocorrect betrayed me and now HR is in it. I meant ducking yes I meant ducking I swear. I turned it into a song and sent it right there.',
-    preview:'see you in 10 ducking minutes',
-    messages:[
-      {s:'me',  t:'Sorry ill be late, stuck in traffic'},
-      {s:'me',  t:'big truck. very slow.'},
-      {s:'me',  t:'anyway see you in 10 ducking minutes'},
-      {s:'them',t:'...'},
-      {s:'them',t:'I assumed you meant ducking'},
-      {s:'me',  t:'I meant DUCKING yes'},
-      {s:'them',t:'HR would like a word'},
-      {s:'me',  t:'wrote a song about it. Regards.', file:true},
-    ],
-    reactions:['YOU ARE SO FIRED 💀','the Regards at the end 😭','AUTOCORRECT MY CAREER','I would resign on the spot','this goes harder than it should'],
-  },
-  {
-    id:3, contact:'Dave 🏠', emoji:'🏠', color:'#30d158',
-    songTitle:'The Rent Is Due And So Am I',
-    songFile:'RentSong.mp3',
-    lyrics:'I texted bro I cannot afford to exist today. Turns out my landlord Dave was on the other way. I offered him vibes but Dave has a mortgage to pay. So I made him a song and now we are okay.',
-    preview:'bro I cannot afford to exist',
-    messages:[
-      {s:'me',  t:'bro I literally cannot afford to exist right now'},
-      {s:'them',t:'Hi this is Dave your landlord'},
-      {s:'them',t:'rent was due Tuesday'},
-      {s:'me',  t:'Dave I respect you so much as a person'},
-      {s:'them',t:'that is very kind. still need rent.'},
-      {s:'me',  t:'what if I paid you in vibes'},
-      {s:'them',t:'I have a mortgage.'},
-      {s:'me',  t:'I made you something', file:true},
-    ],
-    reactions:['THE RENT IS DUE 💀','he said in vibes 😭🎶','I would pay extra for this','landlord of the year','ok but this actually slaps'],
-  },
-  {
-    id:4, contact:'Tyler 🧔', emoji:'🧔', color:'#5e5ce6',
-    songTitle:'Dishes In The Sink Cowboys Cry',
-    songFile:'Dishes.mp3',
-    lyrics:'Did you do the dishes he asked with a sigh. They are soaking I said as four days went by. He said he was moving I said over what. I wrote him a country song about the dishes and stuff.',
-    preview:'did u do the dishes',
-    messages:[
-      {s:'them',t:'did u do the dishes'},
-      {s:'me',  t:'they are soaking'},
-      {s:'them',t:'bro they have been soaking for 4 days'},
-      {s:'me',  t:'deep soak.'},
-      {s:'them',t:'I am moving out'},
-      {s:'me',  t:'over DISHES??'},
-      {s:'them',t:'and the granola bars. and the smell.'},
-      {s:'me',  t:'wrote a country song about this', file:true},
-    ],
-    reactions:['💀','I AM MOVING OUT 😭🎸','this is on Spotify now','y all need therapy','I am the dishes in this story'],
-  },
-  {
-    id:5, contact:'Marco 🛵', emoji:'🛵', color:'#ff6b35',
-    songTitle:'Where Is My Pizza ft Hunger',
-    songFile:'Pizza.mp3',
-    lyrics:'He said he was outside I looked but no one was there. He gave my pizza away to someone he said looked hungry out there. I said WHAT. He said sorry bro. I turned this whole disaster into a rap and now the whole world knows.',
-    preview:'I gave it to someone else',
-    messages:[
-      {s:'them',t:'I am outside!'},
-      {s:'me',  t:'I do not see you...'},
-      {s:'them',t:'The blue building?'},
-      {s:'me',  t:'My building is RED'},
-      {s:'them',t:'Oh. I gave it to someone'},
-      {s:'me',  t:'WHAT'},
-      {s:'them',t:'They looked hungry. Sorry bro.'},
-      {s:'me',  t:'I made this for you', file:true},
-    ],
-    reactions:['😂😂😂','BRO THE LYRICS','I quit 😭','this guy is a legend','5 stars for the song'],
-  },
-];
-
-const PLATFORM_CONTENT = {
-  tiktok:{
-    name:'TikTok',icon:'🎵',color:'#ff0050',time:'7–9pm Tue/Thu/Fri',
-    captions:{
-      0:'POV your mom turned your dinner guilt trip into a pop punk anthem and its actually a BANGER\n\nthe granola bar got me 😭',
-      1:'he texted at 2am and got an opera back. he deserved it.',
-      2:'autocorrect ended my career and TextTunes made it eternal 💀',
-      3:'paying rent in vibes is now an official genre',
-      4:'4 days of soaking. one country song. zero dishes done.',
-      5:'the pizza thief got a rap song and honestly fair',
-    },
-    tags:['texttunes','funnytext','imessage','viral','fyp'],
-  },
-  instagram:{
-    name:'Instagram',icon:'📸',color:'#e1306c',time:'6–9pm Mon/Wed/Fri',
-    captions:{
-      0:'Some people process their feelings in therapy.\nMy mom processes them in pop punk.\n\nThe granola bar heard around the world 😭🎸\n\nTextTunes turns your most chaotic texts into actual songs.',
-      1:'2am texts deserve operatic responses.\n\nWe turned this red flag situation into an aria and honestly he should be honored.',
-      2:'autocorrect: 1\nmy career: 0\n\nAt least we got a banger out of it 💀\n\nTextTunes — turn your most embarrassing texts into songs.',
-      3:'Paying rent in vibes is a genre now.\n\nDave did not accept the vibes but he did get a song.',
-      4:'A 4-day soak produced nothing.\n\nExcept this country song. Which honestly hits.',
-      5:'The pizza was gone. The song lives forever.',
-    },
-    tags:['texttunes','funnytext','imessagevibes','relatable','trending','reels','viral','textfails'],
-  },
-  tiktok2:{
-    name:'YouTube Shorts',icon:'▶️',color:'#ff0000',time:'12–3pm daily',
-    captions:{
-      0:'Mom turned my granola bar confession into a pop punk song and I need everyone to hear it',
-      1:'He texted at 2am. He got an opera. He deserved it.',
-      2:'POV: autocorrect gets you sent to HR and you respond with a song',
-      3:'This man tried to pay rent in vibes. His landlord has a mortgage.',
-      4:'4 days of dishes. 1 country song. Zero accountability.',
-      5:'The delivery driver gave my pizza away and TextTunes immortalized it',
-    },
-    tags:['texttunes','shorts','funny','viral'],
-  },
-  twitter:{
-    name:'X / Twitter',icon:'𝕏',color:'#ffffff',time:'8–10am Mon–Fri',
-    captions:{
-      0:'my mom turned "did you eat today" into a pop punk song and honestly it goes harder than anything on the radio right now',
-      1:'2am text → opera. this is the only acceptable response.',
-      2:'autocorrect said "ducking" to my boss and now there is a song called Autocorrect Did This Not Me',
-      3:'guy tried to pay rent in vibes. landlord said he has a mortgage. there is a song now.',
-      4:'4 days. still soaking. now a country song.',
-      5:'the driver gave away my pizza and texttunes turned it into a rap. 5 stars.',
-    },
-    tags:['TextTunes','funny','relatable'],
-  },
-  linkedin:{
-    name:'LinkedIn',icon:'💼',color:'#0077b5',time:'Tue–Thu 8–10am',
-    captions:{
-      0:'My mom sent me a guilt trip about not eating dinner.\n\nI used TextTunes to turn it into a pop punk song.\n\nShe has now listened to it 14 times.\n\nSometimes the best product insights come from the most unexpected places.',
-      1:'We built TextTunes to solve a simple problem:\n\nWhat if your most embarrassing texts became songs?\n\nTurns out people really needed this.',
-      2:'Product lesson: your funniest bug reports become your best marketing.\n\nA user turned an autocorrect fail into a #1 ad. We did not plan that.',
-      3:'Disrupting the rent payment space with vibes-based economics.\n\n(We are not actually disrupting rent. But the song is real.)',
-      4:'Sometimes the best content comes from the worst situations.\n\nFour days of unwashed dishes → one viral country song.',
-      5:'User retention strategy: turn your biggest failure into content.\n\nOur delivery driver did exactly that.',
-    },
-    tags:['startup','productmarketing','innovation','TextTunes'],
-  },
-  reddit:{
-    name:'Reddit',icon:'🤖',color:'#ff4500',time:'6–8am Mon/Wed',
-    captions:{
-      0:'My mom guilt-tripped me about a granola bar and somehow it became a pop punk song that goes genuinely hard. I need to know if I am normal.',
-      1:'Accidentally left this guy on read at 2am and he spiraled into three texts. I turned it into an opera with this app and now I feel nothing but power.',
-      2:'Autocorrect told my boss I would see him in 10 "ducking minutes." I turned the whole conversation into a song and sent it to HR myself as a preemptive move.',
-      3:'Tried to pay rent in vibes. Landlord said he has a mortgage. Made him a song instead. He has not responded but I think he liked it.',
-      4:'Roommate asked about the dishes. I responded "deep soak." He has threatened to move out. I made a country song.',
-      5:'The delivery driver gave my entire order to a stranger because they "looked hungry." There is now a rap about it.',
-    },
-    tags:['funny','textfails','relatable','apps'],
-  },
-};
+let currentAd = null;
 
 /* ══════════════════════════
    STATE
 ══════════════════════════ */
-let currentScene = 0;
 let adRunning = false;
 let adAbortFlag = false;
 let progInterval = null;
-let currentTab = 'studio';
 
 function setAIStatus(msg,color){
   const el=document.getElementById('aiStatus');
@@ -525,47 +247,13 @@ function scrollDown(){
 }
 
 /* ══════════════════════════
-   BUILD SCENARIO PICKER
-══════════════════════════ */
-function buildPicker(){
-  const list=document.getElementById('scenarioList');
-  list.innerHTML='';
-  SCENES.forEach((sc,i)=>{
-    const btn=document.createElement('button');
-    btn.className='scene-btn'+(i===currentScene?' active':'');
-    btn.onclick=()=>{currentScene=i;document.querySelectorAll('.scene-btn').forEach((b,j)=>b.classList.toggle('active',j===i));};
-    btn.innerHTML=`<div class="scene-avatar" style="background:${sc.color}">${sc.emoji}</div><div class="scene-info"><div class="scene-name">${sc.contact}</div><div class="scene-preview">${sc.preview}</div></div>`;
-    list.appendChild(btn);
-  });
-}
-
-function randomScene(){
-  currentScene=Math.floor(Math.random()*SCENES.length);
-  document.querySelectorAll('.scene-btn').forEach((b,i)=>b.classList.toggle('active',i===currentScene));
-  playAd();
-}
-
-/* ══════════════════════════
    PLAY AD
 ══════════════════════════ */
 async function playAd(){
+  if(!currentAd){setAIStatus('Type a scenario and hit AI first!','#ff453a');return;}
   if(adRunning){adAbortFlag=true;if(progInterval){clearInterval(progInterval);progInterval=null;}await sleep(120);}
   adAbortFlag=false;adRunning=true;
-  const sc=SCENES[currentScene];
-
-  // Generate ElevenLabs audio for hardcoded scenes if key is saved and no audioUrl yet
-  const ek=localStorage.getItem('tt_eleven')||'';
-  if(ek && !sc.audioUrl && sc.lyrics){
-    try{
-      setAIStatus('🎵 Generating song (this may take ~30s)...','#6c47ff');
-      const er=await fetch('/api/elevenlabs',{
-        method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({lyrics:sc.lyrics,elevenKey:ek,songTitle:sc.songTitle})
-      });
-      if(er.ok){const blob=await er.blob();sc.audioUrl=URL.createObjectURL(blob);}
-      setAIStatus('','');
-    }catch(e){console.warn('ElevenLabs failed:',e);setAIStatus('','');}
-  }
+  const sc=currentAd;
 
   // Set nav
   document.getElementById('navAvatar').style.background=sc.color;
@@ -799,89 +487,9 @@ async function showReactions(sc){
 }
 
 /* ══════════════════════════
-   BUILD CONTENT CARDS
-══════════════════════════ */
-function buildContent(){
-  const container=document.getElementById('contentCards');
-  container.innerHTML='';
-  const sc=SCENES[currentScene];
-  const platforms=Object.values(PLATFORM_CONTENT);
-
-  const grid=document.createElement('div');
-  grid.className='platform-grid';
-
-  platforms.forEach(p=>{
-    const cap=p.captions[currentScene]||p.captions[0];
-    const tags=p.tags||[];
-    const card=document.createElement('div');
-    card.className='pcrd';
-    card.innerHTML=`
-      <div class="pcrd-head">
-        <div class="pcrd-icon">${p.icon}</div>
-        <div><div class="pcrd-name">${p.name}</div><div class="pcrd-time" style="color:${p.color}">${p.time}</div></div>
-      </div>
-      <div class="pcrd-caption">${cap}</div>
-      <div class="pcrd-tags">${tags.map(t=>`<span class="tag">#${t}</span>`).join('')}</div>
-      <button class="copy-btn" onclick="copyCaption(this,'${p.name.replace(/'/g,'')}',\`${cap.replace(/`/g,'\\`')}\`,${JSON.stringify(tags).replace(/"/g,'&quot;')})">Copy</button>`;
-    grid.appendChild(card);
-  });
-  container.appendChild(grid);
-}
-
-function copyCaption(btn,name,cap,tags){
-  const text=cap+'\n\n'+tags.map(t=>'#'+t).join(' ');
-  navigator.clipboard.writeText(text).then(()=>{
-    btn.textContent='✓ Copied!';btn.classList.add('done');
-    setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('done');},2000);
-  }).catch(()=>{
-    // fallback
-    const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
-    btn.textContent='✓ Copied!';btn.classList.add('done');
-    setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('done');},2000);
-  });
-}
-
-/* ══════════════════════════
-   BUILD STRATEGY
-══════════════════════════ */
-function buildStrategy(){
-  const items=[
-    {icon:'🔥',title:'Post 3x/day on TikTok first',body:'Spend the first 2 weeks <strong>only on TikTok</strong>. Volume wins the algorithm. Mom, Boss, and Roommate scenarios get the most organic shares.'},
-    {icon:'⏰',title:'Best times to post',body:'<strong>TikTok:</strong> 7–9pm Tue/Thu. <strong>Instagram:</strong> 6–9pm Mon/Wed/Fri. <strong>LinkedIn:</strong> Tue–Thu 8–10am. <strong>Reddit:</strong> 6–8am Mon/Wed.'},
-    {icon:'🪝',title:'Hook that doubles watch time',body:'Start with <strong>"POV:"</strong> or <strong>"I accidentally..."</strong> — these two openers consistently get 2x watch time. Never show the song in the thumbnail.'},
-    {icon:'😂',title:'The reaction is the payoff',body:'Hold the camera on <strong>the other person reacting</strong> to the song for 3+ seconds. This is your most shareable moment — do not cut it short.'},
-    {icon:'🤖',title:'Reddit is your secret weapon',body:'Post the story in <strong>r/Funny</strong> or <strong>r/mildlyinfuriating</strong> as if it happened to you. Mention TextTunes casually. One post can drive 50K+ downloads.'},
-    {icon:'💬',title:'Ask a question every time',body:'"Which scenario should we do next?" in every caption increases comments by <strong>280%</strong>. More comments = more reach on every platform.'},
-    {icon:'📅',title:'30-Day blitz plan',body:'<strong>Week 1:</strong> TikTok only, 3x/day. <strong>Week 2:</strong> Add Instagram Reels. <strong>Week 3:</strong> Add YouTube Shorts + Reddit. <strong>Week 4:</strong> Add LinkedIn + X. Reply to every comment week 1.'},
-    {icon:'🎵',title:'Use trending audio',body:'On TikTok, use a <strong>trending sound for the first 2 seconds</strong> then cut to your iMessage video. The algorithm boosts content that rides trending audio even briefly.'},
-  ];
-  const grid=document.getElementById('strategyCards');
-  grid.innerHTML=items.map(i=>`<div class="scrd"><div class="scrd-icon">${i.icon}</div><div class="scrd-title">${i.title}</div><div class="scrd-body">${i.body}</div></div>`).join('');
-}
-
-/* ══════════════════════════
-   TABS
-══════════════════════════ */
-function setTab(tab,btn){
-  currentTab=tab;
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  ['studio','content','strategy'].forEach(t=>{
-    document.getElementById('tab-'+t).style.display=t===tab?'':'none';
-  });
-  if(tab==='content')buildContent();
-  if(tab==='strategy')buildStrategy();
-}
-
-/* ══════════════════════════
    TIME
 ══════════════════════════ */
 (function(){const now=new Date();let h=now.getHours()%12||12,m=now.getMinutes();document.getElementById('sbarTime').textContent=`${h}:${String(m).padStart(2,'0')}`;})();
-
-/* ══════════════════════════
-   INIT
-══════════════════════════ */
-buildPicker();
 
 // ── AI Generation via local server ──
 async function generateAI(scenario) {
@@ -892,8 +500,10 @@ async function generateAI(scenario) {
   const prompt = `Write a funny viral iMessage conversation for a TextTunes app ad. TextTunes turns texts into real songs.
 Scenario: "${scenario}"
 Return ONLY raw JSON. No markdown. No explanation. Start with { end with }
-{"contact":"Mom","emoji":"👩","color":"#ff6b9d","messages":[{"side":"them","text":"did you eat today"},{"side":"me","text":"mom its 11pm"},{"side":"them","text":"thats not an answer"},{"side":"me","text":"i had a granola bar"},{"side":"them","text":"I raised you for THIS"},{"side":"me","text":"made this into a song for you"}],"songTitle":"Why Wont You Call Me Back","songFile":"MomSong.mp3","lyrics":"She texts at 11pm asking if I ate today. I had a granola bar mom please just go away. She raised me for this she said with a cry. But the granola bar was good and I do not know why.","reactionEmojis":["this goes hard","I cannot stop laughing","calling u rn","sending to everyone"]}
-Rules: 6-8 messages. Last message from me hints at a song. No apostrophes. Make it genuinely funny.`;
+{"contact":"Mom","emoji":"👩","color":"#ff6b9d","messages":[{"side":"them","text":"did you eat today"},{"side":"me","text":"mom its 11pm"},{"side":"them","text":"thats not an answer"},{"side":"me","text":"i had a granola bar"},{"side":"them","text":"I raised you for THIS"},{"side":"me","text":"made this into a song for you"}],"songTitle":"Why Wont You Call Me Back","songFile":"MomSong.mp3","lyrics":"Mama dont cry tonight I swear that I ate just fine, granola never tasted so sweet","reactionEmojis":["this goes hard","I cannot stop laughing","calling u rn","sending to everyone"]}
+Rules:
+- 6-8 messages. Last message from me hints at a song. No apostrophes. Make it genuinely funny.
+- CRITICAL: The "lyrics" field must be SHORT SINGABLE song lyrics (25-200 characters max). Do NOT repeat or narrate the conversation. Write original catchy lyrics INSPIRED BY the vibe/theme of the convo. Think pop song chorus — melodic, rhyming, fun to sing. No spoken word or narration.`;
 
   const r = await fetch('/api/claude', {
     method: 'POST',
@@ -956,19 +566,17 @@ async function runAIGenerate(){
   setAIStatus('✍️ Claude is writing the convo...','#6c47ff');
   try{
     const scene=await generateAI(scenario);
-    const sc={
-      id:99,contact:scene.contact,emoji:scene.emoji,color:scene.color,
-      songTitle:scene.songTitle,songFile:scene.songFile,
+    currentAd={
+      contact:scene.contact,emoji:scene.emoji,color:scene.color,
+      songTitle:scene.songTitle,songFile:scene.songFile||'TextTune.mp3',
+      lyrics:scene.lyrics,
       preview:scene.messages[0]?.text||'',
       messages:scene.messages.map(m=>({s:m.side,t:m.text})),
       reactions:scene.reactionEmojis||['this goes hard','I cannot stop'],
       audioUrl:scene.audioUrl,
     };
-    sc.messages[sc.messages.length-1].file=true;
-    SCENES[99]=sc;currentScene=99;
-    document.querySelectorAll('.scene-btn').forEach(b=>b.classList.remove('active'));
-    setAIStatus('🎬 Playing your custom ad!','#00ff88');
-    setTab('studio',document.querySelector('.tab-btn'));
+    currentAd.messages[currentAd.messages.length-1].file=true;
+    setAIStatus('🎬 Playing your ad!','#00ff88');
     await playAd();
     setAIStatus('','#6b6b8e');
   }catch(e){setAIStatus('Error: '+e.message,'#ff453a');}

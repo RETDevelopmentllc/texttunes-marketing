@@ -29,8 +29,8 @@ app.post('/api/elevenlabs', async (req, res) => {
   const { lyrics, elevenKey, songTitle } = req.body;
   if (!elevenKey) return res.status(400).json({ error: 'Missing ElevenLabs key' });
   try {
-    // Use ElevenLabs Music API to generate an actual song
-    const prompt = `A short funny catchy pop song with vocals. Title: "${songTitle || 'Untitled'}". Lyrics: ${lyrics}`;
+    // Use ElevenLabs Music API to generate an actual sung song
+    const prompt = `A 20-second catchy upbeat pop song with strong sung female vocals, fun melody, and a full instrumental beat. The singer should SING melodically, not speak or rap. The song is humorous and inspired by this theme: "${songTitle || 'Untitled'}". Sung lyrics: ${lyrics}`;
     const r = await axios.post(
       'https://api.elevenlabs.io/v1/music/compose',
       { prompt, music_length_ms: 20000 },
