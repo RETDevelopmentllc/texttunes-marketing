@@ -26,18 +26,39 @@ app.post('/api/claude', async (req, res) => {
 });
 
 app.post('/api/elevenlabs', async (req, res) => {
-  const { lyrics, elevenKey } = req.body;
+  const { lyrics, elevenKey, songTitle } = req.body;
   if (!elevenKey) return res.status(400).json({ error: 'Missing ElevenLabs key' });
   try {
+    // Use ElevenLabs Music API to generate an actual song
+    const prompt = `A short funny catchy pop song with vocals. Title: "${songTitle || 'Untitled'}". Lyrics: ${lyrics}`;
     const r = await axios.post(
-      'https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM',
-      { text: lyrics, model_id: 'eleven_multilingual_v2', voice_settings: { stability: 0.35, similarity_boost: 0.75, style: 0.65, use_speaker_boost: true } },
-      { headers: { 'xi-api-key': elevenKey, 'Content-Type': 'application/json' }, responseType: 'arraybuffer' }
+      'https://api.elevenlabs.io/v1/music/compose',
+      { prompt, music_length_ms: 20000 },
+      { headers: { 'xi-api-key': elevenKey, 'Content-Type': 'application/json' }, responseType: 'arraybuffer', timeout: 120000 }
     );
     res.set('Content-Type', 'audio/mpeg');
     res.send(r.data);
   } catch (e) {
-    res.status(e.response?.status || 500).json({ error: e.message });
+    // If music API fails with bad_prompt, try the suggested prompt
+    if (e.response?.data) {
+      try {
+        const errData = JSON.parse(Buffer.from(e.response.data).toString());
+        if (errData.detail?.prompt_suggestion) {
+          const retry = await axios.post(
+            'https://api.elevenlabs.io/v1/music/compose',
+            { prompt: errData.detail.prompt_suggestion, music_length_ms: 20000 },
+            { headers: { 'xi-api-key': elevenKey, 'Content-Type': 'application/json' }, responseType: 'arraybuffer', timeout: 120000 }
+          );
+          res.set('Content-Type', 'audio/mpeg');
+          return res.send(retry.data);
+        }
+        res.status(e.response?.status || 500).json({ error: errData.detail?.message || e.message });
+      } catch (parseErr) {
+        res.status(e.response?.status || 500).json({ error: e.message });
+      }
+    } else {
+      res.status(500).json({ error: e.message });
+    }
   }
 });
 

@@ -557,10 +557,10 @@ async function playAd(){
   const ek=localStorage.getItem('tt_eleven')||'';
   if(ek && !sc.audioUrl && sc.lyrics){
     try{
-      setAIStatus('🎵 Generating song...','#6c47ff');
+      setAIStatus('🎵 Generating song (this may take ~30s)...','#6c47ff');
       const er=await fetch('/api/elevenlabs',{
         method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({lyrics:sc.lyrics,elevenKey:ek})
+        body:JSON.stringify({lyrics:sc.lyrics,elevenKey:ek,songTitle:sc.songTitle})
       });
       if(er.ok){const blob=await er.blob();sc.audioUrl=URL.createObjectURL(blob);}
       setAIStatus('','');
@@ -922,7 +922,7 @@ Rules: 6-8 messages. Last message from me hints at a song. No apostrophes. Make 
       const er = await fetch('/api/elevenlabs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ lyrics: json.lyrics, elevenKey })
+        body: JSON.stringify({ lyrics: json.lyrics, elevenKey, songTitle: json.songTitle })
       });
       if (er.ok) {
         const blob = await er.blob();
