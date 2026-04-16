@@ -19,6 +19,8 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60p
 .logo{font-family:var(--display);font-size:26px;font-weight:800;letter-spacing:-.5px;margin-bottom:6px;}
 .logo em{color:var(--pink);font-style:normal;}
 .tagline{font-size:13px;color:var(--muted);margin-bottom:28px;text-align:center;}
+.vcat{background:#1a1a2e;border:1px solid #2c2c3e;border-radius:20px;padding:6px 12px;color:#f0f0ff;font-size:12px;font-weight:600;cursor:pointer;font-family:DM Sans,sans-serif;transition:all .2s;white-space:nowrap;}
+.vcat:hover{background:linear-gradient(135deg,#FF4500,#FF8C00);border-color:transparent;color:#fff;transform:scale(1.05);}
 
 
 /* PHONE */
@@ -157,7 +159,25 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60p
 </div>
 <div style="display:flex;gap:8px;margin-bottom:8px;width:100%;max-width:400px;">
   <button onclick="runAIGenerate('random')" style="flex:1;background:linear-gradient(135deg,#0f0f1c,#1c1c30);border:1px solid #2c2c3e;border-radius:12px;padding:10px 14px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif;">🎲 Random AI Scenario</button>
-  <button onclick="runAIGenerate('viral')" style="flex:1;background:linear-gradient(135deg,#FF4500,#FF8C00);border:none;border-radius:12px;padding:10px 14px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif;">🔥 Viral</button>
+  <button onclick="toggleViralPicker()" style="flex:1;background:linear-gradient(135deg,#FF4500,#FF8C00);border:none;border-radius:12px;padding:10px 14px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif;">🔥 Viral Categories</button>
+</div>
+<div id="viralPicker" style="display:none;width:100%;max-width:400px;margin-bottom:8px;">
+  <div style="display:flex;flex-wrap:wrap;gap:6px;">
+    <button class="vcat" onclick="runViral('Ex texting back')">💔 Ex Texting Back</button>
+    <button class="vcat" onclick="runViral('Mom found out')">😱 Mom Found Out</button>
+    <button class="vcat" onclick="runViral('Caught lying')">🤥 Caught Lying</button>
+    <button class="vcat" onclick="runViral('Autocorrect fail')">😬 Autocorrect Fail</button>
+    <button class="vcat" onclick="runViral('Wrong number text')">📱 Wrong Number</button>
+    <button class="vcat" onclick="runViral('Group chat chaos')">👥 Group Chat Chaos</button>
+    <button class="vcat" onclick="runViral('Breakup text')">💀 Breakup Text</button>
+    <button class="vcat" onclick="runViral('Sibling roast')">🤣 Sibling Roast</button>
+    <button class="vcat" onclick="runViral('Boss text gone wrong')">💼 Boss Text Fail</button>
+    <button class="vcat" onclick="runViral('Landlord being ridiculous')">🏠 Crazy Landlord</button>
+    <button class="vcat" onclick="runViral('Boyfriend or girlfriend caught cheating')">👀 Caught Cheating</button>
+    <button class="vcat" onclick="runViral('Dad joke war in texts')">😂 Dad Joke War</button>
+    <button class="vcat" onclick="runViral('Friend owes money and keeps dodging')">💸 Pay Me Back</button>
+    <button class="vcat" onclick="runViral('Uber driver texts gone wild')">🚗 Uber Driver Texts</button>
+  </div>
 </div>
 <div style="display:flex;gap:8px;margin-bottom:16px;width:100%;max-width:400px;align-items:center;">
   <div style="display:flex;gap:4px;background:#0f0f1c;border:1px solid #1c1c30;border-radius:12px;padding:4px;flex-shrink:0;">
@@ -771,6 +791,17 @@ function setVoice(v){
   else{f.style.background='#7C3AED';f.style.color='#fff';m.style.background='transparent';m.style.color='#6b6b8e';}
 }
 
+// ── Viral category picker ──
+function toggleViralPicker(){
+  const p=document.getElementById('viralPicker');
+  p.style.display=p.style.display==='none'?'block':'none';
+}
+function runViral(category){
+  document.getElementById('viralPicker').style.display='none';
+  document.getElementById('ttScenario').value=category;
+  runAIGenerate('viral_category');
+}
+
 // ── AI Generation via local server ──
 async function generateAI(scenario) {
   const anthropicKey = localStorage.getItem('tt_anthropic') || '';
@@ -783,7 +814,10 @@ async function generateAI(scenario) {
   const senderEmoji = voice === 'male' ? '🧑' : '👩';
 
   let scenarioBlock = '';
-  if(scenario==='__VIRAL__'){
+  if(scenario.startsWith('__VIRAL_CAT__:')){
+    const cat=scenario.replace('__VIRAL_CAT__:','');
+    scenarioBlock = `Create a hilarious text conversation based on this viral category: "${cat}". This should feel like a REAL viral text thread people share on TikTok, Reddit, Twitter, and Instagram. Make it feel authentic — the kind of text screenshot that gets millions of views. Be creative with the specific situation within this category.`;
+  } else if(scenario==='__VIRAL__'){
     scenarioBlock = `Think of a REAL viral text conversation trend from social media (Reddit, TikTok, Twitter, Instagram). Pick from well-known text convo formats that went viral — like the "wrong number" texts, "mom found out" texts, "ex texting back" texts, "autocorrect fail" texts, "group chat chaos" texts, "caught lying" texts, breakup texts, sibling roasts, landlord texts, boss texts gone wrong, etc. Recreate one of these viral text formats but make it original and hilarious. It should feel like something that would get millions of views.`;
   } else if(scenario==='__RANDOM__'){
     scenarioBlock = `Come up with your own hilarious and creative scenario for a text conversation. Think of something universally relatable and funny — awkward situations, family drama, relationship moments, friend group chaos, work fails, pet owners, roommate problems, dating disasters, etc. Be creative and unexpected. Make it something people would share.`;
@@ -871,7 +905,8 @@ async function runAIGenerate(mode='custom'){
   if(mode==='custom'&&!scenario){setAIStatus('Type a scenario first!','#ff453a');return;}
   if(mode==='random'){scenario='__RANDOM__';}
   if(mode==='viral'){scenario='__VIRAL__';}
-  const statusMsg=mode==='viral'?'🔥 Finding a viral convo...':mode==='random'?'🎲 AI is cooking up a scenario...':'✍️ Claude is writing the convo...';
+  if(mode==='viral_category'){scenario='__VIRAL_CAT__:'+scenario;}
+  const statusMsg=(mode==='viral'||mode==='viral_category')?'🔥 Finding a viral convo...':mode==='random'?'🎲 AI is cooking up a scenario...':'✍️ Claude is writing the convo...';
   setAIStatus(statusMsg,'#7C3AED');
   try{
     const scene=await generateAI(scenario);
