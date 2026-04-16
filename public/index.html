@@ -206,6 +206,20 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60p
     <option value="random">🎲 Surprise Me</option>
   </select>
 </div>
+<div style="width:100%;max-width:400px;margin-bottom:8px;">
+  <button onclick="toggleCustomSong()" class="dl-btn" style="width:100%;justify-content:center;">🎤 Create Your Own Song</button>
+</div>
+<div id="customSongPanel" style="display:none;width:100%;max-width:400px;background:#0f0f1c;border:1px solid #1c1c30;border-radius:14px;padding:16px;margin-bottom:16px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+    <div style="font-size:11px;color:#6b6b8e;font-weight:600;letter-spacing:1px;text-transform:uppercase;">Create Your Own Song</div>
+    <button onclick="toggleCustomSong()" style="background:none;border:none;color:#6b6b8e;font-size:16px;cursor:pointer;">✕</button>
+  </div>
+  <input id="customSongTitle" placeholder="Song title..." style="width:100%;background:#07070f;border:1px solid #1c1c30;border-radius:10px;padding:9px 12px;color:#f0f0ff;font-size:13px;margin-bottom:8px;outline:none;font-family:DM Sans,sans-serif;"/>
+  <textarea id="customLyrics" rows="3" placeholder="Write your lyrics here..." style="width:100%;background:#07070f;border:1px solid #1c1c30;border-radius:10px;padding:9px 12px;color:#f0f0ff;font-size:13px;margin-bottom:8px;outline:none;font-family:DM Sans,sans-serif;resize:vertical;"></textarea>
+  <div style="font-size:10px;color:#6b6b8e;margin-bottom:10px;">Write your own lyrics, generate the song, and it auto-plays in your ad. Uses your selected voice & genre.</div>
+  <button onclick="generateCustomSong()" style="width:100%;padding:10px;background:linear-gradient(135deg,#7C3AED,#9B6FFF);border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;">🎵 Generate & Add to Video</button>
+  <div id="customSongStatus" style="font-size:11px;color:#6b6b8e;margin-top:8px;text-align:center;min-height:16px;"></div>
+</div>
 <div id="settingsPanel" style="display:none;width:100%;max-width:400px;background:#0f0f1c;border:1px solid #1c1c30;border-radius:14px;padding:16px;margin-bottom:16px;">
   <div style="font-size:11px;color:#6b6b8e;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">API Keys</div>
   <input id="ttAnthropicKey" type="password" placeholder="Anthropic key (sk-ant-...)" style="width:100%;background:#07070f;border:1px solid #1c1c30;border-radius:10px;padding:9px 12px;color:#f0f0ff;font-size:13px;margin-bottom:8px;outline:none;"/>
@@ -265,10 +279,30 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60p
       </div>
     </div>
   </div>
-  <div style="margin-top:14px;display:flex;gap:8px;justify-content:center;">
+  <div style="margin-top:14px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+    <button class="dl-btn" id="replayBtn" onclick="replayAd()" disabled>▶ Replay</button>
+    <button class="dl-btn" id="pauseBtn" onclick="togglePause()" disabled>⏸ Pause</button>
+    <button class="dl-btn" id="editBtn" onclick="toggleEditPanel()" disabled>✏️ Edit Texts</button>
     <button class="dl-btn" id="downloadBtn" onclick="recordAndDownload()" disabled>⬇ Download Video</button>
   </div>
   <div id="dlStatus" style="margin-top:8px;font-size:11px;color:#6b6b8e;text-align:center;font-family:monospace;min-height:16px;"></div>
+  <div id="editPanel" style="display:none;width:100%;max-width:400px;margin-top:12px;background:#0f0f1c;border:1px solid #1c1c30;border-radius:14px;padding:16px;max-height:320px;overflow-y:auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <div style="font-size:11px;color:#6b6b8e;font-weight:600;letter-spacing:1px;text-transform:uppercase;">Edit Messages</div>
+      <button onclick="toggleEditPanel()" style="background:none;border:none;color:#6b6b8e;font-size:16px;cursor:pointer;">✕</button>
+    </div>
+    <div id="editMsgList"></div>
+    <div style="margin-top:10px;">
+      <div style="font-size:11px;color:#6b6b8e;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">Song Title</div>
+      <input id="editSongTitle" style="width:100%;background:#07070f;border:1px solid #1c1c30;border-radius:10px;padding:8px 12px;color:#f0f0ff;font-size:13px;outline:none;font-family:DM Sans,sans-serif;margin-bottom:8px;"/>
+      <div style="font-size:11px;color:#6b6b8e;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">Lyrics</div>
+      <textarea id="editLyrics" rows="2" style="width:100%;background:#07070f;border:1px solid #1c1c30;border-radius:10px;padding:8px 12px;color:#f0f0ff;font-size:13px;outline:none;font-family:DM Sans,sans-serif;resize:vertical;"></textarea>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:12px;">
+      <button onclick="saveEdits()" style="flex:1;padding:10px;background:#7C3AED;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;">Save & Replay</button>
+      <button onclick="toggleEditPanel()" style="flex:1;padding:10px;background:#1c1c30;border:none;border-radius:10px;color:#f0f0ff;font-size:13px;font-weight:700;cursor:pointer;">Cancel</button>
+    </div>
+  </div>
 </div>
 
 
@@ -283,6 +317,8 @@ let currentAd = null;
 ══════════════════════════ */
 let adRunning = false;
 let adAbortFlag = false;
+let adPaused = false;
+let pauseResolve = null;
 let progInterval = null;
 let isRecording = false;
 let mediaRecorder = null;
@@ -332,7 +368,11 @@ function playTone(type){
 /* ══════════════════════════
    HELPERS
 ══════════════════════════ */
-function sleep(ms){return new Promise(r=>{if(adAbortFlag){r();return;}setTimeout(r,ms);});}
+async function sleep(ms){
+  if(adAbortFlag)return;
+  await new Promise(r=>setTimeout(r,ms));
+  if(adPaused) await new Promise(r=>{pauseResolve=r;});
+}
 
 function scrollDown(){
   requestAnimationFrame(()=>{const m=document.getElementById('msgArea');if(m)m.scrollTop=m.scrollHeight+300;});
@@ -344,7 +384,9 @@ function scrollDown(){
 async function playAd(){
   if(!currentAd){setAIStatus('Type a scenario and hit AI first!','#ff453a');return;}
   if(adRunning){adAbortFlag=true;if(progInterval){clearInterval(progInterval);progInterval=null;}await sleep(120);}
-  adAbortFlag=false;adRunning=true;
+  adAbortFlag=false;adRunning=true;adPaused=false;
+  if(pauseResolve){pauseResolve();pauseResolve=null;}
+  document.getElementById('pauseBtn').textContent='⏸ Pause';
   const sc=currentAd;
 
   // Set nav
@@ -440,7 +482,8 @@ async function playAd(){
       await sleep(1200+Math.random()*600);
     }
   }
-  adRunning=false;
+  adRunning=false;adPaused=false;
+  document.getElementById('pauseBtn').textContent='⏸ Pause';
 }
 
 function makeBubble(msg){
@@ -791,6 +834,46 @@ function setVoice(v){
   else{f.style.background='#7C3AED';f.style.color='#fff';m.style.background='transparent';m.style.color='#6b6b8e';}
 }
 
+// ── Custom Song Generator ──
+function toggleCustomSong(){
+  const p=document.getElementById('customSongPanel');
+  p.style.display=p.style.display==='none'?'block':'none';
+}
+async function generateCustomSong(){
+  const title=document.getElementById('customSongTitle').value.trim();
+  const lyrics=document.getElementById('customLyrics').value.trim();
+  const elevenKey=localStorage.getItem('tt_eleven')||'';
+  if(!elevenKey){document.getElementById('customSongStatus').textContent='ElevenLabs key required — add in Settings';document.getElementById('customSongStatus').style.color='#ff453a';return;}
+  if(!lyrics){document.getElementById('customSongStatus').textContent='Write some lyrics first!';document.getElementById('customSongStatus').style.color='#ff453a';return;}
+  if(!currentAd){document.getElementById('customSongStatus').textContent='Generate an ad first, then create a custom song for it!';document.getElementById('customSongStatus').style.color='#ff453a';return;}
+  const status=document.getElementById('customSongStatus');
+  status.textContent='🎵 Generating your song...';status.style.color='#7C3AED';
+  try{
+    const voice=selectedVoice;
+    const genre=document.getElementById('ttGenre').value;
+    const er=await fetch('/api/elevenlabs',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({lyrics,elevenKey,songTitle:title||'My Song',voice,genre})
+    });
+    if(!er.ok){const d=await er.json().catch(()=>({}));throw new Error(d.error||'Generation failed');}
+    const blob=await er.blob();
+    const audioUrl=URL.createObjectURL(blob);
+    // Plug the custom song into the current ad
+    currentAd.audioUrl=audioUrl;
+    if(title){currentAd.songTitle=title;}
+    currentAd.lyrics=lyrics;
+    currentAd.songFile=(currentAd.songTitle||'TextTune').replace(/[^a-zA-Z0-9 ]/g,'').replace(/\s+/g,'')+'.mp3';
+    status.textContent='Song ready! Replaying ad with your custom song...';status.style.color='#00ff88';
+    document.getElementById('customSongPanel').style.display='none';
+    // Replay the ad with the new song
+    await sleep(500);
+    replayAd();
+  }catch(e){
+    status.textContent='Error: '+e.message;status.style.color='#ff453a';
+  }
+}
+
 // ── Viral category picker ──
 function toggleViralPicker(){
   const p=document.getElementById('viralPicker');
@@ -883,6 +966,73 @@ Rules:
   return json;
 }
 
+// ── Playback controls ──
+function replayAd(){
+  if(!currentAd)return;
+  adAbortFlag=true;adPaused=false;
+  if(pauseResolve){pauseResolve();pauseResolve=null;}
+  setTimeout(()=>{
+    adAbortFlag=false;adRunning=false;
+    document.getElementById('pauseBtn').textContent='⏸ Pause';
+    document.getElementById('pauseBtn').disabled=false;
+    playAd();
+  },200);
+}
+function togglePause(){
+  if(!adRunning)return;
+  if(adPaused){
+    adPaused=false;
+    document.getElementById('pauseBtn').textContent='⏸ Pause';
+    if(pauseResolve){pauseResolve();pauseResolve=null;}
+  } else {
+    adPaused=true;
+    document.getElementById('pauseBtn').textContent='▶ Resume';
+  }
+}
+
+// ── Edit panel ──
+function toggleEditPanel(){
+  const p=document.getElementById('editPanel');
+  if(p.style.display==='none'){
+    if(!currentAd)return;
+    populateEditPanel();
+    p.style.display='block';
+  } else {
+    p.style.display='none';
+  }
+}
+function populateEditPanel(){
+  const list=document.getElementById('editMsgList');
+  list.innerHTML='';
+  currentAd.messages.forEach((msg,i)=>{
+    const isFile=msg.file;
+    const label=msg.s==='me'?'Me':'Them';
+    const color=msg.s==='me'?'#7C3AED':'#3a3a5c';
+    const row=document.createElement('div');
+    row.style.cssText='display:flex;align-items:center;gap:8px;margin-bottom:6px;';
+    row.innerHTML=`<span style="font-size:10px;font-weight:700;color:${color};min-width:32px;text-transform:uppercase;">${label}</span>`+
+      (isFile?`<span style="font-size:12px;color:#6b6b8e;flex:1;">🎵 [Song File]</span>`:
+      `<input data-idx="${i}" value="${msg.t.replace(/"/g,'&quot;')}" style="flex:1;background:#07070f;border:1px solid #1c1c30;border-radius:8px;padding:7px 10px;color:#f0f0ff;font-size:12px;outline:none;font-family:DM Sans,sans-serif;"/>`);
+    list.appendChild(row);
+  });
+  document.getElementById('editSongTitle').value=currentAd.songTitle||'';
+  document.getElementById('editLyrics').value=currentAd.lyrics||'';
+}
+function saveEdits(){
+  // Save edited messages
+  document.querySelectorAll('#editMsgList input[data-idx]').forEach(inp=>{
+    const i=parseInt(inp.dataset.idx);
+    if(currentAd.messages[i])currentAd.messages[i].t=inp.value;
+  });
+  // Save song title and lyrics
+  currentAd.songTitle=document.getElementById('editSongTitle').value;
+  currentAd.songFile=(currentAd.songTitle||'TextTune').replace(/[^a-zA-Z0-9 ]/g,'').replace(/\s+/g,'')+'.mp3';
+  currentAd.lyrics=document.getElementById('editLyrics').value;
+  // Close panel and replay
+  document.getElementById('editPanel').style.display='none';
+  replayAd();
+}
+
 function toggleSettings(){
   const p=document.getElementById('settingsPanel');
   p.style.display=p.style.display==='none'?'block':'none';
@@ -923,6 +1073,9 @@ async function runAIGenerate(mode='custom'){
     currentAd.messages[currentAd.messages.length-1].file=true;
     setAIStatus('🎬 Playing your ad!','#00ff88');
     document.getElementById('downloadBtn').disabled=false;
+    document.getElementById('replayBtn').disabled=false;
+    document.getElementById('pauseBtn').disabled=false;
+    document.getElementById('editBtn').disabled=false;
     await playAd();
     setAIStatus('','#6b6b8e');
   }catch(e){setAIStatus('Error: '+e.message,'#ff453a');}
