@@ -64,7 +64,8 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60p
 .nav-icon-btn{width:28px;height:28px;background:#3a3a3c;border-radius:50%;display:flex;align-items:center;justify-content:center;}
 
 /* MESSAGES */
-.msgs{flex:1;overflow:hidden;padding:5px 8px 4px;display:flex;flex-direction:column;gap:2px;}
+.msgs{flex:1;overflow-y:auto;overflow-x:hidden;padding:5px 8px 4px;display:flex;flex-direction:column;gap:2px;-webkit-overflow-scrolling:touch;}
+.msgs::-webkit-scrollbar{width:0;display:none;}
 .time-div{text-align:center;font-size:10px;color:#8e8e93;margin:5px 0 3px;}
 .row{display:flex;align-items:flex-end;opacity:0;transform:translateY(8px) scale(.97);transition:opacity .22s,transform .22s;flex-shrink:0;}
 .row.me{justify-content:flex-end;}
@@ -509,7 +510,13 @@ function makeBubble(msg,idx){
         bub.contentEditable='false';
         bub.style.outline='none';
         const newText=bub.textContent.trim();
-        if(newText&&currentAd&&currentAd.messages[idx]){
+        if(!newText||!currentAd)return;
+        if(typeof idx==='string'&&idx.startsWith('after_')){
+          const ai=parseInt(idx.split('_')[1]);
+          if(currentAd.afterSongMessages&&currentAd.afterSongMessages[ai]){
+            currentAd.afterSongMessages[ai].text=newText;
+          }
+        } else if(currentAd.messages[idx]){
           currentAd.messages[idx].t=newText;
         }
       };
@@ -694,14 +701,15 @@ async function showAfterSongMessages(sc){
   const iField=document.getElementById('inputField');
   const iSend=document.getElementById('inputSend');
   const iMic=document.getElementById('inputMic');
-  for(const msg of msgs){
+  for(let ai=0;ai<msgs.length;ai++){
+    const msg=msgs[ai];
     if(adAbortFlag)return;
     if(msg.side==='them'){
       const trow=makeTyping();area.appendChild(trow);scrollDown();
       await sleep(80);trow.classList.add('vis');
       await sleep(1200+Math.random()*500);
       trow.remove();
-      const row=makeBubble({s:'them',t:msg.text});area.appendChild(row);scrollDown();
+      const row=makeBubble({s:'them',t:msg.text},'after_'+ai);area.appendChild(row);scrollDown();
       await sleep(60);row.classList.add('vis');
       playTone('received');
       await sleep(1500+Math.random()*600);
@@ -715,7 +723,7 @@ async function showAfterSongMessages(sc){
         await sleep(50+Math.random()*30);
       }
       await sleep(500);
-      const row=makeBubble({s:'me',t:msg.text});area.appendChild(row);scrollDown();
+      const row=makeBubble({s:'me',t:msg.text},'after_'+ai);area.appendChild(row);scrollDown();
       await sleep(60);row.classList.add('vis');
       playTone('sent');
       iField.textContent='iMessage';iField.style.color='#8e8e93';
