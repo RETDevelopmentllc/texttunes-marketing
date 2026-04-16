@@ -608,7 +608,7 @@ async function recordAndDownload(){
       a.download=`TextTunes_${(currentAd.songTitle||'Ad').replace(/[^a-zA-Z0-9]/g,'_')}.webm`;
       document.body.appendChild(a);a.click();document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      setDLStatus('Downloaded (WebM fallback)','#FFD60A');
+      setDLStatus('MP4 failed: '+e.message+' (WebM saved)','#ff453a');
     }
     dlBtn.disabled=false;
     dlBtn.classList.remove('recording');
