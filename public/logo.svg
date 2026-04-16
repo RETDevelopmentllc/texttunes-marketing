@@ -1,18 +1,21 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
-  <rect width="512" height="512" rx="102" fill="#7C3AED"/>
-  <g transform="translate(256,256)">
-    <!-- Speech bubble -->
-    <path d="M-140,-120 C-140,-165 -105,-200 -60,-200 L60,-200 C105,-200 140,-165 140,-120 L140,-20 C140,25 105,60 60,60 L-20,60 L-70,120 L-50,60 L-60,60 C-105,60 -140,25 -140,-20 Z" fill="white"/>
-    <!-- Music notes -->
-    <g transform="translate(-10,-30)" fill="#7C3AED">
-      <!-- First note -->
-      <rect x="-40" y="-80" width="10" height="100" rx="3"/>
-      <circle cx="-50" cy="20" r="22"/>
-      <!-- Second note -->
-      <rect x="30" y="-60" width="10" height="100" rx="3"/>
-      <circle cx="20" cy="40" r="22"/>
-      <!-- Beam connecting notes -->
-      <rect x="-40" y="-80" width="80" height="12" rx="4" transform="rotate(-10,-40,-80)"/>
-    </g>
+  <!-- Purple rounded background -->
+  <rect width="512" height="512" rx="112" fill="#7C3AED"/>
+  <!-- White speech bubble -->
+  <path d="M130,120 C130,88 156,62 188,62 L324,62 C356,62 382,88 382,120 L382,260 C382,292 356,318 324,318 L220,318 L160,390 L175,318 L188,318 C156,318 130,292 130,260 Z" fill="white"/>
+  <!-- Purple music note (double beamed) -->
+  <g fill="#7C3AED">
+    <!-- Left note head -->
+    <ellipse cx="218" cy="272" rx="28" ry="22" transform="rotate(-20,218,272)"/>
+    <!-- Left stem -->
+    <rect x="240" y="130" width="10" height="145" rx="5"/>
+    <!-- Right note head -->
+    <ellipse cx="298" cy="252" rx="28" ry="22" transform="rotate(-20,298,252)"/>
+    <!-- Right stem -->
+    <rect x="320" y="110" width="10" height="145" rx="5"/>
+    <!-- Top beam -->
+    <path d="M245,133 L325,113 L325,128 L245,148 Z" rx="3"/>
+    <!-- Bottom beam -->
+    <path d="M245,158 L325,138 L325,153 L245,173 Z" rx="3"/>
   </g>
 </svg>
