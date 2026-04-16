@@ -332,7 +332,7 @@ function playTone(type){
 /* ══════════════════════════
    HELPERS
 ══════════════════════════ */
-function sleep(ms){return new Promise(r=>{if(adAbortFlag)r();else setTimeout(r,ms);});}
+function sleep(ms){return new Promise(r=>{if(adAbortFlag){r();return;}setTimeout(r,ms);});}
 
 function scrollDown(){
   requestAnimationFrame(()=>{const m=document.getElementById('msgArea');if(m)m.scrollTop=m.scrollHeight+300;});
@@ -399,45 +399,45 @@ async function playAd(){
       await sleep(50);trow.classList.add('vis');
       await sleep(1200);trow.remove();
 
-      // show player
+      // show player — waits for song to fully finish
       await showPlayer(sc);
-      await sleep(600);
+      await sleep(1500);
       await showReactions(sc);
-      await sleep(400);
+      await sleep(1000);
       await showAfterSongMessages(sc);
       break;
 
     } else if(msg.s==='them'){
       const trow=makeTyping();area.appendChild(trow);scrollDown();
-      await sleep(50);trow.classList.add('vis');
-      await sleep(850+msg.t.length*36+Math.random()*500);
+      await sleep(80);trow.classList.add('vis');
+      await sleep(1200+msg.t.length*40+Math.random()*600);
       trow.remove();
 
       const row=makeBubble(msg);area.appendChild(row);scrollDown();
-      await sleep(40);row.classList.add('vis');
+      await sleep(60);row.classList.add('vis');
       playTone('received');
-      await sleep(1300+Math.random()*700);
+      await sleep(1800+Math.random()*800);
 
     } else {
-      await sleep(350);
+      await sleep(600);
       iField.textContent='';iField.style.color='#fff';
       for(let c=0;c<=msg.t.length;c++){
         if(adAbortFlag)break;
         iField.textContent=msg.t.slice(0,c);
         if(c===msg.t.length-1){iSend.classList.add('vis');iMic.style.opacity='0';}
-        await sleep(36+Math.random()*24);
+        await sleep(45+Math.random()*30);
       }
-      await sleep(320);
+      await sleep(500);
       const row=makeBubble(msg);area.appendChild(row);scrollDown();
-      await sleep(40);row.classList.add('vis');
+      await sleep(60);row.classList.add('vis');
       playTone('sent');
       iField.textContent='iMessage';iField.style.color='#8e8e93';
       iSend.classList.remove('vis');iMic.style.opacity='1';
       if(i===msgs.length-2){
         const rec=document.createElement('div');rec.className='receipt';rec.textContent='Read';area.appendChild(rec);
-        await sleep(350);rec.classList.add('vis');
+        await sleep(500);rec.classList.add('vis');
       }
-      await sleep(900+Math.random()*500);
+      await sleep(1200+Math.random()*600);
     }
   }
   adRunning=false;
@@ -587,8 +587,8 @@ async function showReactions(sc){
   for(const r of sc.reactions){
     if(adAbortFlag)return;
     const trow=makeTyping();area.appendChild(trow);scrollDown();
-    await sleep(40);trow.classList.add('vis');
-    await sleep(550+Math.random()*400);
+    await sleep(80);trow.classList.add('vis');
+    await sleep(900+Math.random()*500);
     trow.remove();
     const isShort=[...r].length<=4;
     const row=document.createElement('div');
@@ -596,16 +596,16 @@ async function showReactions(sc){
       row.className='row them vis';
       row.innerHTML=`<span class="tapback">${r}</span>`;
       area.appendChild(row);scrollDown();
-      await sleep(40);
+      await sleep(60);
       row.querySelector('.tapback').classList.add('vis');
     } else {
       row.className='row them';
       row.innerHTML=`<div class="bub bpop">${r}</div>`;
       area.appendChild(row);scrollDown();
-      await sleep(40);row.classList.add('vis');
+      await sleep(60);row.classList.add('vis');
     }
     playTone('received');
-    await sleep(650+Math.random()*350);
+    await sleep(1200+Math.random()*500);
   }
 }
 
@@ -625,29 +625,29 @@ async function showAfterSongMessages(sc){
     if(adAbortFlag)return;
     if(msg.side==='them'){
       const trow=makeTyping();area.appendChild(trow);scrollDown();
-      await sleep(40);trow.classList.add('vis');
-      await sleep(800+Math.random()*400);
+      await sleep(80);trow.classList.add('vis');
+      await sleep(1200+Math.random()*500);
       trow.remove();
       const row=makeBubble({s:'them',t:msg.text});area.appendChild(row);scrollDown();
-      await sleep(40);row.classList.add('vis');
+      await sleep(60);row.classList.add('vis');
       playTone('received');
-      await sleep(1000+Math.random()*500);
+      await sleep(1500+Math.random()*600);
     } else {
-      await sleep(350);
+      await sleep(600);
       iField.textContent='';iField.style.color='#fff';
       for(let c=0;c<=msg.text.length;c++){
         if(adAbortFlag)return;
         iField.textContent=msg.text.slice(0,c);
         if(c===msg.text.length-1){iSend.classList.add('vis');iMic.style.opacity='0';}
-        await sleep(36+Math.random()*24);
+        await sleep(50+Math.random()*30);
       }
-      await sleep(320);
+      await sleep(500);
       const row=makeBubble({s:'me',t:msg.text});area.appendChild(row);scrollDown();
-      await sleep(40);row.classList.add('vis');
+      await sleep(60);row.classList.add('vis');
       playTone('sent');
       iField.textContent='iMessage';iField.style.color='#8e8e93';
       iSend.classList.remove('vis');iMic.style.opacity='1';
-      await sleep(800);
+      await sleep(1200);
     }
   }
 }
@@ -837,9 +837,9 @@ ROLES — READ CAREFULLY:
 The last message in the messages array MUST be from "me" and should hint at sending a song (e.g. "made this into a song for you", "hold on i made something", "you gotta hear this"). This is the message right before the song file gets sent. NEVER have "them" send the song.
 
 Return ONLY raw JSON. No markdown. No explanation. Start with { end with }
-{"contact":"Mom","emoji":"${senderEmoji}","color":"#ff6b9d","messages":[{"side":"them","text":"did you eat today"},{"side":"me","text":"mom its 11pm"},{"side":"them","text":"thats not an answer"},{"side":"me","text":"i had a granola bar"},{"side":"them","text":"I raised you for THIS"},{"side":"me","text":"made this into a song for you"}],"songTitle":"Why Wont You Call Me Back","lyrics":"Mama dont cry tonight I swear that I ate just fine, granola never tasted so sweet","reactionEmojis":["this goes hard","I cannot stop laughing","calling u rn","sending to everyone"],"afterSongMessages":[{"side":"them","text":"💀"},{"side":"them","text":"how did you make that"},{"side":"me","text":"TextTunes App"}]}
+{"contact":"Mom","emoji":"${senderEmoji}","color":"#ff6b9d","messages":[{"side":"them","text":"did you eat today"},{"side":"me","text":"i had a granola bar"},{"side":"them","text":"THATS NOT A MEAL"},{"side":"me","text":"its organic tho"},{"side":"them","text":"I raised you for THIS"},{"side":"me","text":"made this into a song for you"}],"songTitle":"Why Wont You Call Me Back","lyrics":"Mama dont cry tonight I swear that I ate just fine, granola never tasted so sweet","reactionEmojis":["this goes hard","I cannot stop laughing","calling u rn","sending to everyone"],"afterSongMessages":[{"side":"them","text":"💀"},{"side":"them","text":"how did you make that"},{"side":"me","text":"TextTunes App"}]}
 Rules:
-- 6-8 messages. The LAST message MUST be from "me" hinting at a song. No apostrophes. Make it genuinely funny.
+- EXACTLY 6 messages (no more, no less). The LAST message MUST be from "me" hinting at a song. No apostrophes. Make it genuinely funny.
 - "me" is ${senderGender} and is the one who SENDS the song. "them" is the one who RECEIVES it and reacts.
 - The song will be SUNG by a ${voice} voice in the ${genre} genre, so write lyrics that fit that style.
 - CRITICAL: The "lyrics" field must be SHORT SINGABLE song lyrics (25-200 characters max). Do NOT repeat or narrate the conversation. Write original catchy lyrics INSPIRED BY the vibe/theme of the convo. Think ${genre} song chorus — melodic, rhyming, fun to sing. No spoken word or narration.
@@ -915,8 +915,8 @@ async function runAIGenerate(mode='custom'){
       songTitle:scene.songTitle,songFile:(scene.songTitle||'TextTune').replace(/[^a-zA-Z0-9 ]/g,'').replace(/\s+/g,'')+'.mp3',
       lyrics:scene.lyrics,
       preview:scene.messages[0]?.text||'',
-      messages:scene.messages.map(m=>({s:m.side,t:m.text})),
-      reactions:scene.reactionEmojis||['this goes hard','I cannot stop'],
+      messages:scene.messages.slice(0,6).map(m=>({s:m.side,t:m.text})),
+      reactions:(scene.reactionEmojis||['this goes hard','I cannot stop']).slice(0,3),
       audioUrl:scene.audioUrl,
       afterSongMessages:scene.afterSongMessages||null,
     };
