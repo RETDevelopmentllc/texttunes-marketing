@@ -60,10 +60,10 @@ app.post('/api/elevenlabs', async (req, res) => {
     };
     const genreDesc = genreMap[genre] || genreMap['pop'];
     // Use ElevenLabs Music API to generate an actual sung song
-    const prompt = `A 20-second ${genreDesc} song with ${voiceDesc}, fun melody, and a full instrumental beat. The singer should SING melodically, not speak or rap. The song is humorous and inspired by this theme: "${songTitle || 'Untitled'}". Sung lyrics: ${lyrics}`;
+    const prompt = `A 15-second ${genreDesc} song with ${voiceDesc}, fun melody, and a full instrumental beat. The singer should SING melodically, not speak or rap. The song is humorous and inspired by this theme: "${songTitle || 'Untitled'}". Sung lyrics: ${lyrics}`;
     const r = await axios.post(
       'https://api.elevenlabs.io/v1/music/compose',
-      { prompt, music_length_ms: 20000 },
+      { prompt, music_length_ms: 15000 },
       { headers: { 'xi-api-key': elevenKey, 'Content-Type': 'application/json' }, responseType: 'arraybuffer', timeout: 120000 }
     );
     res.set('Content-Type', 'audio/mpeg');
@@ -76,7 +76,7 @@ app.post('/api/elevenlabs', async (req, res) => {
         if (errData.detail?.prompt_suggestion) {
           const retry = await axios.post(
             'https://api.elevenlabs.io/v1/music/compose',
-            { prompt: errData.detail.prompt_suggestion, music_length_ms: 20000 },
+            { prompt: errData.detail.prompt_suggestion, music_length_ms: 15000 },
             { headers: { 'xi-api-key': elevenKey, 'Content-Type': 'application/json' }, responseType: 'arraybuffer', timeout: 120000 }
           );
           res.set('Content-Type', 'audio/mpeg');
