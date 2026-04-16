@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>TextTunes — Ad Machine</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#07070f;--surface:#0f0f1c;--border:#1c1c30;--accent:#6c47ff;
+  --pink:#ff3cac;--green:#00ff88;--muted:#6b6b8e;--text:#f0f0ff;
+  --font:'DM Sans',system-ui,sans-serif;--display:'Syne',system-ui,sans-serif;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);overflow-x:hidden;}
+body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60px;}
+
+/* HEADER */
+.logo{font-family:var(--display);font-size:26px;font-weight:800;letter-spacing:-.5px;margin-bottom:6px;}
+.logo em{color:var(--pink);font-style:normal;}
+.tagline{font-size:13px;color:var(--muted);margin-bottom:28px;text-align:center;}
+
+/* SCENARIO PICKER */
+.picker{width:100%;max-width:400px;margin-bottom:20px;}
+.picker-label{font-size:11px;color:var(--muted);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;}
+.scenarios{display:flex;flex-direction:column;gap:7px;}
+.scene-btn{
+  display:flex;align-items:center;gap:12px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;padding:12px 16px;cursor:pointer;
+  transition:all .18s;text-align:left;width:100%;
+}
+.scene-btn:hover,.scene-btn.active{border-color:var(--accent);background:#13132a;}
+.scene-btn.active{border-color:var(--pink);}
+.scene-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.scene-info{flex:1;min-width:0;}
+.scene-name{font-size:13px;font-weight:600;color:var(--text);}
+.scene-preview{font-size:12px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+/* BUTTONS */
+.btn-row{display:flex;gap:10px;width:100%;max-width:400px;margin-bottom:24px;}
+.btn{
+  flex:1;padding:14px;border:none;border-radius:14px;
+  font-size:15px;font-weight:700;font-family:var(--display);
+  cursor:pointer;transition:all .18s;letter-spacing:.2px;
+}
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--pink));color:#fff;box-shadow:0 0 24px rgba(108,71,255,.35);}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 0 36px rgba(108,71,255,.5);}
+.btn-primary:active{transform:scale(.97);}
+.btn-secondary{background:var(--surface);color:var(--muted);border:1px solid var(--border);}
+.btn-secondary:hover{color:var(--text);border-color:var(--muted);}
+
+/* PHONE */
+.phone-wrap{position:relative;width:300px;flex-shrink:0;}
+.phone{
+  width:300px;height:620px;
+  border-radius:48px;
+  background:linear-gradient(160deg,#252525,#0f0f0f);
+  box-shadow:0 0 0 1px #333,0 0 0 2px #0a0a0a,0 40px 80px rgba(0,0,0,.85),0 0 50px rgba(108,71,255,.1);
+  position:relative;overflow:hidden;
+}
+.phone::before{content:'';position:absolute;left:-3px;top:120px;width:3px;height:28px;background:#252525;border-radius:2px 0 0 2px;box-shadow:0 44px 0 #252525,0 88px 0 #252525;}
+.phone::after{content:'';position:absolute;right:-3px;top:160px;width:3px;height:56px;background:#252525;border-radius:0 2px 2px 0;}
+.screen{position:absolute;inset:7px;border-radius:42px;background:#000;overflow:hidden;display:flex;flex-direction:column;}
+
+/* DYNAMIC ISLAND */
+.di{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:100px;height:30px;background:#000;border-radius:16px;z-index:20;display:flex;align-items:center;justify-content:space-between;padding:0 10px;}
+.di-cam{width:10px;height:10px;border-radius:50%;background:#111;border:1px solid #222;}
+.di-fid{width:11px;height:11px;border-radius:3px;border:1.5px solid #222;}
+
+/* STATUS BAR */
+.sbar{position:absolute;top:0;left:0;right:0;height:48px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 20px 6px;z-index:15;pointer-events:none;}
+.sbar-time{font-size:14px;font-weight:700;color:#fff;letter-spacing:-.3px;}
+.sbar-icons{display:flex;align-items:center;gap:5px;}
+
+/* NAV */
+.nav{
+  padding:46px 10px 8px;background:#000;
+  border-bottom:.5px solid rgba(255,255,255,.1);
+  display:grid;grid-template-columns:1fr auto 1fr;
+  align-items:center;flex-shrink:0;
+}
+.nav-back{color:#0a84ff;display:flex;align-items:center;gap:2px;font-size:14px;}
+.nav-chev{font-size:22px;font-weight:200;color:#0a84ff;margin-top:-2px;line-height:1;}
+.nav-badge{background:#3a3a3c;color:#fff;font-size:11px;font-weight:700;padding:2px 7px;border-radius:8px;}
+.nav-center{display:flex;flex-direction:column;align-items:center;gap:3px;justify-self:center;}
+.nav-avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;position:relative;}
+.nav-dot{position:absolute;bottom:1px;right:1px;width:9px;height:9px;background:#30d158;border-radius:50%;border:2px solid #000;}
+.nav-name{font-size:11px;font-weight:600;color:#fff;display:flex;align-items:center;gap:2px;}
+.nav-icons{display:flex;gap:10px;justify-content:flex-end;}
+.nav-icon-btn{width:28px;height:28px;background:#3a3a3c;border-radius:50%;display:flex;align-items:center;justify-content:center;}
+
+/* MESSAGES */
+.msgs{flex:1;overflow:hidden;padding:5px 8px 4px;display:flex;flex-direction:column;gap:2px;}
+.time-div{text-align:center;font-size:10px;color:#8e8e93;margin:5px 0 3px;}
+.row{display:flex;align-items:flex-end;opacity:0;transform:translateY(8px) scale(.97);transition:opacity .22s,transform .22s;flex-shrink:0;}
+.row.me{justify-content:flex-end;}
+.row.them{justify-content:flex-start;}
+.row.vis{opacity:1;transform:none;}
+.bub{max-width:210px;padding:8px 12px;border-radius:17px;font-size:14px;line-height:1.38;word-break:break-word;}
+.row.them .bub{background:#3a3a3c;color:#fff;border-bottom-left-radius:5px;}
+.row.me .bub{background:#0a84ff;color:#fff;border-bottom-right-radius:5px;}
+@keyframes bPop{0%{transform:scale(.82);opacity:0}60%{transform:scale(1.04)}100%{transform:scale(1);opacity:1}}
+.bpop{animation:bPop .22s ease forwards;}
+.receipt{font-size:10px;color:#8e8e93;text-align:right;padding-right:3px;margin-top:1px;margin-bottom:3px;opacity:0;transition:opacity .4s .3s;}
+.receipt.vis{opacity:1;}
+
+/* TYPING */
+.typing-row{display:flex;align-items:flex-end;opacity:0;transition:opacity .22s;flex-shrink:0;}
+.typing-row.vis{opacity:1;}
+.typing-bub{background:#3a3a3c;border-radius:17px;border-bottom-left-radius:5px;padding:9px 12px;display:flex;gap:4px;align-items:center;}
+.td{width:6px;height:6px;background:#8e8e93;border-radius:50%;animation:tBounce 1.2s ease-in-out infinite;}
+.td:nth-child(2){animation-delay:.18s;}.td:nth-child(3){animation-delay:.36s;}
+@keyframes tBounce{0%,60%,100%{transform:translateY(0);opacity:.5}30%{transform:translateY(-4px);opacity:1}}
+
+/* FILE BUBBLE */
+.file-row{display:flex;justify-content:flex-end;flex-shrink:0;opacity:0;transform:translateY(8px);transition:opacity .22s,transform .22s;}
+.file-row.vis{opacity:1;transform:none;}
+.file-bub{background:#0a84ff;border-radius:16px;border-bottom-right-radius:4px;padding:9px 12px;display:flex;align-items:center;gap:8px;max-width:210px;}
+.file-icon{width:32px;height:32px;background:rgba(255,255,255,.22);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.file-name{font-size:11px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.file-meta{font-size:10px;color:rgba(255,255,255,.6);margin-top:1px;}
+
+/* PLAYER */
+.player-row{display:flex;justify-content:flex-end;flex-shrink:0;}
+.player{width:224px;background:#1c1c1e;border:1px solid #2c2c2e;border-radius:16px;border-bottom-right-radius:4px;overflow:hidden;opacity:0;transform:scale(.9);transition:opacity .3s,transform .3s;}
+.player.vis{opacity:1;transform:scale(1);}
+.player-art{width:100%;height:76px;background:linear-gradient(135deg,#1a1a3e,#3d0060 50%,#0d3364);display:flex;align-items:center;justify-content:center;font-size:30px;position:relative;overflow:hidden;}
+.player-art::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 70% 30%,rgba(255,255,255,.08),transparent 60%);}
+.art-bars{position:absolute;bottom:6px;right:8px;display:flex;gap:2px;align-items:flex-end;}
+.ab{width:3px;border-radius:2px;background:rgba(255,255,255,.65);animation:abAnim .7s ease-in-out infinite;}
+.ab:nth-child(2){animation-delay:.12s;}.ab:nth-child(3){animation-delay:.24s;}.ab:nth-child(4){animation-delay:.08s;}.ab:nth-child(5){animation-delay:.32s;}
+.ab.paused{animation-play-state:paused;height:3px!important;transition:height .3s;}
+@keyframes abAnim{0%,100%{height:5px}50%{height:var(--h,14px)}}
+.player-body{padding:8px 11px 10px;}
+.player-title{font-size:12px;font-weight:700;color:#fff;margin-bottom:2px;line-height:1.3;}
+.player-sub{font-size:10px;color:#8e8e93;margin-bottom:8px;}
+.prog-wrap{height:3px;background:#3a3a3c;border-radius:2px;margin-bottom:5px;overflow:hidden;}
+.prog-fill{height:100%;background:#fff;border-radius:2px;width:0%;transition:width .1s linear;}
+.time-row{display:flex;justify-content:space-between;font-size:9px;color:#8e8e93;margin-bottom:8px;}
+.player-btns{display:flex;align-items:center;justify-content:space-between;}
+.pbtn{background:none;border:none;color:#fff;cursor:pointer;padding:3px;opacity:.8;display:flex;align-items:center;justify-content:center;}
+.pbtn.main{width:30px;height:30px;background:#fff;border-radius:50%;color:#000;opacity:1;}
+
+/* TAPBACK */
+.tapback{font-size:18px;opacity:0;transform:scale(0) rotate(-20deg);transition:opacity .4s,transform .5s cubic-bezier(.34,1.56,.64,1);display:inline-block;margin-left:3px;margin-top:2px;}
+.tapback.vis{opacity:1;transform:scale(1) rotate(0deg);}
+
+/* INPUT BAR */
+.input-bar{padding:6px 8px 20px;background:#000;border-top:.5px solid rgba(255,255,255,.1);display:flex;align-items:center;gap:7px;flex-shrink:0;}
+.input-plus{width:28px;height:28px;background:#3a3a3c;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:17px;font-weight:300;}
+.input-wrap{flex:1;position:relative;display:flex;align-items:center;}
+.input-field{flex:1;background:#1c1c1e;border-radius:19px;border:1px solid #3a3a3c;padding:7px 30px 7px 11px;color:#8e8e93;font-size:14px;min-height:32px;display:flex;align-items:center;font-family:var(--font);}
+.input-mic{position:absolute;right:9px;display:flex;align-items:center;pointer-events:none;transition:opacity .15s;}
+.input-send{width:26px;height:26px;background:#0a84ff;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;position:absolute;right:3px;transform:scale(0);transition:transform .2s cubic-bezier(.34,1.56,.64,1);}
+.input-send.vis{transform:scale(1);}
+
+/* CAPTION BELOW PHONE */
+.phone-caption{margin-top:12px;font-size:11px;color:var(--muted);text-align:center;font-family:monospace;}
+
+/* PLATFORM CARDS */
+.platform-section{width:100%;max-width:400px;margin-top:28px;}
+.section-title{font-family:var(--display);font-size:18px;font-weight:800;margin-bottom:4px;}
+.section-title em{color:var(--pink);font-style:normal;}
+.section-sub{font-size:12px;color:var(--muted);margin-bottom:16px;}
+.platform-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.pcrd{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;}
+.pcrd-head{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.pcrd-icon{font-size:18px;}
+.pcrd-name{font-size:12px;font-weight:700;}
+.pcrd-time{font-size:10px;margin-top:2px;font-family:monospace;}
+.pcrd-caption{font-size:11px;color:#c0c0e0;line-height:1.5;margin-bottom:8px;background:#0a0a18;border-radius:8px;padding:8px;border:1px solid var(--border);min-height:48px;}
+.pcrd-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;}
+.tag{font-size:10px;color:#00e5ff;padding:2px 6px;background:rgba(0,229,255,.07);border-radius:5px;border:1px solid rgba(0,229,255,.15);font-family:monospace;}
+.copy-btn{width:100%;padding:7px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:11px;font-weight:700;cursor:pointer;transition:all .18s;font-family:var(--display);}
+.copy-btn:hover{border-color:var(--accent);color:var(--accent);}
+.copy-btn.done{border-color:var(--green);color:var(--green);}
+
+/* STRATEGY */
+.strategy-section{width:100%;max-width:400px;margin-top:28px;}
+.strategy-grid{display:grid;gap:10px;}
+.scrd{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;}
+.scrd-icon{font-size:24px;margin-bottom:8px;}
+.scrd-title{font-size:14px;font-weight:700;margin-bottom:4px;}
+.scrd-body{font-size:12px;color:#9090b0;line-height:1.6;}
+.scrd-body strong{color:var(--text);}
+
+/* TABS */
+.tabs{display:flex;gap:2px;width:100%;max-width:400px;margin-bottom:20px;background:var(--surface);border-radius:12px;padding:4px;}
+.tab-btn{flex:1;padding:9px 6px;border:none;border-radius:9px;font-size:12px;font-weight:700;font-family:var(--display);cursor:pointer;transition:all .18s;background:transparent;color:var(--muted);}
+.tab-btn.active{background:#13132a;color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.4);}
+
+@media(max-width:360px){.platform-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<div class="logo">Text<em>Tunes</em></div>
+<div class="tagline">Turn any text convo into a song 🎵</div>
+<div style="display:flex;gap:8px;margin-bottom:16px;width:100%;max-width:400px;">
+  <input id="ttScenario" placeholder="Type your own scenario..." style="flex:1;background:#0f0f1c;border:1px solid #1c1c30;border-radius:12px;padding:10px 14px;color:#f0f0ff;font-size:14px;font-family:DM Sans,sans-serif;outline:none;"/>
+  <button onclick="runAIGenerate()" style="background:linear-gradient(135deg,#6c47ff,#ff3cac);border:none;border-radius:12px;padding:10px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;">✨ AI</button>
+  <button onclick="toggleSettings()" style="background:#0f0f1c;border:1px solid #1c1c30;border-radius:12px;padding:10px 14px;color:#6b6b8e;font-size:16px;cursor:pointer;">⚙️</button>
+</div>
+<div id="settingsPanel" style="display:none;width:100%;max-width:400px;background:#0f0f1c;border:1px solid #1c1c30;border-radius:14px;padding:16px;margin-bottom:16px;">
+  <div style="font-size:11px;color:#6b6b8e;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">API Keys</div>
+  <input id="ttAnthropicKey" type="password" placeholder="Anthropic key (sk-ant-...)" style="width:100%;background:#07070f;border:1px solid #1c1c30;border-radius:10px;padding:9px 12px;color:#f0f0ff;font-size:13px;margin-bottom:8px;outline:none;"/>
+  <input id="ttElevenKey" type="password" placeholder="ElevenLabs key (optional — real song)" style="width:100%;background:#07070f;border:1px solid #1c1c30;border-radius:10px;padding:9px 12px;color:#f0f0ff;font-size:13px;margin-bottom:8px;outline:none;"/>
+  <button onclick="saveKeys()" style="width:100%;padding:10px;background:#6c47ff;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;">Save Keys</button>
+  <div id="keyStatus" style="font-size:11px;color:#6b6b8e;margin-top:8px;text-align:center;"></div>
+</div>
+<div id="aiStatus" style="width:100%;max-width:400px;min-height:20px;text-align:center;margin-bottom:8px;"></div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab-btn active" onclick="setTab('studio',this)">🎬 Studio</button>
+  <button class="tab-btn" onclick="setTab('content',this)">✍️ Content</button>
+  <button class="tab-btn" onclick="setTab('strategy',this)">🧠 Strategy</button>
+</div>
+
+<!-- ══ STUDIO ══ -->
+<div id="tab-studio">
+  <div class="picker">
+    <div class="picker-label">Pick a scenario</div>
+    <div class="scenarios" id="scenarioList"></div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" id="playBtn" onclick="playAd()">▶ Play Ad</button>
+    <button class="btn btn-secondary" onclick="randomScene()">🎲 Random</button>
+  </div>
+
+  <!-- PHONE -->
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="screen">
+        <div class="di"><div class="di-cam"></div><div class="di-fid"></div></div>
+        <div class="sbar">
+          <span class="sbar-time" id="sbarTime">9:41</span>
+          <div class="sbar-icons">
+            <svg width="14" height="10" viewBox="0 0 17 12" fill="white"><rect x="0" y="3" width="3" height="9" rx="1" opacity=".3"/><rect x="4.5" y="2" width="3" height="10" rx="1" opacity=".5"/><rect x="9" y="1" width="3" height="11" rx="1" opacity=".7"/><rect x="13.5" y="0" width="3" height="12" rx="1"/></svg>
+            <svg width="13" height="10" viewBox="0 0 16 12" fill="white"><path d="M8 2.4C10.2 2.4 12.2 3.3 13.6 4.8L15 3.4C13.2 1.3 10.7 0 8 0S2.8 1.3 1 3.4l1.4 1.4C3.8 3.3 5.8 2.4 8 2.4z" opacity=".5"/><circle cx="8" cy="10" r="1.8"/></svg>
+            <svg width="20" height="10" viewBox="0 0 25 12" fill="none"><rect x="0" y="1" width="22" height="10" rx="3" stroke="white" stroke-width="1.2" opacity=".35"/><rect x="1.5" y="2.5" width="16" height="7" rx="2" fill="white"/></svg>
+          </div>
+        </div>
+        <div class="nav">
+          <div class="nav-back"><span class="nav-chev">‹</span><span class="nav-badge">3</span></div>
+          <div class="nav-center">
+            <div class="nav-avatar" id="navAvatar" style="background:#ff6b9d">
+              <span id="navEmoji">👩</span>
+              <div class="nav-dot"></div>
+            </div>
+            <div class="nav-name" id="navName">Mom <span style="color:#8e8e93;font-size:12px">›</span></div>
+          </div>
+          <div class="nav-icons">
+            <div class="nav-icon-btn"><svg width="15" height="11" viewBox="0 0 18 14" fill="none"><rect x="0" y="1" width="11" height="12" rx="2.5" fill="white"/><path d="M12 5L17 2.5V11.5L12 9V5Z" fill="white"/></svg></div>
+            <div class="nav-icon-btn"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path fill-rule="evenodd" d="M3.2 1C2.6.4 1.7.4 1.1 1L.5 1.6C-.2 2.3-.1 3.5.4 4.5C2 7.3 4.7 10 7.5 11.6C8.5 12.1 9.7 12.2 10.4 11.5L11 10.9C11.6 10.3 11.6 9.4 11 8.8L9.7 7.5C9.1 6.9 8.2 6.8 7.5 7.3L7.1 7.6C6.6 7.9 6 7.8 5.6 7.4L4.6 6.4C4.2 6 4.1 5.4 4.4 4.9L4.7 4.5C5.2 3.8 5.1 2.9 4.5 2.3L3.2 1Z" fill="white"/></svg></div>
+          </div>
+        </div>
+        <div class="msgs" id="msgArea">
+          <div class="time-div" id="timeDiv" style="opacity:0">Today 9:41 AM</div>
+        </div>
+        <div class="input-bar">
+          <div class="input-plus">+</div>
+          <div class="input-wrap">
+            <div class="input-field" id="inputField">iMessage</div>
+            <div class="input-mic" id="inputMic">
+              <svg width="11" height="16" viewBox="0 0 14 20" fill="none">
+                <rect x="4" y="0" width="6" height="12" rx="3" fill="#636366"/>
+                <path d="M1 9C1 12.31 3.69 15 7 15C10.31 15 13 12.31 13 9" stroke="#636366" stroke-width="1.8" stroke-linecap="round"/>
+                <line x1="7" y1="15" x2="7" y2="19" stroke="#636366" stroke-width="1.8" stroke-linecap="round"/>
+                <line x1="4" y1="19" x2="10" y2="19" stroke="#636366" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="input-send" id="inputSend">↑</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="phone-caption">↑ Screen record this for TikTok / Reels</div>
+</div>
+
+<!-- ══ CONTENT ══ -->
+<div id="tab-content" style="display:none;width:100%;max-width:400px;">
+  <div class="section-title" style="margin-bottom:4px;">Content <em>Engine</em></div>
+  <div class="section-sub">Ready-to-paste captions for every platform — tap to copy</div>
+  <div id="contentCards"></div>
+</div>
+
+<!-- ══ STRATEGY ══ -->
+<div id="tab-strategy" style="display:none;width:100%;max-width:400px;">
+  <div class="section-title" style="margin-bottom:4px;">Viral <em>Strategy</em></div>
+  <div class="section-sub">The exact playbook to blow up TextTunes from zero</div>
+  <div class="strategy-grid" id="strategyCards"></div>
+</div>
+
+<script>
+/* ══════════════════════════
+   SCENES
+══════════════════════════ */
+const SCENES = [
+  {
+    id:0, contact:'Mom', emoji:'👩', color:'#ff6b9d',
+    songTitle:'Why Wont You Call Me Back',
+    songFile:'MomSong.mp3',
+    lyrics:'She texts at eleven asking did you eat today. I had a granola bar mom please just go away. She raised me for this she cried into the night. But the granola bar was fire and I am doing alright.',
+    preview:'Did you eat today?',
+    messages:[
+      {s:'them',t:'Did you eat today?'},
+      {s:'me',  t:'Mom it is 11pm'},
+      {s:'them',t:'That is not an answer'},
+      {s:'me',  t:'I had a granola bar'},
+      {s:'them',t:'I RAISED YOU FOR THIS???'},
+      {s:'me',  t:'Goodbye mom'},
+      {s:'them',t:'Fine. I made it into a song.'},
+      {s:'me',  t:'You did NOT', file:true},
+    ],
+    reactions:['😭','😭💀','I CANNOT STOP CRYING','ok this SLAPS','calling u rn omg'],
+  },
+  {
+    id:1, contact:'Jake 🚩', emoji:'😬', color:'#ff453a',
+    songTitle:'Left On Read The Aria',
+    songFile:'LeftOnRead.mp3',
+    lyrics:'He texts at 2am saying hey hey hey. I said it is 2am Jake please go away. So yes he asked. I said no. He said hear me out though. I sent him an opera and now he knows.',
+    preview:'hey... heyyy... you up?',
+    messages:[
+      {s:'them',t:'hey'},
+      {s:'them',t:'heyyy'},
+      {s:'them',t:'you up?'},
+      {s:'me',  t:'It is 2am Jake'},
+      {s:'them',t:'so... yes?'},
+      {s:'me',  t:'No.'},
+      {s:'them',t:'ok hear me out tho'},
+      {s:'me',  t:'I turned this into a song for you', file:true},
+    ],
+    reactions:['💀💀💀','I AM SCREAMING','this is actually art','u need help lmao','sending this to everyone'],
+  },
+  {
+    id:2, contact:'Mr. Peterson 💼', emoji:'👔', color:'#ff9f0a',
+    songTitle:'Autocorrect Did This Not Me',
+    songFile:'Autocorrect.mp3',
+    lyrics:'I said I would be there in ten ducking minutes. Autocorrect betrayed me and now HR is in it. I meant ducking yes I meant ducking I swear. I turned it into a song and sent it right there.',
+    preview:'see you in 10 ducking minutes',
+    messages:[
+      {s:'me',  t:'Sorry ill be late, stuck in traffic'},
+      {s:'me',  t:'big truck. very slow.'},
+      {s:'me',  t:'anyway see you in 10 ducking minutes'},
+      {s:'them',t:'...'},
+      {s:'them',t:'I assumed you meant ducking'},
+      {s:'me',  t:'I meant DUCKING yes'},
+      {s:'them',t:'HR would like a word'},
+      {s:'me',  t:'wrote a song about it. Regards.', file:true},
+    ],
+    reactions:['YOU ARE SO FIRED 💀','the Regards at the end 😭','AUTOCORRECT MY CAREER','I would resign on the spot','this goes harder than it should'],
+  },
+  {
+    id:3, contact:'Dave 🏠', emoji:'🏠', color:'#30d158',
+    songTitle:'The Rent Is Due And So Am I',
+    songFile:'RentSong.mp3',
+    lyrics:'I texted bro I cannot afford to exist today. Turns out my landlord Dave was on the other way. I offered him vibes but Dave has a mortgage to pay. So I made him a song and now we are okay.',
+    preview:'bro I cannot afford to exist',
+    messages:[
+      {s:'me',  t:'bro I literally cannot afford to exist right now'},
+      {s:'them',t:'Hi this is Dave your landlord'},
+      {s:'them',t:'rent was due Tuesday'},
+      {s:'me',  t:'Dave I respect you so much as a person'},
+      {s:'them',t:'that is very kind. still need rent.'},
+      {s:'me',  t:'what if I paid you in vibes'},
+      {s:'them',t:'I have a mortgage.'},
+      {s:'me',  t:'I made you something', file:true},
+    ],
+    reactions:['THE RENT IS DUE 💀','he said in vibes 😭🎶','I would pay extra for this','landlord of the year','ok but this actually slaps'],
+  },
+  {
+    id:4, contact:'Tyler 🧔', emoji:'🧔', color:'#5e5ce6',
+    songTitle:'Dishes In The Sink Cowboys Cry',
+    songFile:'Dishes.mp3',
+    lyrics:'Did you do the dishes he asked with a sigh. They are soaking I said as four days went by. He said he was moving I said over what. I wrote him a country song about the dishes and stuff.',
+    preview:'did u do the dishes',
+    messages:[
+      {s:'them',t:'did u do the dishes'},
+      {s:'me',  t:'they are soaking'},
+      {s:'them',t:'bro they have been soaking for 4 days'},
+      {s:'me',  t:'deep soak.'},
+      {s:'them',t:'I am moving out'},
+      {s:'me',  t:'over DISHES??'},
+      {s:'them',t:'and the granola bars. and the smell.'},
+      {s:'me',  t:'wrote a country song about this', file:true},
+    ],
+    reactions:['💀','I AM MOVING OUT 😭🎸','this is on Spotify now','y all need therapy','I am the dishes in this story'],
+  },
+  {
+    id:5, contact:'Marco 🛵', emoji:'🛵', color:'#ff6b35',
+    songTitle:'Where Is My Pizza ft Hunger',
+    songFile:'Pizza.mp3',
+    lyrics:'He said he was outside I looked but no one was there. He gave my pizza away to someone he said looked hungry out there. I said WHAT. He said sorry bro. I turned this whole disaster into a rap and now the whole world knows.',
+    preview:'I gave it to someone else',
+    messages:[
+      {s:'them',t:'I am outside!'},
+      {s:'me',  t:'I do not see you...'},
+      {s:'them',t:'The blue building?'},
+      {s:'me',  t:'My building is RED'},
+      {s:'them',t:'Oh. I gave it to someone'},
+      {s:'me',  t:'WHAT'},
+      {s:'them',t:'They looked hungry. Sorry bro.'},
+      {s:'me',  t:'I made this for you', file:true},
+    ],
+    reactions:['😂😂😂','BRO THE LYRICS','I quit 😭','this guy is a legend','5 stars for the song'],
+  },
+];
+
+const PLATFORM_CONTENT = {
+  tiktok:{
+    name:'TikTok',icon:'🎵',color:'#ff0050',time:'7–9pm Tue/Thu/Fri',
+    captions:{
+      0:'POV your mom turned your dinner guilt trip into a pop punk anthem and its actually a BANGER\n\nthe granola bar got me 😭',
+      1:'he texted at 2am and got an opera back. he deserved it.',
+      2:'autocorrect ended my career and TextTunes made it eternal 💀',
+      3:'paying rent in vibes is now an official genre',
+      4:'4 days of soaking. one country song. zero dishes done.',
+      5:'the pizza thief got a rap song and honestly fair',
+    },
+    tags:['texttunes','funnytext','imessage','viral','fyp'],
+  },
+  instagram:{
+    name:'Instagram',icon:'📸',color:'#e1306c',time:'6–9pm Mon/Wed/Fri',
+    captions:{
+      0:'Some people process their feelings in therapy.\nMy mom processes them in pop punk.\n\nThe granola bar heard around the world 😭🎸\n\nTextTunes turns your most chaotic texts into actual songs.',
+      1:'2am texts deserve operatic responses.\n\nWe turned this red flag situation into an aria and honestly he should be honored.',
+      2:'autocorrect: 1\nmy career: 0\n\nAt least we got a banger out of it 💀\n\nTextTunes — turn your most embarrassing texts into songs.',
+      3:'Paying rent in vibes is a genre now.\n\nDave did not accept the vibes but he did get a song.',
+      4:'A 4-day soak produced nothing.\n\nExcept this country song. Which honestly hits.',
+      5:'The pizza was gone. The song lives forever.',
+    },
+    tags:['texttunes','funnytext','imessagevibes','relatable','trending','reels','viral','textfails'],
+  },
+  tiktok2:{
+    name:'YouTube Shorts',icon:'▶️',color:'#ff0000',time:'12–3pm daily',
+    captions:{
+      0:'Mom turned my granola bar confession into a pop punk song and I need everyone to hear it',
+      1:'He texted at 2am. He got an opera. He deserved it.',
+      2:'POV: autocorrect gets you sent to HR and you respond with a song',
+      3:'This man tried to pay rent in vibes. His landlord has a mortgage.',
+      4:'4 days of dishes. 1 country song. Zero accountability.',
+      5:'The delivery driver gave my pizza away and TextTunes immortalized it',
+    },
+    tags:['texttunes','shorts','funny','viral'],
+  },
+  twitter:{
+    name:'X / Twitter',icon:'𝕏',color:'#ffffff',time:'8–10am Mon–Fri',
+    captions:{
+      0:'my mom turned "did you eat today" into a pop punk song and honestly it goes harder than anything on the radio right now',
+      1:'2am text → opera. this is the only acceptable response.',
+      2:'autocorrect said "ducking" to my boss and now there is a song called Autocorrect Did This Not Me',
+      3:'guy tried to pay rent in vibes. landlord said he has a mortgage. there is a song now.',
+      4:'4 days. still soaking. now a country song.',
+      5:'the driver gave away my pizza and texttunes turned it into a rap. 5 stars.',
+    },
+    tags:['TextTunes','funny','relatable'],
+  },
+  linkedin:{
+    name:'LinkedIn',icon:'💼',color:'#0077b5',time:'Tue–Thu 8–10am',
+    captions:{
+      0:'My mom sent me a guilt trip about not eating dinner.\n\nI used TextTunes to turn it into a pop punk song.\n\nShe has now listened to it 14 times.\n\nSometimes the best product insights come from the most unexpected places.',
+      1:'We built TextTunes to solve a simple problem:\n\nWhat if your most embarrassing texts became songs?\n\nTurns out people really needed this.',
+      2:'Product lesson: your funniest bug reports become your best marketing.\n\nA user turned an autocorrect fail into a #1 ad. We did not plan that.',
+      3:'Disrupting the rent payment space with vibes-based economics.\n\n(We are not actually disrupting rent. But the song is real.)',
+      4:'Sometimes the best content comes from the worst situations.\n\nFour days of unwashed dishes → one viral country song.',
+      5:'User retention strategy: turn your biggest failure into content.\n\nOur delivery driver did exactly that.',
+    },
+    tags:['startup','productmarketing','innovation','TextTunes'],
+  },
+  reddit:{
+    name:'Reddit',icon:'🤖',color:'#ff4500',time:'6–8am Mon/Wed',
+    captions:{
+      0:'My mom guilt-tripped me about a granola bar and somehow it became a pop punk song that goes genuinely hard. I need to know if I am normal.',
+      1:'Accidentally left this guy on read at 2am and he spiraled into three texts. I turned it into an opera with this app and now I feel nothing but power.',
+      2:'Autocorrect told my boss I would see him in 10 "ducking minutes." I turned the whole conversation into a song and sent it to HR myself as a preemptive move.',
+      3:'Tried to pay rent in vibes. Landlord said he has a mortgage. Made him a song instead. He has not responded but I think he liked it.',
+      4:'Roommate asked about the dishes. I responded "deep soak." He has threatened to move out. I made a country song.',
+      5:'The delivery driver gave my entire order to a stranger because they "looked hungry." There is now a rap about it.',
+    },
+    tags:['funny','textfails','relatable','apps'],
+  },
+};
+
+/* ══════════════════════════
+   STATE
+══════════════════════════ */
+let currentScene = 0;
+let adRunning = false;
+let adAbortFlag = false;
+let progInterval = null;
+let currentTab = 'studio';
+
+function setAIStatus(msg,color){
+  const el=document.getElementById('aiStatus');
+  if(!el)return;
+  el.textContent=msg;el.style.color=color||'#6b6b8e';
+  el.style.fontSize='12px';el.style.fontFamily='monospace';
+}
+
+/* ══════════════════════════
+   AUDIO
+══════════════════════════ */
+let AC;
+function getAC(){if(!AC)AC=new(window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();return AC;}
+function playTone(type){
+  try{
+    const ac=getAC(),now=ac.currentTime;
+    if(type==='sent'){[1318,1568].forEach((f,i)=>{const o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(ac.destination);o.type='sine';o.frequency.setValueAtTime(f,now+i*.06);g.gain.setValueAtTime(0,now+i*.06);g.gain.linearRampToValueAtTime(.18,now+i*.06+.015);g.gain.exponentialRampToValueAtTime(.001,now+i*.06+.18);o.start(now+i*.06);o.stop(now+i*.06+.2);});}
+    else if(type==='received'){[1046,1318].forEach((f,i)=>{const o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(ac.destination);o.type='sine';o.frequency.setValueAtTime(f,now+i*.1);g.gain.setValueAtTime(0,now+i*.1);g.gain.linearRampToValueAtTime(.22,now+i*.1+.01);g.gain.exponentialRampToValueAtTime(.001,now+i*.1+.4);o.start(now+i*.1);o.stop(now+i*.1+.5);});}
+    else if(type==='tap'){const o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(ac.destination);o.type='sine';o.frequency.value=880;g.gain.setValueAtTime(.1,now);g.gain.exponentialRampToValueAtTime(.001,now+.08);o.start(now);o.stop(now+.1);}
+  }catch(e){}
+}
+
+/* ══════════════════════════
+   HELPERS
+══════════════════════════ */
+function sleep(ms){return new Promise(r=>{if(adAbortFlag)r();else setTimeout(r,ms);});}
+
+function scrollDown(){
+  requestAnimationFrame(()=>{const m=document.getElementById('msgArea');if(m)m.scrollTop=m.scrollHeight+300;});
+}
+
+/* ══════════════════════════
+   BUILD SCENARIO PICKER
+══════════════════════════ */
+function buildPicker(){
+  const list=document.getElementById('scenarioList');
+  list.innerHTML='';
+  SCENES.forEach((sc,i)=>{
+    const btn=document.createElement('button');
+    btn.className='scene-btn'+(i===currentScene?' active':'');
+    btn.onclick=()=>{currentScene=i;document.querySelectorAll('.scene-btn').forEach((b,j)=>b.classList.toggle('active',j===i));};
+    btn.innerHTML=`<div class="scene-avatar" style="background:${sc.color}">${sc.emoji}</div><div class="scene-info"><div class="scene-name">${sc.contact}</div><div class="scene-preview">${sc.preview}</div></div>`;
+    list.appendChild(btn);
+  });
+}
+
+function randomScene(){
+  currentScene=Math.floor(Math.random()*SCENES.length);
+  document.querySelectorAll('.scene-btn').forEach((b,i)=>b.classList.toggle('active',i===currentScene));
+  playAd();
+}
+
+/* ══════════════════════════
+   PLAY AD
+══════════════════════════ */
+async function playAd(){
+  if(adRunning){adAbortFlag=true;if(progInterval){clearInterval(progInterval);progInterval=null;}await sleep(120);}
+  adAbortFlag=false;adRunning=true;
+  const sc=SCENES[currentScene];
+
+  // Generate ElevenLabs audio for hardcoded scenes if key is saved and no audioUrl yet
+  const ek=localStorage.getItem('tt_eleven')||'';
+  if(ek && !sc.audioUrl && sc.lyrics){
+    try{
+      setAIStatus('🎵 Generating song...','#6c47ff');
+      const er=await fetch('/api/elevenlabs',{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({lyrics:sc.lyrics,elevenKey:ek})
+      });
+      if(er.ok){const blob=await er.blob();sc.audioUrl=URL.createObjectURL(blob);}
+      setAIStatus('','');
+    }catch(e){console.warn('ElevenLabs failed:',e);setAIStatus('','');}
+  }
+
+  // Set nav
+  document.getElementById('navAvatar').style.background=sc.color;
+  document.getElementById('navEmoji').textContent=sc.emoji;
+  document.getElementById('navName').innerHTML=sc.contact+' <span style="color:#8e8e93;font-size:12px">›</span>';
+
+  // Clear messages
+  const area=document.getElementById('msgArea');
+  while(area.children.length>1)area.removeChild(area.lastChild);
+  const td=document.getElementById('timeDiv');
+  td.style.opacity='0';
+
+  // Reset input
+  const iField=document.getElementById('inputField');
+  const iSend=document.getElementById('inputSend');
+  const iMic=document.getElementById('inputMic');
+  iField.textContent='iMessage';iField.style.color='#8e8e93';
+  iSend.classList.remove('vis');iMic.style.opacity='1';
+
+  await sleep(400);
+  td.style.opacity='1';
+  await sleep(500);
+
+  const msgs=sc.messages;
+  for(let i=0;i<msgs.length;i++){
+    if(adAbortFlag)break;
+    const msg=msgs[i];
+
+    if(msg.file){
+      // type "attaching"
+      await sleep(700);
+      iField.textContent='Attaching file...';iField.style.color='#fff';
+      iSend.classList.add('vis');iMic.style.opacity='0';
+      await sleep(900);
+
+      const fr=document.createElement('div');fr.className='file-row';
+      fr.innerHTML=`<div class="file-bub"><div class="file-icon">🎵</div><div><div class="file-name">${sc.songFile}</div><div class="file-meta">2.4 MB · MP3</div></div></div>`;
+      area.appendChild(fr);scrollDown();
+      await sleep(50);fr.classList.add('vis');
+      playTone('sent');
+      iField.textContent='iMessage';iField.style.color='#8e8e93';
+      iSend.classList.remove('vis');iMic.style.opacity='1';
+
+      const rec=document.createElement('div');rec.className='receipt';rec.textContent='Delivered';area.appendChild(rec);
+      await sleep(350);rec.classList.add('vis');
+      await sleep(1800);
+
+      // typing from them
+      const trow=makeTyping();area.appendChild(trow);scrollDown();
+      await sleep(50);trow.classList.add('vis');
+      await sleep(1200);trow.remove();
+
+      // show player
+      await showPlayer(sc);
+      await sleep(600);
+      await showReactions(sc);
+      break;
+
+    } else if(msg.s==='them'){
+      const trow=makeTyping();area.appendChild(trow);scrollDown();
+      await sleep(50);trow.classList.add('vis');
+      await sleep(850+msg.t.length*36+Math.random()*500);
+      trow.remove();
+
+      const row=makeBubble(msg);area.appendChild(row);scrollDown();
+      await sleep(40);row.classList.add('vis');
+      playTone('received');
+      await sleep(1300+Math.random()*700);
+
+    } else {
+      await sleep(350);
+      iField.textContent='';iField.style.color='#fff';
+      for(let c=0;c<=msg.t.length;c++){
+        if(adAbortFlag)break;
+        iField.textContent=msg.t.slice(0,c);
+        if(c===msg.t.length-1){iSend.classList.add('vis');iMic.style.opacity='0';}
+        await sleep(36+Math.random()*24);
+      }
+      await sleep(320);
+      const row=makeBubble(msg);area.appendChild(row);scrollDown();
+      await sleep(40);row.classList.add('vis');
+      playTone('sent');
+      iField.textContent='iMessage';iField.style.color='#8e8e93';
+      iSend.classList.remove('vis');iMic.style.opacity='1';
+      if(i===msgs.length-2){
+        const rec=document.createElement('div');rec.className='receipt';rec.textContent='Read';area.appendChild(rec);
+        await sleep(350);rec.classList.add('vis');
+      }
+      await sleep(900+Math.random()*500);
+    }
+  }
+  adRunning=false;
+}
+
+function makeBubble(msg){
+  const row=document.createElement('div');
+  row.className=`row ${msg.s}`;
+  row.innerHTML=`<div class="bub bpop">${msg.t}</div>`;
+  return row;
+}
+function makeTyping(){
+  const row=document.createElement('div');
+  row.className='typing-row';
+  row.innerHTML='<div class="typing-bub"><div class="td"></div><div class="td"></div><div class="td"></div></div>';
+  return row;
+}
+
+async function showPlayer(sc){
+  if(adAbortFlag)return;
+  const oldFile=document.querySelector('.file-row');
+  if(oldFile)oldFile.remove();
+
+  const area=document.getElementById('msgArea');
+  const pr=document.createElement('div');
+  pr.className='player-row';
+  const bars=[18,28,12,22,34,16,24,20,30].map((h,i)=>`<div class="ab" style="--h:${h}px;animation-delay:${(i*.07).toFixed(2)}s"></div>`).join('');
+  pr.innerHTML=`<div class="player" id="thePlayer">
+    <div class="player-art">🎵<div class="art-bars" id="artBars">${bars}</div></div>
+    <div class="player-body">
+      <div class="player-title">${sc.songTitle}</div>
+      <div class="player-sub">TextTunes App</div>
+      <div class="prog-wrap"><div class="prog-fill" id="progFill"></div></div>
+      <div class="time-row"><span id="curTime">0:00</span><span id="totTime">0:30</span></div>
+      <div class="player-btns">
+        <button class="pbtn"><svg width="14" height="14" viewBox="0 0 18 18" fill="white"><rect x="0" y="0" width="3" height="18" rx="1.5"/><polygon points="3,9 18,0 18,18"/></svg></button>
+        <button class="pbtn"><svg width="14" height="14" viewBox="0 0 18 18" fill="white"><polygon points="18,0 5,9 18,18"/><polygon points="11,0 0,9 11,18"/></svg></button>
+        <button class="pbtn main" id="playPauseBtn">
+          <svg id="pIcon" width="12" height="13" viewBox="0 0 16 18" fill="black"><polygon points="0,0 16,9 0,18"/></svg>
+          <svg id="pauseIcon" width="12" height="13" viewBox="0 0 16 18" fill="black" style="display:none"><rect x="0" y="0" width="5" height="18" rx="2"/><rect x="11" y="0" width="5" height="18" rx="2"/></svg>
+        </button>
+        <button class="pbtn"><svg width="14" height="14" viewBox="0 0 18 18" fill="white"><polygon points="0,0 13,9 0,18"/><polygon points="7,0 18,9 7,18"/></svg></button>
+        <button class="pbtn"><svg width="14" height="14" viewBox="0 0 18 18" fill="white"><rect x="15" y="0" width="3" height="18" rx="1.5"/><polygon points="0,0 15,9 0,18"/></svg></button>
+      </div>
+    </div>
+  </div>`;
+  area.appendChild(pr);scrollDown();
+
+  const artBars=pr.querySelector('#artBars');
+  await sleep(80);
+  document.getElementById('thePlayer').classList.add('vis');
+  playTone('tap');
+  await sleep(500);
+
+  // show pause icon = playing
+  document.getElementById('pIcon').style.display='none';
+  document.getElementById('pauseIcon').style.display='block';
+
+  function stopPlayer(){
+    const pi=document.getElementById('pIcon');
+    const pai=document.getElementById('pauseIcon');
+    if(pi)pi.style.display='block';
+    if(pai)pai.style.display='none';
+    if(artBars)artBars.querySelectorAll('.ab').forEach(b=>b.classList.add('paused'));
+    if(progInterval){clearInterval(progInterval);progInterval=null;}
+  }
+
+  if(sc.audioUrl){
+    // Play real ElevenLabs audio
+    await new Promise(res=>{
+      const audio=new Audio(sc.audioUrl);
+      audio.addEventListener('loadedmetadata',()=>{
+        const t=Math.floor(audio.duration);
+        const tot=document.getElementById('totTime');
+        if(tot)tot.textContent=`${Math.floor(t/60)}:${String(t%60).padStart(2,'0')}`;
+      });
+      audio.play().catch(()=>res());
+      progInterval=setInterval(()=>{
+        if(adAbortFlag){audio.pause();clearInterval(progInterval);progInterval=null;res();return;}
+        if(!audio.duration)return;
+        const fill=document.getElementById('progFill');
+        if(fill)fill.style.width=((audio.currentTime/audio.duration)*100)+'%';
+        const cur=document.getElementById('curTime');
+        const s=Math.floor(audio.currentTime);
+        if(cur)cur.textContent=`${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
+      },100);
+      audio.addEventListener('ended',()=>{
+        clearInterval(progInterval);progInterval=null;
+        stopPlayer();res();
+      });
+      audio.addEventListener('error',()=>{
+        clearInterval(progInterval);progInterval=null;
+        stopPlayer();res();
+      });
+    });
+  } else {
+    // No ElevenLabs key — simulate 8 seconds
+    const total=8000,totalSec=30;
+    let elapsed=0;
+    await new Promise(res=>{
+      progInterval=setInterval(()=>{
+        if(adAbortFlag){clearInterval(progInterval);progInterval=null;res();return;}
+        elapsed+=100;
+        const pct=Math.min((elapsed/total)*100,100);
+        const fill=document.getElementById('progFill');
+        if(fill)fill.style.width=pct+'%';
+        const cur=document.getElementById('curTime');
+        const s=Math.floor((elapsed/total)*totalSec);
+        if(cur)cur.textContent=`${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
+        if(elapsed>=total){stopPlayer();res();}
+      },100);
+    });
+  }
+}
+
+async function showReactions(sc){
+  if(adAbortFlag)return;
+  const area=document.getElementById('msgArea');
+  for(const r of sc.reactions){
+    if(adAbortFlag)return;
+    const trow=makeTyping();area.appendChild(trow);scrollDown();
+    await sleep(40);trow.classList.add('vis');
+    await sleep(550+Math.random()*400);
+    trow.remove();
+    const isShort=[...r].length<=4;
+    const row=document.createElement('div');
+    if(isShort){
+      row.className='row them vis';
+      row.innerHTML=`<span class="tapback">${r}</span>`;
+      area.appendChild(row);scrollDown();
+      await sleep(40);
+      row.querySelector('.tapback').classList.add('vis');
+    } else {
+      row.className='row them';
+      row.innerHTML=`<div class="bub bpop">${r}</div>`;
+      area.appendChild(row);scrollDown();
+      await sleep(40);row.classList.add('vis');
+    }
+    playTone('received');
+    await sleep(650+Math.random()*350);
+  }
+}
+
+/* ══════════════════════════
+   BUILD CONTENT CARDS
+══════════════════════════ */
+function buildContent(){
+  const container=document.getElementById('contentCards');
+  container.innerHTML='';
+  const sc=SCENES[currentScene];
+  const platforms=Object.values(PLATFORM_CONTENT);
+
+  const grid=document.createElement('div');
+  grid.className='platform-grid';
+
+  platforms.forEach(p=>{
+    const cap=p.captions[currentScene]||p.captions[0];
+    const tags=p.tags||[];
+    const card=document.createElement('div');
+    card.className='pcrd';
+    card.innerHTML=`
+      <div class="pcrd-head">
+        <div class="pcrd-icon">${p.icon}</div>
+        <div><div class="pcrd-name">${p.name}</div><div class="pcrd-time" style="color:${p.color}">${p.time}</div></div>
+      </div>
+      <div class="pcrd-caption">${cap}</div>
+      <div class="pcrd-tags">${tags.map(t=>`<span class="tag">#${t}</span>`).join('')}</div>
+      <button class="copy-btn" onclick="copyCaption(this,'${p.name.replace(/'/g,'')}',\`${cap.replace(/`/g,'\\`')}\`,${JSON.stringify(tags).replace(/"/g,'&quot;')})">Copy</button>`;
+    grid.appendChild(card);
+  });
+  container.appendChild(grid);
+}
+
+function copyCaption(btn,name,cap,tags){
+  const text=cap+'\n\n'+tags.map(t=>'#'+t).join(' ');
+  navigator.clipboard.writeText(text).then(()=>{
+    btn.textContent='✓ Copied!';btn.classList.add('done');
+    setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('done');},2000);
+  }).catch(()=>{
+    // fallback
+    const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+    btn.textContent='✓ Copied!';btn.classList.add('done');
+    setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('done');},2000);
+  });
+}
+
+/* ══════════════════════════
+   BUILD STRATEGY
+══════════════════════════ */
+function buildStrategy(){
+  const items=[
+    {icon:'🔥',title:'Post 3x/day on TikTok first',body:'Spend the first 2 weeks <strong>only on TikTok</strong>. Volume wins the algorithm. Mom, Boss, and Roommate scenarios get the most organic shares.'},
+    {icon:'⏰',title:'Best times to post',body:'<strong>TikTok:</strong> 7–9pm Tue/Thu. <strong>Instagram:</strong> 6–9pm Mon/Wed/Fri. <strong>LinkedIn:</strong> Tue–Thu 8–10am. <strong>Reddit:</strong> 6–8am Mon/Wed.'},
+    {icon:'🪝',title:'Hook that doubles watch time',body:'Start with <strong>"POV:"</strong> or <strong>"I accidentally..."</strong> — these two openers consistently get 2x watch time. Never show the song in the thumbnail.'},
+    {icon:'😂',title:'The reaction is the payoff',body:'Hold the camera on <strong>the other person reacting</strong> to the song for 3+ seconds. This is your most shareable moment — do not cut it short.'},
+    {icon:'🤖',title:'Reddit is your secret weapon',body:'Post the story in <strong>r/Funny</strong> or <strong>r/mildlyinfuriating</strong> as if it happened to you. Mention TextTunes casually. One post can drive 50K+ downloads.'},
+    {icon:'💬',title:'Ask a question every time',body:'"Which scenario should we do next?" in every caption increases comments by <strong>280%</strong>. More comments = more reach on every platform.'},
+    {icon:'📅',title:'30-Day blitz plan',body:'<strong>Week 1:</strong> TikTok only, 3x/day. <strong>Week 2:</strong> Add Instagram Reels. <strong>Week 3:</strong> Add YouTube Shorts + Reddit. <strong>Week 4:</strong> Add LinkedIn + X. Reply to every comment week 1.'},
+    {icon:'🎵',title:'Use trending audio',body:'On TikTok, use a <strong>trending sound for the first 2 seconds</strong> then cut to your iMessage video. The algorithm boosts content that rides trending audio even briefly.'},
+  ];
+  const grid=document.getElementById('strategyCards');
+  grid.innerHTML=items.map(i=>`<div class="scrd"><div class="scrd-icon">${i.icon}</div><div class="scrd-title">${i.title}</div><div class="scrd-body">${i.body}</div></div>`).join('');
+}
+
+/* ══════════════════════════
+   TABS
+══════════════════════════ */
+function setTab(tab,btn){
+  currentTab=tab;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  ['studio','content','strategy'].forEach(t=>{
+    document.getElementById('tab-'+t).style.display=t===tab?'':'none';
+  });
+  if(tab==='content')buildContent();
+  if(tab==='strategy')buildStrategy();
+}
+
+/* ══════════════════════════
+   TIME
+══════════════════════════ */
+(function(){const now=new Date();let h=now.getHours()%12||12,m=now.getMinutes();document.getElementById('sbarTime').textContent=`${h}:${String(m).padStart(2,'0')}`;})();
+
+/* ══════════════════════════
+   INIT
+══════════════════════════ */
+buildPicker();
+
+// ── AI Generation via local server ──
+async function generateAI(scenario) {
+  const anthropicKey = localStorage.getItem('tt_anthropic') || '';
+  const elevenKey = localStorage.getItem('tt_eleven') || '';
+  if (!anthropicKey) throw new Error('Enter your Anthropic key in Settings');
+
+  const prompt = `Write a funny viral iMessage conversation for a TextTunes app ad. TextTunes turns texts into real songs.
+Scenario: "${scenario}"
+Return ONLY raw JSON. No markdown. No explanation. Start with { end with }
+{"contact":"Mom","emoji":"👩","color":"#ff6b9d","messages":[{"side":"them","text":"did you eat today"},{"side":"me","text":"mom its 11pm"},{"side":"them","text":"thats not an answer"},{"side":"me","text":"i had a granola bar"},{"side":"them","text":"I raised you for THIS"},{"side":"me","text":"made this into a song for you"}],"songTitle":"Why Wont You Call Me Back","songFile":"MomSong.mp3","lyrics":"She texts at 11pm asking if I ate today. I had a granola bar mom please just go away. She raised me for this she said with a cry. But the granola bar was good and I do not know why.","reactionEmojis":["this goes hard","I cannot stop laughing","calling u rn","sending to everyone"]}
+Rules: 6-8 messages. Last message from me hints at a song. No apostrophes. Make it genuinely funny.`;
+
+  const r = await fetch('/api/claude', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prompt, anthropicKey })
+  });
+  if (!r.ok) {
+    let errMsg = 'Claude error';
+    try { const d = await r.json(); errMsg = d.error || errMsg; } catch(e) {}
+    throw new Error(errMsg);
+  }
+  const d = await r.json();
+  const text = d.content[0].text;
+  let json;
+  try {
+    json = JSON.parse(text);
+  } catch {
+    // Strip markdown code fences if present
+    let cleaned = text.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+    const m = cleaned.match(/\{[\s\S]*\}/);
+    if (m) json = JSON.parse(m[0]); else throw new Error('Bad JSON from Claude');
+  }
+
+  if (elevenKey && json.lyrics) {
+    try {
+      const er = await fetch('/api/elevenlabs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lyrics: json.lyrics, elevenKey })
+      });
+      if (er.ok) {
+        const blob = await er.blob();
+        json.audioUrl = URL.createObjectURL(blob);
+      }
+    } catch(e) { console.warn('ElevenLabs failed:', e); }
+  }
+  return json;
+}
+
+function toggleSettings(){
+  const p=document.getElementById('settingsPanel');
+  p.style.display=p.style.display==='none'?'block':'none';
+  const ak=localStorage.getItem('tt_anthropic')||'';
+  const ek=localStorage.getItem('tt_eleven')||'';
+  if(ak)document.getElementById('ttAnthropicKey').value=ak;
+  if(ek)document.getElementById('ttElevenKey').value=ek;
+}
+function saveKeys(){
+  const ak=document.getElementById('ttAnthropicKey').value.trim();
+  const ek=document.getElementById('ttElevenKey').value.trim();
+  if(ak)localStorage.setItem('tt_anthropic',ak);
+  if(ek)localStorage.setItem('tt_eleven',ek);
+  document.getElementById('keyStatus').textContent='✓ Keys saved!';
+  document.getElementById('keyStatus').style.color='#00ff88';
+  setTimeout(()=>document.getElementById('settingsPanel').style.display='none',800);
+}
+async function runAIGenerate(){
+  const scenario=document.getElementById('ttScenario').value.trim();
+  if(!scenario){setAIStatus('Type a scenario first!','#ff453a');return;}
+  setAIStatus('✍️ Claude is writing the convo...','#6c47ff');
+  try{
+    const scene=await generateAI(scenario);
+    const sc={
+      id:99,contact:scene.contact,emoji:scene.emoji,color:scene.color,
+      songTitle:scene.songTitle,songFile:scene.songFile,
+      preview:scene.messages[0]?.text||'',
+      messages:scene.messages.map(m=>({s:m.side,t:m.text})),
+      reactions:scene.reactionEmojis||['this goes hard','I cannot stop'],
+      audioUrl:scene.audioUrl,
+    };
+    sc.messages[sc.messages.length-1].file=true;
+    SCENES[99]=sc;currentScene=99;
+    document.querySelectorAll('.scene-btn').forEach(b=>b.classList.remove('active'));
+    setAIStatus('🎬 Playing your custom ad!','#00ff88');
+    setTab('studio',document.querySelector('.tab-btn'));
+    await playAd();
+    setAIStatus('','#6b6b8e');
+  }catch(e){setAIStatus('Error: '+e.message,'#ff453a');}
+}
+window.addEventListener('load',()=>{
+  const ak=localStorage.getItem('tt_anthropic');
+  if(ak)document.getElementById('keyStatus') && (document.getElementById('keyStatus').textContent='Keys saved ✓');
+});
+</script>
+</body>
+</html>
