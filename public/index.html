@@ -358,7 +358,8 @@ async function playAd(){
       await sleep(900);
 
       const fr=document.createElement('div');fr.className='file-row';
-      fr.innerHTML=`<div class="file-bub"><div class="file-icon">🎵</div><div><div class="file-name">${sc.songFile}</div><div class="file-meta">2.4 MB · MP3</div></div></div>`;
+      const displayName=(sc.songTitle||'TextTune').replace(/[^a-zA-Z0-9 ]/g,'').replace(/\s+/g,'')+'.mp3';
+      fr.innerHTML=`<div class="file-bub"><div class="file-icon">🎵</div><div><div class="file-name">${displayName}</div><div class="file-meta">2.4 MB · MP3</div></div></div>`;
       area.appendChild(fr);scrollDown();
       await sleep(50);fr.classList.add('vis');
       playTone('sent');
