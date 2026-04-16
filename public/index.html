@@ -129,7 +129,19 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60p
 /* CAPTION BELOW PHONE */
 .phone-caption{margin-top:12px;font-size:11px;color:var(--muted);text-align:center;font-family:monospace;}
 
+.dl-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  background:#0f0f1c;border:1px solid #1c1c30;border-radius:12px;
+  padding:10px 14px;color:#f0f0ff;font-size:13px;font-weight:700;
+  cursor:pointer;white-space:nowrap;transition:all .18s;
+  font-family:var(--display);
+}
+.dl-btn:hover{border-color:var(--accent);color:var(--accent);}
+.dl-btn:disabled{opacity:.4;cursor:not-allowed;}
+.dl-btn.recording{border-color:#ff453a;color:#ff453a;animation:recPulse 1s infinite;}
+@keyframes recPulse{0%,100%{opacity:1}50%{opacity:.6}}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
 
@@ -202,7 +214,10 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60p
       </div>
     </div>
   </div>
-  <div class="phone-caption">↑ Screen record this for TikTok / Reels</div>
+  <div style="margin-top:14px;display:flex;gap:8px;justify-content:center;">
+    <button class="dl-btn" id="downloadBtn" onclick="recordAndDownload()" disabled>⬇ Download Video</button>
+  </div>
+  <div id="dlStatus" style="margin-top:8px;font-size:11px;color:#6b6b8e;text-align:center;font-family:monospace;min-height:16px;"></div>
 </div>
 
 
@@ -218,6 +233,9 @@ let currentAd = null;
 let adRunning = false;
 let adAbortFlag = false;
 let progInterval = null;
+let isRecording = false;
+let mediaRecorder = null;
+let recordedChunks = [];
 
 function setAIStatus(msg,color){
   const el=document.getElementById('aiStatus');
@@ -490,6 +508,91 @@ async function showReactions(sc){
 }
 
 /* ══════════════════════════
+   VIDEO RECORDING
+══════════════════════════ */
+async function recordAndDownload(){
+  if(!currentAd){setDLStatus('Generate an ad first!','#ff453a');return;}
+  if(isRecording)return;
+
+  const phone=document.querySelector('.phone');
+  const dlBtn=document.getElementById('downloadBtn');
+  const FPS=15;
+  const frameInterval=1000/FPS;
+
+  // Set up canvas matching phone size (scaled up 2x for quality)
+  const scale=2;
+  const canvas=document.createElement('canvas');
+  canvas.width=phone.offsetWidth*scale;
+  canvas.height=phone.offsetHeight*scale;
+  const ctx=canvas.getContext('2d');
+
+  // Start MediaRecorder on canvas stream
+  const stream=canvas.captureStream(FPS);
+  const mimeType=MediaRecorder.isTypeSupported('video/webm;codecs=vp9')?'video/webm;codecs=vp9':
+                  MediaRecorder.isTypeSupported('video/webm;codecs=vp8')?'video/webm;codecs=vp8':'video/webm';
+  mediaRecorder=new MediaRecorder(stream,{mimeType,videoBitsPerSecond:5000000});
+  recordedChunks=[];
+  mediaRecorder.ondataavailable=e=>{if(e.data.size>0)recordedChunks.push(e.data);};
+  mediaRecorder.onstop=()=>{
+    const blob=new Blob(recordedChunks,{type:mimeType});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;
+    a.download=`TextTunes_${(currentAd.songTitle||'Ad').replace(/[^a-zA-Z0-9]/g,'_')}.webm`;
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    setDLStatus('Downloaded!','#00ff88');
+    dlBtn.disabled=false;
+    dlBtn.classList.remove('recording');
+    dlBtn.textContent='⬇ Download Video';
+    isRecording=false;
+  };
+
+  // Start recording
+  isRecording=true;
+  dlBtn.classList.add('recording');
+  dlBtn.textContent='● Recording...';
+  dlBtn.disabled=true;
+  mediaRecorder.start();
+  setDLStatus('Recording ad...','#ff453a');
+
+  // Capture frames
+  let capturing=true;
+  async function captureFrame(){
+    if(!capturing)return;
+    try{
+      const frameCanvas=await html2canvas(phone,{
+        backgroundColor:'#000000',
+        scale:scale,
+        logging:false,
+        useCORS:true,
+        allowTaint:true,
+      });
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      ctx.drawImage(frameCanvas,0,0,canvas.width,canvas.height);
+    }catch(e){}
+    if(capturing)setTimeout(captureFrame,frameInterval);
+  }
+  captureFrame();
+
+  // Play the ad
+  await playAd();
+
+  // Wait a beat for final reactions to show
+  await sleep(1500);
+
+  // Stop recording
+  capturing=false;
+  mediaRecorder.stop();
+  setDLStatus('Processing video...','#7C3AED');
+}
+
+function setDLStatus(msg,color){
+  const el=document.getElementById('dlStatus');
+  if(el){el.textContent=msg;el.style.color=color||'#6b6b8e';}
+}
+
+/* ══════════════════════════
    TIME
 ══════════════════════════ */
 (function(){const now=new Date();let h=now.getHours()%12||12,m=now.getMinutes();document.getElementById('sbarTime').textContent=`${h}:${String(m).padStart(2,'0')}`;})();
@@ -580,6 +683,7 @@ async function runAIGenerate(){
     };
     currentAd.messages[currentAd.messages.length-1].file=true;
     setAIStatus('🎬 Playing your ad!','#00ff88');
+    document.getElementById('downloadBtn').disabled=false;
     await playAd();
     setAIStatus('','#6b6b8e');
   }catch(e){setAIStatus('Error: '+e.message,'#ff453a');}
