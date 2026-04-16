@@ -455,7 +455,7 @@ async function playAd(){
       await sleep(1200+msg.t.length*40+Math.random()*600);
       trow.remove();
 
-      const row=makeBubble(msg);area.appendChild(row);scrollDown();
+      const row=makeBubble(msg,i);area.appendChild(row);scrollDown();
       await sleep(60);row.classList.add('vis');
       playTone('received');
       await sleep(1800+Math.random()*800);
@@ -470,7 +470,7 @@ async function playAd(){
         await sleep(45+Math.random()*30);
       }
       await sleep(500);
-      const row=makeBubble(msg);area.appendChild(row);scrollDown();
+      const row=makeBubble(msg,i);area.appendChild(row);scrollDown();
       await sleep(60);row.classList.add('vis');
       playTone('sent');
       iField.textContent='iMessage';iField.style.color='#8e8e93';
@@ -486,10 +486,40 @@ async function playAd(){
   document.getElementById('pauseBtn').textContent='⏸ Pause';
 }
 
-function makeBubble(msg){
+function makeBubble(msg,idx){
   const row=document.createElement('div');
   row.className=`row ${msg.s}`;
-  row.innerHTML=`<div class="bub bpop">${msg.t}</div>`;
+  const bub=document.createElement('div');
+  bub.className='bub bpop';
+  bub.textContent=msg.t;
+  bub.style.cursor='pointer';
+  if(idx!==undefined){
+    bub.addEventListener('click',()=>{
+      if(bub.contentEditable==='true')return;
+      bub.contentEditable='true';
+      bub.style.outline='2px solid #7C3AED';
+      bub.style.borderRadius='17px';
+      bub.focus();
+      // Select all text
+      const range=document.createRange();
+      range.selectNodeContents(bub);
+      const sel=window.getSelection();
+      sel.removeAllRanges();sel.addRange(range);
+      const done=()=>{
+        bub.contentEditable='false';
+        bub.style.outline='none';
+        const newText=bub.textContent.trim();
+        if(newText&&currentAd&&currentAd.messages[idx]){
+          currentAd.messages[idx].t=newText;
+        }
+      };
+      bub.addEventListener('blur',done,{once:true});
+      bub.addEventListener('keydown',(e)=>{
+        if(e.key==='Enter'){e.preventDefault();bub.blur();}
+      });
+    });
+  }
+  row.appendChild(bub);
   return row;
 }
 function makeTyping(){
