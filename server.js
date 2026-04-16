@@ -2,10 +2,13 @@ const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
+const os = require('os');
+const { execFile } = require('child_process');
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '100mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.post('/api/claude', async (req, res) => {
@@ -60,6 +63,46 @@ app.post('/api/elevenlabs', async (req, res) => {
       res.status(500).json({ error: e.message });
     }
   }
+});
+
+// Convert WebM to MP4 using ffmpeg
+app.post('/api/convert-mp4', (req, res) => {
+  const { video } = req.body; // base64 encoded webm
+  if (!video) return res.status(400).json({ error: 'No video data' });
+
+  const tmpDir = os.tmpdir();
+  const id = Date.now() + '_' + Math.random().toString(36).slice(2);
+  const webmPath = path.join(tmpDir, `${id}.webm`);
+  const mp4Path = path.join(tmpDir, `${id}.mp4`);
+
+  // Write base64 WebM to temp file
+  const buffer = Buffer.from(video, 'base64');
+  fs.writeFileSync(webmPath, buffer);
+
+  // Convert with ffmpeg
+  execFile('ffmpeg', [
+    '-i', webmPath,
+    '-c:v', 'libx264', '-preset', 'fast', '-crf', '23',
+    '-c:a', 'aac', '-b:a', '128k',
+    '-movflags', '+faststart',
+    '-y', mp4Path
+  ], { timeout: 60000 }, (err) => {
+    // Clean up webm
+    try { fs.unlinkSync(webmPath); } catch(e) {}
+
+    if (err) {
+      try { fs.unlinkSync(mp4Path); } catch(e) {}
+      return res.status(500).json({ error: 'Conversion failed: ' + err.message });
+    }
+
+    // Read and send MP4
+    const mp4Buffer = fs.readFileSync(mp4Path);
+    try { fs.unlinkSync(mp4Path); } catch(e) {}
+
+    res.set('Content-Type', 'video/mp4');
+    res.set('Content-Disposition', 'attachment; filename="TextTunes_Ad.mp4"');
+    res.send(mp4Buffer);
+  });
 });
 
 const PORT = process.env.PORT || 3000;

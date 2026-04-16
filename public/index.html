@@ -245,16 +245,36 @@ function setAIStatus(msg,color){
 }
 
 /* ══════════════════════════
-   AUDIO
+   AUDIO (with recording support)
 ══════════════════════════ */
 let AC;
-function getAC(){if(!AC)AC=new(window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();return AC;}
+let recDest = null; // MediaStreamDestination for recording audio
+
+function getAC(){
+  if(!AC) AC = new(window.AudioContext||window.webkitAudioContext)();
+  if(AC.state==='suspended') AC.resume();
+  // Create recording destination if not exists
+  if(!recDest) recDest = AC.createMediaStreamDestination();
+  return AC;
+}
+
+// Get the audio output node — routes to speakers AND recording stream
+function getAudioDest(){
+  const ac = getAC();
+  // Create a splitter that sends audio to both speakers and recorder
+  const merger = ac.createGain();
+  merger.gain.value = 1;
+  merger.connect(ac.destination);  // speakers
+  merger.connect(recDest);          // recording stream
+  return merger;
+}
+
 function playTone(type){
   try{
-    const ac=getAC(),now=ac.currentTime;
-    if(type==='sent'){[1318,1568].forEach((f,i)=>{const o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(ac.destination);o.type='sine';o.frequency.setValueAtTime(f,now+i*.06);g.gain.setValueAtTime(0,now+i*.06);g.gain.linearRampToValueAtTime(.18,now+i*.06+.015);g.gain.exponentialRampToValueAtTime(.001,now+i*.06+.18);o.start(now+i*.06);o.stop(now+i*.06+.2);});}
-    else if(type==='received'){[1046,1318].forEach((f,i)=>{const o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(ac.destination);o.type='sine';o.frequency.setValueAtTime(f,now+i*.1);g.gain.setValueAtTime(0,now+i*.1);g.gain.linearRampToValueAtTime(.22,now+i*.1+.01);g.gain.exponentialRampToValueAtTime(.001,now+i*.1+.4);o.start(now+i*.1);o.stop(now+i*.1+.5);});}
-    else if(type==='tap'){const o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(ac.destination);o.type='sine';o.frequency.value=880;g.gain.setValueAtTime(.1,now);g.gain.exponentialRampToValueAtTime(.001,now+.08);o.start(now);o.stop(now+.1);}
+    const ac=getAC(),now=ac.currentTime,dest=getAudioDest();
+    if(type==='sent'){[1318,1568].forEach((f,i)=>{const o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(dest);o.type='sine';o.frequency.setValueAtTime(f,now+i*.06);g.gain.setValueAtTime(0,now+i*.06);g.gain.linearRampToValueAtTime(.18,now+i*.06+.015);g.gain.exponentialRampToValueAtTime(.001,now+i*.06+.18);o.start(now+i*.06);o.stop(now+i*.06+.2);});}
+    else if(type==='received'){[1046,1318].forEach((f,i)=>{const o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(dest);o.type='sine';o.frequency.setValueAtTime(f,now+i*.1);g.gain.setValueAtTime(0,now+i*.1);g.gain.linearRampToValueAtTime(.22,now+i*.1+.01);g.gain.exponentialRampToValueAtTime(.001,now+i*.1+.4);o.start(now+i*.1);o.stop(now+i*.1+.5);});}
+    else if(type==='tap'){const o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(dest);o.type='sine';o.frequency.value=880;g.gain.setValueAtTime(.1,now);g.gain.exponentialRampToValueAtTime(.001,now+.08);o.start(now);o.stop(now+.1);}
   }catch(e){}
 }
 
@@ -432,14 +452,22 @@ async function showPlayer(sc){
   }
 
   if(sc.audioUrl){
-    // Play real ElevenLabs audio
+    // Play real ElevenLabs audio — route to speakers + recording stream
     await new Promise(res=>{
       const audio=new Audio(sc.audioUrl);
+      audio.crossOrigin='anonymous';
       audio.addEventListener('loadedmetadata',()=>{
         const t=Math.floor(audio.duration);
         const tot=document.getElementById('totTime');
         if(tot)tot.textContent=`${Math.floor(t/60)}:${String(t%60).padStart(2,'0')}`;
       });
+      // Route audio element through AudioContext so it gets captured for recording
+      try{
+        const ac=getAC();
+        const source=ac.createMediaElementSource(audio);
+        const dest=getAudioDest();
+        source.connect(dest);
+      }catch(e){/* fallback: audio plays through speakers only */}
       audio.play().catch(()=>res());
       progInterval=setInterval(()=>{
         if(adAbortFlag){audio.pause();clearInterval(progInterval);progInterval=null;res();return;}
@@ -526,22 +554,62 @@ async function recordAndDownload(){
   canvas.height=phone.offsetHeight*scale;
   const ctx=canvas.getContext('2d');
 
-  // Start MediaRecorder on canvas stream
-  const stream=canvas.captureStream(FPS);
-  const mimeType=MediaRecorder.isTypeSupported('video/webm;codecs=vp9')?'video/webm;codecs=vp9':
-                  MediaRecorder.isTypeSupported('video/webm;codecs=vp8')?'video/webm;codecs=vp8':'video/webm';
-  mediaRecorder=new MediaRecorder(stream,{mimeType,videoBitsPerSecond:5000000});
+  // Combine video stream (canvas) with audio stream (AudioContext)
+  const videoStream=canvas.captureStream(FPS);
+  const ac=getAC(); // ensure AudioContext + recDest are ready
+  const combinedStream=new MediaStream();
+  // Add video track
+  videoStream.getVideoTracks().forEach(t=>combinedStream.addTrack(t));
+  // Add audio track from recording destination
+  if(recDest && recDest.stream.getAudioTracks().length>0){
+    recDest.stream.getAudioTracks().forEach(t=>combinedStream.addTrack(t));
+  }
+  const mimeType=MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus')?'video/webm;codecs=vp9,opus':
+                  MediaRecorder.isTypeSupported('video/webm;codecs=vp8,opus')?'video/webm;codecs=vp8,opus':'video/webm';
+  mediaRecorder=new MediaRecorder(combinedStream,{mimeType,videoBitsPerSecond:5000000});
   recordedChunks=[];
   mediaRecorder.ondataavailable=e=>{if(e.data.size>0)recordedChunks.push(e.data);};
-  mediaRecorder.onstop=()=>{
+  mediaRecorder.onstop=async()=>{
     const blob=new Blob(recordedChunks,{type:mimeType});
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');
-    a.href=url;
-    a.download=`TextTunes_${(currentAd.songTitle||'Ad').replace(/[^a-zA-Z0-9]/g,'_')}.webm`;
-    document.body.appendChild(a);a.click();document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    setDLStatus('Downloaded!','#00ff88');
+    setDLStatus('Converting to MP4...','#FFD60A');
+    dlBtn.textContent='Converting...';
+    try{
+      // Convert blob to base64
+      const reader=new FileReader();
+      const base64=await new Promise((resolve,reject)=>{
+        reader.onload=()=>resolve(reader.result.split(',')[1]);
+        reader.onerror=reject;
+        reader.readAsDataURL(blob);
+      });
+      // Send to server for ffmpeg conversion
+      const resp=await fetch('/api/convert-mp4',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({video:base64})
+      });
+      if(!resp.ok){
+        const err=await resp.json().catch(()=>({error:'Conversion failed'}));
+        throw new Error(err.error||'Conversion failed');
+      }
+      const mp4Blob=await resp.blob();
+      const url=URL.createObjectURL(mp4Blob);
+      const a=document.createElement('a');
+      a.href=url;
+      a.download=`TextTunes_${(currentAd.songTitle||'Ad').replace(/[^a-zA-Z0-9]/g,'_')}.mp4`;
+      document.body.appendChild(a);a.click();document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      setDLStatus('Downloaded MP4!','#00ff88');
+    }catch(e){
+      console.error('MP4 conversion failed, downloading WebM:',e);
+      // Fallback to WebM if conversion fails
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a');
+      a.href=url;
+      a.download=`TextTunes_${(currentAd.songTitle||'Ad').replace(/[^a-zA-Z0-9]/g,'_')}.webm`;
+      document.body.appendChild(a);a.click();document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      setDLStatus('Downloaded (WebM fallback)','#FFD60A');
+    }
     dlBtn.disabled=false;
     dlBtn.classList.remove('recording');
     dlBtn.textContent='⬇ Download Video';
