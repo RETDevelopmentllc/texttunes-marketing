@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>TextTunes — Ad Machine</title>
+<title>TextTunes — Business HQ</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@700;800;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -231,6 +231,35 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60p
 .crop-btn{padding:8px 20px;border-radius:10px;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif;}
 .crop-done{background:#7C3AED;color:#fff;}
 .crop-cancel{background:#3a3a3c;color:#fff;}
+
+/* ══ BUSINESS HQ TOP TABS ══ */
+.hq-tabs{display:flex;gap:4px;background:#0a0a18;border:1px solid var(--border);border-radius:16px;padding:4px;margin-bottom:20px;width:100%;max-width:600px;overflow-x:auto;}
+.hq-tabs::-webkit-scrollbar{display:none;}
+.hq-tab{flex:1;padding:10px 12px;border-radius:12px;border:none;background:none;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);transition:all .2s;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:6px;}
+.hq-tab:hover{color:var(--text);background:rgba(124,58,237,.1);}
+.hq-tab.active{background:linear-gradient(135deg,var(--accent),var(--pink));color:#fff;box-shadow:0 4px 16px rgba(124,58,237,.3);}
+.hq-tab .hq-icon{font-size:14px;}
+.hq-section{display:none;width:100%;max-width:900px;flex-direction:column;align-items:center;}
+.hq-section.active{display:flex;}
+
+/* Sub-tab bar (Marketing sub-tabs) */
+.sub-tab-bar{display:flex;gap:4px;background:#0f0f1c;border:1px solid var(--border);border-radius:12px;padding:3px;margin-bottom:16px;}
+.sub-tab{padding:8px 16px;border-radius:10px;border:none;background:none;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);transition:all .15s;white-space:nowrap;}
+.sub-tab:hover{color:var(--text);}
+.sub-tab.active{background:var(--accent);color:#fff;}
+
+/* Dashboard cards */
+.dash-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;width:100%;max-width:800px;margin-top:8px;}
+.dash-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:8px;transition:all .2s;}
+.dash-card:hover{border-color:var(--accent);box-shadow:0 4px 20px rgba(124,58,237,.1);}
+.dash-card-icon{font-size:28px;}
+.dash-card-title{font-size:14px;font-weight:700;color:var(--text);}
+.dash-card-value{font-size:28px;font-weight:800;font-family:var(--display);color:var(--text);}
+.dash-card-sub{font-size:11px;color:var(--muted);}
+.dash-card-trend{font-size:12px;font-weight:600;}
+.dash-card-trend.up{color:var(--green);}
+.dash-card-trend.down{color:#ff453a;}
+.dash-placeholder{width:100%;max-width:800px;padding:40px;text-align:center;color:var(--muted);font-size:14px;background:var(--surface);border:1px dashed var(--border);border-radius:16px;margin-top:16px;}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
@@ -239,11 +268,25 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60p
 <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
   <img src="/TextTunes%20Marketing.png" alt="TextTunes" style="width:40px;height:40px;border-radius:10px;"/>
   <div class="logo" style="margin-bottom:0;">Text<em>Tunes</em></div>
+  <span style="font-size:11px;color:var(--muted);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-left:4px;">Business HQ</span>
 </div>
-<div class="tagline">Turn any text convo into a song 🎵</div>
-<div class="tab-bar">
-  <button class="tab-btn active" id="tabAiBtn" onclick="switchTab('ai')">🤖 AI Generated</button>
-  <button class="tab-btn" id="tabCustomBtn" onclick="switchTab('custom')">🛠 Custom Builder</button>
+<div class="tagline">Everything you need to grow your app 🚀</div>
+
+<!-- ══ BUSINESS HQ TOP-LEVEL TABS ══ -->
+<div class="hq-tabs" id="hqTabs">
+  <button class="hq-tab active" data-hq="marketing" onclick="switchHQ('marketing')"><span class="hq-icon">📣</span> Marketing</button>
+  <button class="hq-tab" data-hq="analytics" onclick="switchHQ('analytics')"><span class="hq-icon">📊</span> Analytics</button>
+  <button class="hq-tab" data-hq="finances" onclick="switchHQ('finances')"><span class="hq-icon">💰</span> Finances</button>
+  <button class="hq-tab" data-hq="appmanage" onclick="switchHQ('appmanage')"><span class="hq-icon">📱</span> App Management</button>
+</div>
+
+<!-- ══════════════════════════════════════ -->
+<!-- MARKETING SECTION                      -->
+<!-- ══════════════════════════════════════ -->
+<div class="hq-section active" id="hq-marketing">
+<div class="sub-tab-bar">
+  <button class="sub-tab active" id="tabAiBtn" onclick="switchTab('ai')">🤖 AI Generated</button>
+  <button class="sub-tab" id="tabCustomBtn" onclick="switchTab('custom')">🛠 Custom Builder</button>
 </div>
 <div id="tab-ai">
 <div style="display:flex;gap:8px;margin-bottom:8px;width:100%;max-width:400px;">
@@ -528,13 +571,173 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60p
         <option value="funk">🕺 Funk</option><option value="metal">🤘 Metal</option><option value="techno">🔊 Techno</option>
         <option value="random">🎲 Surprise Me</option>
       </select>
+      <!-- Time Settings -->
+      <div style="margin-bottom:8px;padding:8px;background:#07070f;border:1px solid #1c1c30;border-radius:8px;">
+        <div style="font-size:9px;color:#6b6b8e;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">⏰ Time Settings</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+          <label style="font-size:10px;color:#f0f0ff;flex:1;">Status Bar</label>
+          <input id="cbTimeInput1" class="cb-input" value="9:41" style="width:70px;padding:4px 6px;font-size:11px;text-align:center;" oninput="cbApplyTime('sbar')"/>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+          <label style="font-size:10px;color:#f0f0ff;flex:1;">Message Time</label>
+          <input id="cbTimeInput2" class="cb-input" value="Today 9:41 AM" style="width:120px;padding:4px 6px;font-size:11px;text-align:center;" oninput="cbApplyTime('msg')"/>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <input type="checkbox" id="cbTimeSync" checked style="accent-color:#7C3AED;cursor:pointer;"/>
+          <label for="cbTimeSync" style="font-size:10px;color:#6b6b8e;cursor:pointer;">Sync both times</label>
+        </div>
+      </div>
       <button onclick="cbGenerateSong()" style="width:100%;padding:8px;border-radius:8px;border:1px dashed #9B6FFF;background:transparent;color:#9B6FFF;font-size:11px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif;">🎤 Generate Song</button>
       <div id="cbSongStatus" style="font-size:10px;color:#6b6b8e;margin-top:4px;text-align:center;min-height:14px;"></div>
       <button onclick="cbAddSongAndClose()" style="width:100%;padding:10px;margin-top:8px;background:linear-gradient(135deg,#7C3AED,#9B6FFF);border:none;border-radius:10px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif;">Add Song to Conversation</button>
     </div>
   </div>
 </div><!-- end tab-custom -->
+</div><!-- end hq-marketing -->
 
+<!-- ══════════════════════════════════════ -->
+<!-- ANALYTICS SECTION                      -->
+<!-- ══════════════════════════════════════ -->
+<div class="hq-section" id="hq-analytics">
+  <h2 style="font-family:var(--display);font-size:22px;font-weight:800;margin-bottom:16px;">📊 Analytics Dashboard</h2>
+  <div class="dash-grid">
+    <div class="dash-card">
+      <div class="dash-card-icon">📥</div>
+      <div class="dash-card-title">Total Downloads</div>
+      <div class="dash-card-value">—</div>
+      <div class="dash-card-sub">Connect App Store / Google Play to sync</div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-icon">👥</div>
+      <div class="dash-card-title">Active Users</div>
+      <div class="dash-card-value">—</div>
+      <div class="dash-card-sub">Daily / Weekly / Monthly active users</div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-icon">⭐</div>
+      <div class="dash-card-title">App Rating</div>
+      <div class="dash-card-value">—</div>
+      <div class="dash-card-sub">Average rating across stores</div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-icon">📈</div>
+      <div class="dash-card-title">Retention Rate</div>
+      <div class="dash-card-value">—</div>
+      <div class="dash-card-sub">Day 1 / Day 7 / Day 30 retention</div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-icon">🔄</div>
+      <div class="dash-card-title">Session Duration</div>
+      <div class="dash-card-value">—</div>
+      <div class="dash-card-sub">Average time per user session</div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-icon">🎵</div>
+      <div class="dash-card-title">Songs Created</div>
+      <div class="dash-card-value">—</div>
+      <div class="dash-card-sub">Total songs generated by users</div>
+    </div>
+  </div>
+  <div class="dash-placeholder" style="margin-top:24px;">
+    📡 Analytics data will appear here once you connect your app store accounts and analytics SDK.
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ -->
+<!-- FINANCES SECTION                       -->
+<!-- ══════════════════════════════════════ -->
+<div class="hq-section" id="hq-finances">
+  <h2 style="font-family:var(--display);font-size:22px;font-weight:800;margin-bottom:16px;">💰 Finances</h2>
+  <div class="dash-grid">
+    <div class="dash-card">
+      <div class="dash-card-icon">💵</div>
+      <div class="dash-card-title">Revenue (MTD)</div>
+      <div class="dash-card-value">—</div>
+      <div class="dash-card-sub">Month-to-date revenue</div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-icon">💳</div>
+      <div class="dash-card-title">Expenses (MTD)</div>
+      <div class="dash-card-value">—</div>
+      <div class="dash-card-sub">Server, API, marketing costs</div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-icon">📊</div>
+      <div class="dash-card-title">Net Profit</div>
+      <div class="dash-card-value">—</div>
+      <div class="dash-card-sub">Revenue minus expenses</div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-icon">👑</div>
+      <div class="dash-card-title">Subscriptions</div>
+      <div class="dash-card-value">—</div>
+      <div class="dash-card-sub">Active premium subscribers</div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-icon">🔁</div>
+      <div class="dash-card-title">MRR</div>
+      <div class="dash-card-value">—</div>
+      <div class="dash-card-sub">Monthly recurring revenue</div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-icon">📉</div>
+      <div class="dash-card-title">Churn Rate</div>
+      <div class="dash-card-value">—</div>
+      <div class="dash-card-sub">Monthly subscriber churn</div>
+    </div>
+  </div>
+  <div class="dash-placeholder" style="margin-top:24px;">
+    🏦 Connect your payment provider (Stripe, RevenueCat, etc.) to track revenue and expenses automatically.
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ -->
+<!-- APP MANAGEMENT SECTION                 -->
+<!-- ══════════════════════════════════════ -->
+<div class="hq-section" id="hq-appmanage">
+  <h2 style="font-family:var(--display);font-size:22px;font-weight:800;margin-bottom:16px;">📱 App Management</h2>
+  <div class="dash-grid">
+    <div class="dash-card">
+      <div class="dash-card-icon">🏪</div>
+      <div class="dash-card-title">App Store Status</div>
+      <div class="dash-card-value" style="font-size:16px;">—</div>
+      <div class="dash-card-sub">Current listing status</div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-icon">🔢</div>
+      <div class="dash-card-title">Current Version</div>
+      <div class="dash-card-value" style="font-size:16px;">—</div>
+      <div class="dash-card-sub">Latest released version</div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-icon">🐛</div>
+      <div class="dash-card-title">Open Bugs</div>
+      <div class="dash-card-value">—</div>
+      <div class="dash-card-sub">Reported issues to fix</div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-icon">🗺️</div>
+      <div class="dash-card-title">Feature Roadmap</div>
+      <div class="dash-card-value" style="font-size:16px;">—</div>
+      <div class="dash-card-sub">Planned features and milestones</div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-icon">🧪</div>
+      <div class="dash-card-title">TestFlight / Beta</div>
+      <div class="dash-card-value">—</div>
+      <div class="dash-card-sub">Active beta testers</div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-icon">📝</div>
+      <div class="dash-card-title">Reviews</div>
+      <div class="dash-card-value">—</div>
+      <div class="dash-card-sub">Recent app store reviews</div>
+    </div>
+  </div>
+  <div class="dash-placeholder" style="margin-top:24px;">
+    🔧 App management tools coming soon — version tracking, bug reports, feature roadmap, and app store integration.
+  </div>
+</div>
 
 <script>
 /* ══════════════════════════
@@ -1371,6 +1574,18 @@ window.addEventListener('load',()=>{
 /* ══════════════════════════
    TAB SWITCHING
 ══════════════════════════ */
+/* ══════════════════════════
+   HQ TAB SWITCHING
+══════════════════════════ */
+function switchHQ(section){
+  document.querySelectorAll('.hq-section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.hq-tab').forEach(t=>t.classList.remove('active'));
+  const sec=document.getElementById('hq-'+section);
+  if(sec)sec.classList.add('active');
+  const btn=document.querySelector(`.hq-tab[data-hq="${section}"]`);
+  if(btn)btn.classList.add('active');
+}
+
 function switchTab(tab){
   const aiTab=document.getElementById('tab-ai');
   const customTab=document.getElementById('tab-custom');
@@ -1415,7 +1630,14 @@ function cbEditSbarTime(){
   const inp=document.createElement('input');
   inp.className='cb-time-edit';
   inp.value=cur;inp.style.width='50px';
-  inp.addEventListener('blur',()=>{el.textContent=inp.value||cur;});
+  inp.addEventListener('blur',()=>{
+    const newTime=inp.value||cur;
+    el.textContent=newTime;
+    // Sync message timestamp if sync is on
+    if(document.getElementById('cbTimeSync')&&document.getElementById('cbTimeSync').checked){
+      document.getElementById('cbTimeDiv').textContent='Today '+newTime+' AM';
+    }
+  });
   inp.addEventListener('keydown',e=>{if(e.key==='Enter'){inp.blur();}});
   el.textContent='';el.appendChild(inp);
   inp.focus();inp.select();
@@ -1431,6 +1653,27 @@ function cbEditMsgTime(){
   inp.addEventListener('keydown',e=>{if(e.key==='Enter'){inp.blur();}});
   el.textContent='';el.appendChild(inp);
   inp.focus();inp.select();
+}
+
+function cbApplyTime(which){
+  const sbarInput=document.getElementById('cbTimeInput1');
+  const msgInput=document.getElementById('cbTimeInput2');
+  const sync=document.getElementById('cbTimeSync')&&document.getElementById('cbTimeSync').checked;
+  if(which==='sbar'){
+    document.getElementById('cbSbarTime').textContent=sbarInput.value;
+    if(sync) {
+      const msgVal='Today '+sbarInput.value+' AM';
+      msgInput.value=msgVal;
+      document.getElementById('cbTimeDiv').textContent=msgVal;
+    }
+  } else {
+    document.getElementById('cbTimeDiv').textContent=msgInput.value;
+    if(sync){
+      // Extract time from message input
+      const m=msgInput.value.match(/\d{1,2}:\d{2}/);
+      if(m){sbarInput.value=m[0];document.getElementById('cbSbarTime').textContent=m[0];}
+    }
+  }
 }
 
 // Delete status bar icons
@@ -1777,12 +2020,21 @@ async function cbCreateAd(){
   status.textContent='🎬 Recording your ad...';
   status.style.color='#7C3AED';
 
-  // Switch to AI tab for recording (html2canvas needs visible elements)
-  switchTab('ai');
-  setAIStatus('🎬 Recording custom ad...','#ff453a');
+  // Show AI tab offscreen so html2canvas can render it, but keep Custom Builder visible
+  const aiTab=document.getElementById('tab-ai');
+  aiTab.style.display='block';
+  aiTab.style.position='fixed';
+  aiTab.style.left='-9999px';
+  aiTab.style.top='0';
 
   // Run the recording
   await cbRecordAd();
+
+  // Hide AI tab again
+  aiTab.style.display='none';
+  aiTab.style.position='';
+  aiTab.style.left='';
+  aiTab.style.top='';
 }
 
 /* ══════════════════════════
@@ -1861,8 +2113,7 @@ async function cbRecordAd(){
   rec.stop();
   await donePromise;
 
-  // Switch back to custom tab and show video player
-  switchTab('custom');
+  // Show video player (already on custom tab)
   cbShowVideoPlayer();
 }
 
