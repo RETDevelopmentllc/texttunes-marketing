@@ -714,16 +714,20 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60p
 <!-- AD DETAILS SECTION                     -->
 <!-- ══════════════════════════════════════ -->
 <div class="hq-section" id="hq-addetails">
-  <h2 style="font-family:var(--display);font-size:22px;font-weight:800;margin-bottom:6px;">📋 Ad Details Generator</h2>
-  <p style="font-size:13px;color:var(--muted);margin-bottom:20px;max-width:500px;text-align:center;line-height:1.6;">Auto-generate captions, hashtags, and posting details for your video ads across TikTok, Instagram, and Facebook.</p>
-
+  <h2 style="font-family:var(--display);font-size:22px;font-weight:800;margin-bottom:6px;">📋 Ad Details</h2>
+  <p style="font-size:13px;color:var(--muted);margin-bottom:20px;max-width:500px;text-align:center;line-height:1.6;">Auto-generated captions, hashtags, and posting details for your latest video ad.</p>
   <div style="width:100%;max-width:600px;">
-    <div style="display:flex;gap:8px;margin-bottom:12px;">
-      <input id="adDetailsTopic" class="input" placeholder="What is this ad about? (e.g. Ex texting back song, app launch promo...)" style="flex:1;background:#0f0f1c;border:1px solid #1c1c30;border-radius:12px;padding:10px 14px;color:#f0f0ff;font-size:13px;outline:none;font-family:DM Sans,sans-serif;"/>
-      <button onclick="generateAdDetails()" style="background:linear-gradient(135deg,#7C3AED,#9B6FFF);border:none;border-radius:12px;padding:10px 18px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;">✨ Generate</button>
-    </div>
     <div id="adDetailsStatus" style="font-size:11px;color:#6b6b8e;text-align:center;min-height:16px;margin-bottom:12px;"></div>
-    <div id="adDetailsResults"></div>
+    <div id="adDetailsResults">
+      <div style="text-align:center;padding:40px 20px;">
+        <div style="font-size:48px;margin-bottom:12px;opacity:.4;">📋</div>
+        <div style="font-size:14px;color:var(--muted);">No ad created yet.</div>
+        <div style="font-size:12px;color:#4a4a6a;margin-top:6px;">Create a video in the Create Video tab and ad details will auto-generate here.</div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:12px;">
+      <button onclick="autoGenerateAdDetails()" class="dl-btn" style="justify-content:center;" id="regenAdBtn" disabled>🔄 Regenerate</button>
+    </div>
   </div>
 </div>
 
@@ -1600,6 +1604,12 @@ async function runAIGenerate(mode='custom'){
     document.getElementById('replayBtn').disabled=false;
     document.getElementById('pauseBtn').disabled=false;
     document.getElementById('editBtn').disabled=false;
+    // Store last scenario for ad details & history
+    const displayScenario=document.getElementById('ttScenario').value.trim()||scene.contact+' conversation';
+    window._lastAdScenario=displayScenario;
+    window._lastAdData={contact:scene.contact,songTitle:scene.songTitle,messages:scene.messages.slice(0,6).map(m=>m.text)};
+    addToHistory(displayScenario);
+    autoGenerateAdDetails();
     await playAd();
     setAIStatus('','#6b6b8e');
   }catch(e){setAIStatus('Error: '+e.message,'#ff453a');}
@@ -1626,20 +1636,24 @@ function switchHQ(section){
 }
 
 /* ══════════════════════════
-   AD DETAILS GENERATOR
+   AD DETAILS (AUTO-GENERATE)
 ══════════════════════════ */
-async function generateAdDetails(){
-  const topic=document.getElementById('adDetailsTopic').value.trim()||'TextTunes app — turn any text conversation into a funny song';
+async function autoGenerateAdDetails(){
+  if(!window._lastAdScenario&&!window._lastAdData)return;
   const status=document.getElementById('adDetailsStatus');
   const results=document.getElementById('adDetailsResults');
+  const regenBtn=document.getElementById('regenAdBtn');
   status.innerHTML='<div class="loading"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div>';
   results.innerHTML='';
+  const scenario=window._lastAdScenario||'TextTunes video ad';
+  const adData=window._lastAdData||{};
+  const context=`Scenario: "${scenario}"${adData.songTitle?`\nSong: "${adData.songTitle}"`:''}${adData.contact?`\nContact: ${adData.contact}`:''}${adData.messages?`\nMessages: ${adData.messages.join(' | ')}`:''}`;
   try{
     const key=localStorage.getItem('tt_anthropic');
     if(!key)throw new Error('Add your Anthropic key in Settings');
     const r=await fetch('/api/claude',{
       method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({prompt:`You are an expert social media ad copywriter for TextTunes, a mobile app that turns text conversations into short funny AI-generated songs.\n\nGenerate ad posting details for this video ad: "${topic}"\n\nFor each platform (TikTok, Instagram Reels, Facebook Reels), provide:\n- caption (engaging, platform-native tone, 2-3 sentences)\n- hashtags (8-10 relevant ones)\n- best_time (best posting time)\n- format_tip (1 sentence on ideal format/aspect ratio/length)\n- hook (the first 3 seconds hook text)\n\nReturn as JSON array: [{platform, caption, hashtags, best_time, format_tip, hook}]\nNo markdown. Raw JSON only.`,anthropicKey:key})
+      body:JSON.stringify({prompt:`You are an expert social media ad copywriter for TextTunes, a mobile app that turns text conversations into short funny AI-generated songs.\n\nA video ad was just created with these details:\n${context}\n\nGenerate ad posting details for each platform (TikTok, Instagram Reels, Facebook Reels). Tailor the captions to match the specific scenario/conversation in the video. Provide:\n- caption (engaging, platform-native tone, reference the specific scenario, 2-3 sentences)\n- hashtags (8-10 relevant ones)\n- best_time (best posting time)\n- format_tip (1 sentence on ideal format/aspect ratio/length)\n- hook (the first 3 seconds hook text that references this specific video)\n\nReturn as JSON array: [{platform, caption, hashtags, best_time, format_tip, hook}]\nNo markdown. Raw JSON only.`,anthropicKey:key})
     });
     if(!r.ok)throw new Error('AI error');
     const d=await r.json();
@@ -1648,8 +1662,8 @@ async function generateAdDetails(){
     try{ads=JSON.parse(text);}catch{const m=text.match(/\[[\s\S]*\]/);if(m)ads=JSON.parse(m[0]);else throw new Error('Bad response');}
     const platformColors={tiktok:'#ff0050',instagram:'#E1306C',facebook:'#1877F2'};
     const platformIcons={tiktok:'🎵',instagram:'📸',facebook:'📘'};
-    results.innerHTML=ads.map(a=>{
-      const pKey=(a.platform||'').toLowerCase().replace(/\s+/g,'');
+    results.innerHTML=`<div style="background:#07070f;border:1px solid #1c1c30;border-radius:10px;padding:10px 14px;margin-bottom:16px;font-size:12px;color:#6b6b8e;"><span style="color:#f0f0ff;font-weight:600;">Video:</span> ${scenario}${adData.songTitle?' — <span style="color:#9B6FFF;">♪ '+adData.songTitle+'</span>':''}</div>`+ads.map(a=>{
+      const pKey=(a.platform||'').toLowerCase().replace(/\s+reels/g,'').replace(/\s+/g,'');
       const color=platformColors[pKey]||'var(--accent)';
       const icon=platformIcons[pKey]||'📱';
       return`<div style="background:#0f0f1c;border:1px solid #1c1c30;border-left:3px solid ${color};border-radius:14px;padding:18px;margin-bottom:12px;">
@@ -1662,16 +1676,19 @@ async function generateAdDetails(){
         <div style="font-size:10px;color:#6b6b8e;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Caption</div>
         <div style="font-size:13px;color:#b0b0d0;line-height:1.6;margin-bottom:10px;">${a.caption}</div>
         <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px;">${(a.hashtags||[]).map(h=>`<span style="font-size:10px;color:#00e5ff;padding:3px 8px;background:rgba(0,229,255,.07);border-radius:6px;border:1px solid rgba(0,229,255,.15);font-family:monospace;">#${h.replace(/^#/,'')}</span>`).join('')}</div>
-        <div style="display:flex;gap:16px;font-size:11px;color:#6b6b8e;">
+        <div style="display:flex;gap:16px;font-size:11px;color:#6b6b8e;flex-wrap:wrap;">
           <span>⏰ ${a.best_time}</span>
           <span>📐 ${a.format_tip}</span>
         </div>
-        <button onclick="navigator.clipboard.writeText(\`${(a.caption+'\\n\\n'+(a.hashtags||[]).map(h=>'#'+h.replace(/^#/,'')).join(' ')).replace(/`/g,'').replace(/\\/g,'\\\\')}\`).then(()=>{this.textContent='Copied!';setTimeout(()=>this.textContent='Copy Caption + Tags',1500)})" style="margin-top:10px;background:transparent;border:1px solid #1c1c30;border-radius:8px;padding:6px 14px;color:#6b6b8e;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;">Copy Caption + Tags</button>
+        <button onclick="navigator.clipboard.writeText(this.dataset.copy).then(()=>{this.textContent='Copied!';setTimeout(()=>this.textContent='Copy Caption + Tags',1500)})" data-copy="${(a.caption+'\n\n'+(a.hashtags||[]).map(h=>'#'+h.replace(/^#/,'')).join(' ')).replace(/"/g,'&quot;')}" style="margin-top:10px;background:transparent;border:1px solid #1c1c30;border-radius:8px;padding:6px 14px;color:#6b6b8e;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;">Copy Caption + Tags</button>
       </div>`;
     }).join('');
     status.textContent='';
+    if(regenBtn)regenBtn.disabled=false;
   }catch(e){
     status.textContent='Error: '+e.message;status.style.color='var(--red)';
+    results.innerHTML='<div style="text-align:center;padding:20px;font-size:13px;color:#6b6b8e;">Failed to generate. Try the Regenerate button.</div>';
+    if(regenBtn)regenBtn.disabled=false;
   }
 }
 
