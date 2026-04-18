@@ -364,10 +364,10 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60p
 
 <!-- ══ BUSINESS HQ TOP-LEVEL TABS ══ -->
 <div class="hq-tabs" id="hqTabs">
-  <button class="hq-tab active" data-hq="marketing" onclick="switchHQ('marketing')"><span class="hq-icon">📣</span> Marketing</button>
-  <button class="hq-tab" data-hq="development" onclick="switchHQ('development')"><span class="hq-icon">🛠</span> Development</button>
-  <button class="hq-tab" data-hq="team" onclick="switchHQ('team')"><span class="hq-icon">👥</span> Team</button>
-  <button class="hq-tab" data-hq="social" onclick="switchHQ('social')"><span class="hq-icon">📱</span> Social Media</button>
+  <button class="hq-tab active" data-hq="marketing" onclick="switchHQ('marketing')"><span class="hq-icon">🎬</span> Create Video</button>
+  <button class="hq-tab" data-hq="addetails" onclick="switchHQ('addetails')"><span class="hq-icon">📋</span> Ad Details</button>
+  <button class="hq-tab" data-hq="download" onclick="switchHQ('download')"><span class="hq-icon">⬇️</span> Download</button>
+  <button class="hq-tab" data-hq="history" onclick="switchHQ('history')"><span class="hq-icon">📁</span> History</button>
 </div>
 
 <!-- ══════════════════════════════════════ -->
@@ -708,166 +708,48 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60p
   </div>
 </div><!-- end tab-custom -->
 
-<!-- ══ 1-YEAR GAME PLAN ══ -->
-<div class="gameplan">
-  <div class="gameplan-title">1-Year Game Plan to $50K/Month</div>
-  <div class="quarter-card">
-    <div class="quarter-header">
-      <span class="quarter-label">Q1 — Foundation (Months 1-3)</span>
-      <span class="quarter-goal">Goal: $2K/mo</span>
-    </div>
-    <ul class="quarter-items">
-      <li><span>Launch MVP</span> — Core text-to-song feature live on App Store</li>
-      <li><span>Content Engine</span> — 3 TikTok/Reels per day using video ad creator</li>
-      <li><span>Viral Seeding</span> — Partner with 10 micro-influencers (10K-50K followers)</li>
-      <li><span>Monetization</span> — Free tier (3 songs/day) + Premium ($4.99/week)</li>
-    </ul>
-  </div>
-  <div class="quarter-card">
-    <div class="quarter-header">
-      <span class="quarter-label">Q2 — Growth (Months 4-6)</span>
-      <span class="quarter-goal">Goal: $10K/mo</span>
-    </div>
-    <ul class="quarter-items">
-      <li><span>Paid Ads</span> — Scale winning organic content into TikTok + Meta ads</li>
-      <li><span>Referral Program</span> — Invite friends = free premium days</li>
-      <li><span>Feature Drop</span> — Group chat songs, voice cloning, beat maker</li>
-      <li><span>Community</span> — Discord server + user-generated content challenges</li>
-    </ul>
-  </div>
-  <div class="quarter-card">
-    <div class="quarter-header">
-      <span class="quarter-label">Q3 — Scale (Months 7-9)</span>
-      <span class="quarter-goal">Goal: $25K/mo</span>
-    </div>
-    <ul class="quarter-items">
-      <li><span>Android Launch</span> — Expand to Google Play Store</li>
-      <li><span>Creator Partnerships</span> — 50+ influencer deals, UGC campaigns</li>
-      <li><span>Enterprise</span> — Brand partnerships for custom branded songs</li>
-      <li><span>Optimization</span> — A/B test pricing, reduce churn, improve onboarding</li>
-    </ul>
-  </div>
-  <div class="quarter-card">
-    <div class="quarter-header">
-      <span class="quarter-label">Q4 — Dominate (Months 10-12)</span>
-      <span class="quarter-goal">Goal: $50K/mo</span>
-    </div>
-    <ul class="quarter-items">
-      <li><span>International</span> — Localize for Spanish, Portuguese, French markets</li>
-      <li><span>Platform Expansion</span> — iMessage app, Snapchat integration, web app</li>
-      <li><span>AI Upgrade</span> — Real-time voice generation, multi-language songs</li>
-      <li><span>Revenue Mix</span> — Subscriptions + in-app purchases + brand deals</li>
-    </ul>
-  </div>
-</div>
 </div><!-- end hq-marketing -->
 
 <!-- ══════════════════════════════════════ -->
-<!-- DEVELOPMENT SECTION                    -->
+<!-- AD DETAILS SECTION                     -->
 <!-- ══════════════════════════════════════ -->
-<div class="hq-section" id="hq-development">
-  <h2 style="font-family:var(--display);font-size:22px;font-weight:800;margin-bottom:16px;">🛠 Development Roadmap</h2>
-  <div class="kanban-board" id="kanbanBoard">
-    <div class="kanban-col" data-col="backlog">
-      <div class="kanban-col-header">
-        <span class="kanban-col-title">Backlog</span>
-        <span class="kanban-count" id="countBacklog">0</span>
-      </div>
-      <div class="kanban-drop-zone" id="dropBacklog"></div>
-      <button class="kanban-add-btn" onclick="kanbanAddCard('backlog')">+ Add Card</button>
+<div class="hq-section" id="hq-addetails">
+  <h2 style="font-family:var(--display);font-size:22px;font-weight:800;margin-bottom:6px;">📋 Ad Details Generator</h2>
+  <p style="font-size:13px;color:var(--muted);margin-bottom:20px;max-width:500px;text-align:center;line-height:1.6;">Auto-generate captions, hashtags, and posting details for your video ads across TikTok, Instagram, and Facebook.</p>
+
+  <div style="width:100%;max-width:600px;">
+    <div style="display:flex;gap:8px;margin-bottom:12px;">
+      <input id="adDetailsTopic" class="input" placeholder="What is this ad about? (e.g. Ex texting back song, app launch promo...)" style="flex:1;background:#0f0f1c;border:1px solid #1c1c30;border-radius:12px;padding:10px 14px;color:#f0f0ff;font-size:13px;outline:none;font-family:DM Sans,sans-serif;"/>
+      <button onclick="generateAdDetails()" style="background:linear-gradient(135deg,#7C3AED,#9B6FFF);border:none;border-radius:12px;padding:10px 18px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;">✨ Generate</button>
     </div>
-    <div class="kanban-col" data-col="progress">
-      <div class="kanban-col-header">
-        <span class="kanban-col-title">In Progress</span>
-        <span class="kanban-count" id="countProgress">0</span>
-      </div>
-      <div class="kanban-drop-zone" id="dropProgress"></div>
-      <button class="kanban-add-btn" onclick="kanbanAddCard('progress')">+ Add Card</button>
-    </div>
-    <div class="kanban-col" data-col="done">
-      <div class="kanban-col-header">
-        <span class="kanban-col-title">Done</span>
-        <span class="kanban-count" id="countDone">0</span>
-      </div>
-      <div class="kanban-drop-zone" id="dropDone"></div>
-      <button class="kanban-add-btn" onclick="kanbanAddCard('done')">+ Add Card</button>
-    </div>
+    <div id="adDetailsStatus" style="font-size:11px;color:#6b6b8e;text-align:center;min-height:16px;margin-bottom:12px;"></div>
+    <div id="adDetailsResults"></div>
   </div>
 </div>
 
 <!-- ══════════════════════════════════════ -->
-<!-- TEAM SECTION                           -->
+<!-- DOWNLOAD SECTION                       -->
 <!-- ══════════════════════════════════════ -->
-<div class="hq-section" id="hq-team">
-  <h2 style="font-family:var(--display);font-size:22px;font-weight:800;margin-bottom:16px;">👥 Team</h2>
-  <div style="margin-bottom:20px;text-align:center;">
-    <a href="https://discord.gg/texttunes" target="_blank" class="discord-btn">
-      <svg width="20" height="16" viewBox="0 0 71 55" fill="white"><path d="M60.1 4.9A58.5 58.5 0 0045.4.2a.2.2 0 00-.2.1 40.7 40.7 0 00-1.8 3.7 54 54 0 00-16.2 0A26.4 26.4 0 0025.4.3a.2.2 0 00-.2-.1A58.4 58.4 0 0010.6 4.9a.2.2 0 00-.1.1C1.5 18.7-.9 32.2.3 45.5v.1a58.7 58.7 0 0017.7 9a.2.2 0 00.3-.1 42 42 0 003.6-5.9.2.2 0 00-.1-.3 38.6 38.6 0 01-5.5-2.6.2.2 0 01.5-.4l1.1.9a42 42 0 0035.8 0l1.1-.9a.2.2 0 01.5.3 36.3 36.3 0 01-5.5 2.6.2.2 0 00-.1.3 47.2 47.2 0 003.6 5.9.2.2 0 00.3.1 58.5 58.5 0 0017.7-9v-.1c1.4-15.2-2.4-28.4-10-40.1a.2.2 0 00-.1-.1zM23.7 37.3c-3.5 0-6.3-3.2-6.3-7.1s2.8-7.1 6.3-7.1 6.4 3.2 6.3 7.1c0 3.9-2.8 7.1-6.3 7.1zm23.3 0c-3.5 0-6.3-3.2-6.3-7.1s2.8-7.1 6.3-7.1 6.4 3.2 6.3 7.1c0 3.9-2.8 7.1-6.3 7.1z"/></svg>
-      Open Discord Chat
-    </a>
+<div class="hq-section" id="hq-download">
+  <h2 style="font-family:var(--display);font-size:22px;font-weight:800;margin-bottom:6px;">⬇️ Download</h2>
+  <p style="font-size:13px;color:var(--muted);margin-bottom:20px;max-width:500px;text-align:center;line-height:1.6;">Download your latest created video ad.</p>
+  <div id="downloadSection" style="width:100%;max-width:400px;text-align:center;">
+    <div id="downloadPreview" style="background:#0f0f1c;border:1px solid #1c1c30;border-radius:16px;padding:40px 20px;margin-bottom:16px;">
+      <div style="font-size:48px;margin-bottom:12px;opacity:.4;">🎬</div>
+      <div style="font-size:14px;color:var(--muted);">No video created yet.</div>
+      <div style="font-size:12px;color:#4a4a6a;margin-top:6px;">Go to Create Video tab and generate an ad first.</div>
+    </div>
+    <button id="dlTabBtn" onclick="downloadLatestVideo()" class="dl-btn" style="width:100%;justify-content:center;padding:14px;font-size:14px;" disabled>⬇ Download Latest Video</button>
   </div>
-  <h3 style="font-size:16px;font-weight:700;margin-bottom:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-size:12px;">Team Directory</h3>
-  <div class="team-add-form" id="teamAddForm">
-    <input type="text" id="teamNameInput" placeholder="Name..." />
-    <input type="text" id="teamRoleInput" placeholder="Role..." />
-    <input type="text" id="teamEmojiInput" placeholder="Emoji (e.g. 👨‍💻)" maxlength="4" style="max-width:70px;text-align:center;"/>
-    <button onclick="teamAddMember()" style="padding:10px 18px;background:linear-gradient(135deg,var(--accent),var(--pink));border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--display);white-space:nowrap;">+ Add</button>
-  </div>
-  <div class="team-grid" id="teamGrid"></div>
 </div>
 
 <!-- ══════════════════════════════════════ -->
-<!-- SOCIAL MEDIA SECTION                   -->
+<!-- HISTORY SECTION                        -->
 <!-- ══════════════════════════════════════ -->
-<div class="hq-section" id="hq-social">
-  <h2 style="font-family:var(--display);font-size:22px;font-weight:800;margin-bottom:16px;">📱 Social Media Playbooks</h2>
-  <div class="social-grid">
-    <!-- TikTok -->
-    <div class="social-card" style="border-left:3px solid #ff0050;">
-      <div class="social-card-header">
-        <span class="social-card-icon">🎵</span>
-        <span class="social-card-name">TikTok</span>
-      </div>
-      <ul class="social-card-strategy">
-        <li>📅 <span style="color:var(--text);font-weight:600;">Posting:</span> 3x daily — morning (8am), lunch (12pm), evening (7pm)</li>
-        <li>🎬 <span style="color:var(--text);font-weight:600;">Format:</span> Text convo screen recordings with song reveal, 15-30 seconds</li>
-        <li>🔥 <span style="color:var(--text);font-weight:600;">Hooks:</span> "POV: your ex texts back and you turn it into a song" / "Watch me turn this argument into a banger"</li>
-        <li>🏷 <span style="color:var(--text);font-weight:600;">Hashtags:</span> #TextTunes #TextToSong #iMessagePrank #FunnyTexts #ViralText</li>
-        <li>🤝 <span style="color:var(--text);font-weight:600;">Collabs:</span> Duet with viral text screenshots, stitch reaction videos</li>
-        <li>📈 <span style="color:var(--text);font-weight:600;">Goal:</span> 100K followers in 90 days, 1M views/week on best content</li>
-      </ul>
-    </div>
-    <!-- Instagram -->
-    <div class="social-card" style="border-left:3px solid #E1306C;">
-      <div class="social-card-header">
-        <span class="social-card-icon">📸</span>
-        <span class="social-card-name">Instagram</span>
-      </div>
-      <ul class="social-card-strategy">
-        <li>📅 <span style="color:var(--text);font-weight:600;">Posting:</span> 2 Reels/day + 3 Stories + 1 carousel per week</li>
-        <li>🎬 <span style="color:var(--text);font-weight:600;">Reels:</span> Same TikTok content repurposed, add captions and cover images</li>
-        <li>📖 <span style="color:var(--text);font-weight:600;">Stories:</span> Behind-the-scenes, polls ("which scenario should we do next?"), user submissions</li>
-        <li>🖼 <span style="color:var(--text);font-weight:600;">Carousels:</span> "5 Funniest Texts Turned Into Songs This Week" — screenshot dumps</li>
-        <li>💬 <span style="color:var(--text);font-weight:600;">Engagement:</span> Reply to every comment in first hour, use question stickers</li>
-        <li>📈 <span style="color:var(--text);font-weight:600;">Goal:</span> 50K followers in 90 days, 10K Reels views average</li>
-      </ul>
-    </div>
-    <!-- Facebook -->
-    <div class="social-card" style="border-left:3px solid #1877F2;">
-      <div class="social-card-header">
-        <span class="social-card-icon">📘</span>
-        <span class="social-card-name">Facebook</span>
-      </div>
-      <ul class="social-card-strategy">
-        <li>📅 <span style="color:var(--text);font-weight:600;">Posting:</span> 1 Reel/day + 2 feed posts per week</li>
-        <li>🎬 <span style="color:var(--text);font-weight:600;">Reels:</span> Repurpose top TikTok content with Facebook-optimized captions</li>
-        <li>👥 <span style="color:var(--text);font-weight:600;">Groups:</span> Share in meme groups, music groups, relationship groups (organic, not spammy)</li>
-        <li>💰 <span style="color:var(--text);font-weight:600;">Ads:</span> Retarget TikTok/IG visitors, lookalike audiences from app installs</li>
-        <li>🎯 <span style="color:var(--text);font-weight:600;">Targeting:</span> 18-34, interests: texting apps, music creation, memes, social media</li>
-        <li>📈 <span style="color:var(--text);font-weight:600;">Goal:</span> $2-3 CPI on paid ads, 5K organic page followers in 90 days</li>
-      </ul>
-    </div>
-  </div>
+<div class="hq-section" id="hq-history">
+  <h2 style="font-family:var(--display);font-size:22px;font-weight:800;margin-bottom:6px;">📁 Video Creation History</h2>
+  <p style="font-size:13px;color:var(--muted);margin-bottom:20px;max-width:500px;text-align:center;line-height:1.6;">Your previously created video ads.</p>
+  <div id="historyList" style="width:100%;max-width:600px;"></div>
 </div>
 
 </div><!-- end mainContent -->
@@ -1740,6 +1622,100 @@ function switchHQ(section){
   if(sec)sec.classList.add('active');
   const btn=document.querySelector(`.hq-tab[data-hq="${section}"]`);
   if(btn)btn.classList.add('active');
+  if(section==='history')renderHistory();
+}
+
+/* ══════════════════════════
+   AD DETAILS GENERATOR
+══════════════════════════ */
+async function generateAdDetails(){
+  const topic=document.getElementById('adDetailsTopic').value.trim()||'TextTunes app — turn any text conversation into a funny song';
+  const status=document.getElementById('adDetailsStatus');
+  const results=document.getElementById('adDetailsResults');
+  status.innerHTML='<div class="loading"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div>';
+  results.innerHTML='';
+  try{
+    const key=localStorage.getItem('tt_anthropic');
+    if(!key)throw new Error('Add your Anthropic key in Settings');
+    const r=await fetch('/api/claude',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({prompt:`You are an expert social media ad copywriter for TextTunes, a mobile app that turns text conversations into short funny AI-generated songs.\n\nGenerate ad posting details for this video ad: "${topic}"\n\nFor each platform (TikTok, Instagram Reels, Facebook Reels), provide:\n- caption (engaging, platform-native tone, 2-3 sentences)\n- hashtags (8-10 relevant ones)\n- best_time (best posting time)\n- format_tip (1 sentence on ideal format/aspect ratio/length)\n- hook (the first 3 seconds hook text)\n\nReturn as JSON array: [{platform, caption, hashtags, best_time, format_tip, hook}]\nNo markdown. Raw JSON only.`,anthropicKey:key})
+    });
+    if(!r.ok)throw new Error('AI error');
+    const d=await r.json();
+    const text=d.content[0].text;
+    let ads;
+    try{ads=JSON.parse(text);}catch{const m=text.match(/\[[\s\S]*\]/);if(m)ads=JSON.parse(m[0]);else throw new Error('Bad response');}
+    const platformColors={tiktok:'#ff0050',instagram:'#E1306C',facebook:'#1877F2'};
+    const platformIcons={tiktok:'🎵',instagram:'📸',facebook:'📘'};
+    results.innerHTML=ads.map(a=>{
+      const pKey=(a.platform||'').toLowerCase().replace(/\s+/g,'');
+      const color=platformColors[pKey]||'var(--accent)';
+      const icon=platformIcons[pKey]||'📱';
+      return`<div style="background:#0f0f1c;border:1px solid #1c1c30;border-left:3px solid ${color};border-radius:14px;padding:18px;margin-bottom:12px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+          <span style="font-size:20px;">${icon}</span>
+          <span style="font-size:16px;font-weight:800;font-family:var(--display);color:#f0f0ff;">${a.platform}</span>
+        </div>
+        <div style="font-size:10px;color:#6b6b8e;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Hook (First 3 Seconds)</div>
+        <div style="font-size:13px;color:#f0f0ff;font-weight:600;margin-bottom:10px;padding:8px 12px;background:#07070f;border-radius:8px;">${a.hook}</div>
+        <div style="font-size:10px;color:#6b6b8e;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Caption</div>
+        <div style="font-size:13px;color:#b0b0d0;line-height:1.6;margin-bottom:10px;">${a.caption}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px;">${(a.hashtags||[]).map(h=>`<span style="font-size:10px;color:#00e5ff;padding:3px 8px;background:rgba(0,229,255,.07);border-radius:6px;border:1px solid rgba(0,229,255,.15);font-family:monospace;">#${h.replace(/^#/,'')}</span>`).join('')}</div>
+        <div style="display:flex;gap:16px;font-size:11px;color:#6b6b8e;">
+          <span>⏰ ${a.best_time}</span>
+          <span>📐 ${a.format_tip}</span>
+        </div>
+        <button onclick="navigator.clipboard.writeText(\`${(a.caption+'\\n\\n'+(a.hashtags||[]).map(h=>'#'+h.replace(/^#/,'')).join(' ')).replace(/`/g,'').replace(/\\/g,'\\\\')}\`).then(()=>{this.textContent='Copied!';setTimeout(()=>this.textContent='Copy Caption + Tags',1500)})" style="margin-top:10px;background:transparent;border:1px solid #1c1c30;border-radius:8px;padding:6px 14px;color:#6b6b8e;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;">Copy Caption + Tags</button>
+      </div>`;
+    }).join('');
+    status.textContent='';
+  }catch(e){
+    status.textContent='Error: '+e.message;status.style.color='var(--red)';
+  }
+}
+
+/* ══════════════════════════
+   DOWNLOAD TAB
+══════════════════════════ */
+function downloadLatestVideo(){
+  const btn=document.getElementById('downloadBtn');
+  if(btn&&!btn.disabled)btn.click();
+}
+
+/* ══════════════════════════
+   VIDEO HISTORY
+══════════════════════════ */
+function getVideoHistory(){return JSON.parse(localStorage.getItem('tt_video_history')||'[]');}
+function saveVideoHistory(h){localStorage.setItem('tt_video_history',JSON.stringify(h));}
+function addToHistory(scenario,timestamp){
+  const h=getVideoHistory();
+  h.unshift({scenario,timestamp:timestamp||new Date().toISOString(),id:Date.now()});
+  if(h.length>50)h.length=50;
+  saveVideoHistory(h);
+}
+function renderHistory(){
+  const h=getVideoHistory();
+  const el=document.getElementById('historyList');
+  if(!h.length){
+    el.innerHTML='<div style="text-align:center;padding:40px 20px;"><div style="font-size:48px;margin-bottom:12px;opacity:.4;">📁</div><div style="font-size:14px;color:var(--muted);">No videos created yet.</div><div style="font-size:12px;color:#4a4a6a;margin-top:6px;">Your video creation history will appear here.</div></div>';
+    return;
+  }
+  el.innerHTML=h.map((v,i)=>{
+    const d=new Date(v.timestamp);
+    const dateStr=d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})+' '+d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+    return`<div style="background:#0f0f1c;border:1px solid #1c1c30;border-radius:12px;padding:14px 18px;margin-bottom:8px;display:flex;align-items:center;gap:14px;">
+      <div style="font-size:24px;opacity:.6;">🎬</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:13px;font-weight:600;color:#f0f0ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${v.scenario||'Untitled Video'}</div>
+        <div style="font-size:11px;color:#6b6b8e;margin-top:2px;">${dateStr}</div>
+      </div>
+      <button onclick="deleteHistoryItem(${i})" style="background:none;border:none;color:#ff453a;font-size:14px;cursor:pointer;opacity:.5;transition:opacity .15s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.5">✕</button>
+    </div>`;
+  }).join('');
+}
+function deleteHistoryItem(idx){
+  const h=getVideoHistory();h.splice(idx,1);saveVideoHistory(h);renderHistory();
 }
 
 function switchTab(tab){
