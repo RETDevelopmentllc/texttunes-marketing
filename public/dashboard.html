@@ -282,8 +282,17 @@ select.input{cursor:pointer;appearance:none;background-image:url("data:image/svg
     </div>
     <div class="sb-sub">Business HQ</div>
     <nav class="sb-nav">
-      <div class="sb-item active" onclick="openModule('team')">
-        <span class="sb-icon">👥</span><span class="sb-label">Team</span><span class="sb-dot"></span>
+      <div class="sb-item" onclick="toggleTeamMenu()">
+        <span class="sb-icon">👥</span><span class="sb-label">Team</span>
+        <span class="sb-chevron" id="teamChevron" style="margin-left:auto;font-size:10px;color:var(--muted);transition:transform .2s;">▾</span>
+      </div>
+      <div id="teamSubMenu" style="display:flex;flex-direction:column;gap:2px;">
+        <div class="sb-sub-item active" onclick="openModule('team-directory')">
+          <span class="sb-sub-icon">📇</span><span class="sb-label">Directory</span>
+        </div>
+        <div class="sb-sub-item" onclick="openModule('team-chat')">
+          <span class="sb-sub-icon">💬</span><span class="sb-label">Chat</span>
+        </div>
       </div>
 
       <div class="sb-item" onclick="toggleMktMenu()">
@@ -432,12 +441,9 @@ select.input{cursor:pointer;appearance:none;background-image:url("data:image/svg
     <!-- ═══════════════════════ -->
     <!-- 3. TEAM                 -->
     <!-- ═══════════════════════ -->
-    <div class="panel active" id="panel-team">
-      <div class="page-title">👥 <em>Team</em></div>
-      <div class="page-sub">Your team directory and communication hub.</div>
-
-      <!-- Team Directory (top) -->
-      <div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Team Directory</div>
+    <div class="panel active" id="panel-team-directory">
+      <div class="page-title">📇 Team <em>Directory</em></div>
+      <div class="page-sub">Manage your team members.</div>
       <div class="team-add-form" id="teamAddForm">
         <input type="text" id="teamNameInput" placeholder="Name..." style="flex:1;min-width:120px;"/>
         <input type="text" id="teamRoleInput" placeholder="Role..." style="flex:1;min-width:120px;"/>
@@ -445,16 +451,16 @@ select.input{cursor:pointer;appearance:none;background-image:url("data:image/svg
         <button onclick="teamAddMember()" style="padding:10px 18px;background:linear-gradient(135deg,var(--accent),var(--pink));border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--display);white-space:nowrap;">+ Add</button>
       </div>
       <div class="team-grid" id="teamGrid"></div>
+    </div>
 
-      <!-- Discord Embed -->
-      <div style="margin-top:28px;">
-        <div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Discord Chat</div>
-        <div style="border-radius:16px;overflow:hidden;border:1px solid var(--border);">
-          <iframe src="https://discord.com/widget?id=1494967115650826372&theme=dark" width="100%" height="500" allowtransparency="true" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts" style="border:none;background:var(--surface);"></iframe>
-        </div>
-        <div style="margin-top:10px;font-size:11px;color:var(--muted);line-height:1.6;">
-          <a href="https://discord.com/channels/1494967115650826372/1494971834678906990" target="_blank" style="color:var(--accent);text-decoration:none;">Open Discord in new tab ↗</a>
-        </div>
+    <div class="panel" id="panel-team-chat">
+      <div class="page-title">💬 Team <em>Chat</em></div>
+      <div class="page-sub">Discord communication hub.</div>
+      <div style="border-radius:16px;overflow:hidden;border:1px solid var(--border);">
+        <iframe src="https://discord.com/widget?id=1494967115650826372&theme=dark" width="100%" height="500" allowtransparency="true" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts" style="border:none;background:var(--surface);"></iframe>
+      </div>
+      <div style="margin-top:10px;font-size:11px;color:var(--muted);line-height:1.6;">
+        <a href="https://discord.com/channels/1494967115650826372/1494971834678906990" target="_blank" style="color:var(--accent);text-decoration:none;">Open Discord in new tab ↗</a>
       </div>
     </div>
 
@@ -547,15 +553,26 @@ function openModule(id){
   document.querySelectorAll('.sb-item,.sb-sub-item').forEach(s=>s.classList.remove('active'));
   document.getElementById('panel-'+id).classList.add('active');
   event.currentTarget.classList.add('active');
-  // Auto-expand marketing submenu when opening a marketing subpage
+  // Auto-expand submenus when opening subpages
   if(id.startsWith('mkt-')){
     document.getElementById('mktSubMenu').style.display='flex';
     document.getElementById('mktChevron').style.transform='rotate(90deg)';
+  }
+  if(id.startsWith('team-')){
+    document.getElementById('teamSubMenu').style.display='flex';
+    document.getElementById('teamChevron').style.transform='rotate(90deg)';
   }
 }
 function toggleMktMenu(){
   const menu=document.getElementById('mktSubMenu');
   const chev=document.getElementById('mktChevron');
+  const open=menu.style.display==='flex';
+  menu.style.display=open?'none':'flex';
+  chev.style.transform=open?'rotate(0deg)':'rotate(90deg)';
+}
+function toggleTeamMenu(){
+  const menu=document.getElementById('teamSubMenu');
+  const chev=document.getElementById('teamChevron');
   const open=menu.style.display==='flex';
   menu.style.display=open?'none':'flex';
   chev.style.transform=open?'rotate(0deg)':'rotate(90deg)';

@@ -355,14 +355,7 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60p
 <!-- ══ MAIN CONTENT (hidden until login) ══ -->
 <div id="mainContent">
 
-<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
-  <img src="/TextTunes%20Marketing.png" alt="TextTunes" style="width:40px;height:40px;border-radius:10px;"/>
-  <div class="logo" style="margin-bottom:0;">Text<em>Tunes</em></div>
-  <span style="font-size:11px;color:var(--muted);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-left:4px;">Business HQ</span>
-</div>
-<div class="tagline">Everything you need to grow your app</div>
-
-<!-- ══ BUSINESS HQ TOP-LEVEL TABS ══ -->
+<!-- ══ TOP-LEVEL TABS ══ -->
 <div class="hq-tabs" id="hqTabs">
   <button class="hq-tab active" data-hq="marketing" onclick="switchHQ('marketing')"><span class="hq-icon">🎬</span> Create Video</button>
   <button class="hq-tab" data-hq="addetails" onclick="switchHQ('addetails')"><span class="hq-icon">📋</span> Ad Details</button>
@@ -436,7 +429,7 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60p
     <button class="dl-btn" id="replayBtn" onclick="replayAd()" disabled>▶ Replay</button>
     <button class="dl-btn" id="pauseBtn" onclick="togglePause()" disabled>⏸ Pause</button>
     <button class="dl-btn" id="editBtn" onclick="toggleEditPanel()" disabled>✏️ Edit Texts</button>
-    <button class="dl-btn" id="downloadBtn" onclick="recordAndDownload()" disabled>⬇ Download Video</button>
+    <button class="dl-btn" id="downloadBtn" onclick="recordAndDownload()" disabled style="display:none;"></button>
   </div>
   <div id="dlStatus" style="margin-top:8px;font-size:11px;color:#6b6b8e;text-align:center;font-family:monospace;min-height:16px;"></div>
   <div id="editPanel" style="display:none;width:300px;margin-top:12px;background:#0f0f1c;border:1px solid #1c1c30;border-radius:14px;padding:16px;max-height:320px;overflow-y:auto;">
@@ -716,7 +709,7 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60p
 <div class="hq-section" id="hq-addetails">
   <h2 style="font-family:var(--display);font-size:22px;font-weight:800;margin-bottom:6px;">📋 Ad Details</h2>
   <p style="font-size:13px;color:var(--muted);margin-bottom:20px;max-width:500px;text-align:center;line-height:1.6;">Auto-generated captions, hashtags, and posting details for your latest video ad.</p>
-  <div style="width:100%;max-width:600px;">
+  <div style="width:100%;max-width:900px;">
     <div id="adDetailsStatus" style="font-size:11px;color:#6b6b8e;text-align:center;min-height:16px;margin-bottom:12px;"></div>
     <div id="adDetailsResults">
       <div style="text-align:center;padding:40px 20px;">
@@ -1261,15 +1254,15 @@ async function recordAndDownload(){
     const blob=new Blob(recordedChunks,{type:mimeType});
     setDLStatus('Converting to MP4...','#FFD60A');
     dlBtn.textContent='Converting...';
+    const fileName=`TextTunes_${(currentAd.songTitle||'Ad').replace(/[^a-zA-Z0-9]/g,'_')}`;
+    let finalBlob=blob, finalExt='webm';
     try{
-      // Convert blob to base64
       const reader=new FileReader();
       const base64=await new Promise((resolve,reject)=>{
         reader.onload=()=>resolve(reader.result.split(',')[1]);
         reader.onerror=reject;
         reader.readAsDataURL(blob);
       });
-      // Send to server for ffmpeg conversion
       const resp=await fetch('/api/convert-mp4',{
         method:'POST',
         headers:{'Content-Type':'application/json'},
@@ -1279,25 +1272,25 @@ async function recordAndDownload(){
         const err=await resp.json().catch(()=>({error:'Conversion failed'}));
         throw new Error(err.error||'Conversion failed');
       }
-      const mp4Blob=await resp.blob();
-      const url=URL.createObjectURL(mp4Blob);
-      const a=document.createElement('a');
-      a.href=url;
-      a.download=`TextTunes_${(currentAd.songTitle||'Ad').replace(/[^a-zA-Z0-9]/g,'_')}.mp4`;
-      document.body.appendChild(a);a.click();document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      setDLStatus('Downloaded MP4!','#00ff88');
+      finalBlob=await resp.blob();
+      finalExt='mp4';
+      setDLStatus('Video ready!','#00ff88');
     }catch(e){
-      console.error('MP4 conversion failed, downloading WebM:',e);
-      // Fallback to WebM if conversion fails
-      const url=URL.createObjectURL(blob);
-      const a=document.createElement('a');
-      a.href=url;
-      a.download=`TextTunes_${(currentAd.songTitle||'Ad').replace(/[^a-zA-Z0-9]/g,'_')}.webm`;
-      document.body.appendChild(a);a.click();document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      setDLStatus('MP4 failed: '+e.message+' (WebM saved)','#ff453a');
+      console.error('MP4 conversion failed, using WebM:',e);
+      setDLStatus('Video ready (WebM)','#FFD60A');
     }
+    // Store video for Download tab & History
+    const videoUrl=URL.createObjectURL(finalBlob);
+    window._lastVideoUrl=videoUrl;
+    window._lastVideoName=fileName+'.'+finalExt;
+    window._lastVideoBlob=finalBlob;
+    // Update Download tab
+    updateDownloadTab(videoUrl,window._lastVideoName);
+    // Store in history with blob
+    const historyId=Date.now();
+    window._videoBlobStore=window._videoBlobStore||{};
+    window._videoBlobStore[historyId]=finalBlob;
+    addToHistory(window._lastAdScenario||'Untitled Video',new Date().toISOString(),historyId);
     dlBtn.disabled=false;
     dlBtn.classList.remove('recording');
     dlBtn.textContent='⬇ Download Video';
@@ -1608,7 +1601,6 @@ async function runAIGenerate(mode='custom'){
     const displayScenario=document.getElementById('ttScenario').value.trim()||scene.contact+' conversation';
     window._lastAdScenario=displayScenario;
     window._lastAdData={contact:scene.contact,songTitle:scene.songTitle,messages:scene.messages.slice(0,6).map(m=>m.text)};
-    addToHistory(displayScenario);
     autoGenerateAdDetails();
     await playAd();
     setAIStatus('','#6b6b8e');
@@ -1662,27 +1654,24 @@ async function autoGenerateAdDetails(){
     try{ads=JSON.parse(text);}catch{const m=text.match(/\[[\s\S]*\]/);if(m)ads=JSON.parse(m[0]);else throw new Error('Bad response');}
     const platformColors={tiktok:'#ff0050',instagram:'#E1306C',facebook:'#1877F2'};
     const platformIcons={tiktok:'🎵',instagram:'📸',facebook:'📘'};
-    results.innerHTML=`<div style="background:#07070f;border:1px solid #1c1c30;border-radius:10px;padding:10px 14px;margin-bottom:16px;font-size:12px;color:#6b6b8e;"><span style="color:#f0f0ff;font-weight:600;">Video:</span> ${scenario}${adData.songTitle?' — <span style="color:#9B6FFF;">♪ '+adData.songTitle+'</span>':''}</div>`+ads.map(a=>{
+    results.innerHTML=`<div style="background:#07070f;border:1px solid #1c1c30;border-radius:10px;padding:10px 14px;margin-bottom:16px;font-size:12px;color:#6b6b8e;"><span style="color:#f0f0ff;font-weight:600;">Video:</span> ${scenario}${adData.songTitle?' — <span style="color:#9B6FFF;">♪ '+adData.songTitle+'</span>':''}</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">`+ads.map(a=>{
       const pKey=(a.platform||'').toLowerCase().replace(/\s+reels/g,'').replace(/\s+/g,'');
       const color=platformColors[pKey]||'var(--accent)';
       const icon=platformIcons[pKey]||'📱';
-      return`<div style="background:#0f0f1c;border:1px solid #1c1c30;border-left:3px solid ${color};border-radius:14px;padding:18px;margin-bottom:12px;">
+      return`<div style="background:#0f0f1c;border:1px solid #1c1c30;border-top:3px solid ${color};border-radius:14px;padding:16px;display:flex;flex-direction:column;">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-          <span style="font-size:20px;">${icon}</span>
-          <span style="font-size:16px;font-weight:800;font-family:var(--display);color:#f0f0ff;">${a.platform}</span>
+          <span style="font-size:18px;">${icon}</span>
+          <span style="font-size:14px;font-weight:800;font-family:var(--display);color:#f0f0ff;">${a.platform}</span>
         </div>
-        <div style="font-size:10px;color:#6b6b8e;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Hook (First 3 Seconds)</div>
-        <div style="font-size:13px;color:#f0f0ff;font-weight:600;margin-bottom:10px;padding:8px 12px;background:#07070f;border-radius:8px;">${a.hook}</div>
-        <div style="font-size:10px;color:#6b6b8e;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Caption</div>
-        <div style="font-size:13px;color:#b0b0d0;line-height:1.6;margin-bottom:10px;">${a.caption}</div>
-        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px;">${(a.hashtags||[]).map(h=>`<span style="font-size:10px;color:#00e5ff;padding:3px 8px;background:rgba(0,229,255,.07);border-radius:6px;border:1px solid rgba(0,229,255,.15);font-family:monospace;">#${h.replace(/^#/,'')}</span>`).join('')}</div>
-        <div style="display:flex;gap:16px;font-size:11px;color:#6b6b8e;flex-wrap:wrap;">
-          <span>⏰ ${a.best_time}</span>
-          <span>📐 ${a.format_tip}</span>
-        </div>
-        <button onclick="navigator.clipboard.writeText(this.dataset.copy).then(()=>{this.textContent='Copied!';setTimeout(()=>this.textContent='Copy Caption + Tags',1500)})" data-copy="${(a.caption+'\n\n'+(a.hashtags||[]).map(h=>'#'+h.replace(/^#/,'')).join(' ')).replace(/"/g,'&quot;')}" style="margin-top:10px;background:transparent;border:1px solid #1c1c30;border-radius:8px;padding:6px 14px;color:#6b6b8e;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;">Copy Caption + Tags</button>
+        <div style="font-size:9px;color:#6b6b8e;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;">Hook</div>
+        <div style="font-size:12px;color:#f0f0ff;font-weight:600;margin-bottom:10px;padding:6px 10px;background:#07070f;border-radius:8px;line-height:1.4;">${a.hook}</div>
+        <div style="font-size:9px;color:#6b6b8e;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;">Caption</div>
+        <div style="font-size:12px;color:#b0b0d0;line-height:1.5;margin-bottom:10px;flex:1;">${a.caption}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:10px;">${(a.hashtags||[]).map(h=>`<span style="font-size:9px;color:#00e5ff;padding:2px 6px;background:rgba(0,229,255,.07);border-radius:5px;border:1px solid rgba(0,229,255,.15);font-family:monospace;">#${h.replace(/^#/,'')}</span>`).join('')}</div>
+        <div style="font-size:10px;color:#6b6b8e;margin-bottom:8px;">⏰ ${a.best_time}</div>
+        <button onclick="navigator.clipboard.writeText(this.dataset.copy).then(()=>{this.textContent='Copied!';setTimeout(()=>this.textContent='Copy Caption + Tags',1500)})" data-copy="${(a.caption+'\n\n'+(a.hashtags||[]).map(h=>'#'+h.replace(/^#/,'')).join(' ')).replace(/"/g,'&quot;')}" style="margin-top:auto;background:transparent;border:1px solid #1c1c30;border-radius:8px;padding:6px 12px;color:#6b6b8e;font-size:10px;font-weight:600;cursor:pointer;transition:all .15s;width:100%;text-align:center;">Copy Caption + Tags</button>
       </div>`;
-    }).join('');
+    }).join('')+'</div>';
     status.textContent='';
     if(regenBtn)regenBtn.disabled=false;
   }catch(e){
@@ -1695,9 +1684,22 @@ async function autoGenerateAdDetails(){
 /* ══════════════════════════
    DOWNLOAD TAB
 ══════════════════════════ */
+function updateDownloadTab(url,name){
+  const preview=document.getElementById('downloadPreview');
+  const btn=document.getElementById('dlTabBtn');
+  preview.innerHTML=`<video src="${url}" controls style="width:100%;max-width:360px;border-radius:12px;margin-bottom:8px;"></video>
+    <div style="font-size:13px;color:var(--muted);margin-top:6px;">${name}</div>`;
+  btn.disabled=false;
+  btn.textContent='⬇ Download Video';
+}
 function downloadLatestVideo(){
-  const btn=document.getElementById('downloadBtn');
-  if(btn&&!btn.disabled)btn.click();
+  if(window._lastVideoBlob){
+    const url=URL.createObjectURL(window._lastVideoBlob);
+    const a=document.createElement('a');
+    a.href=url;a.download=window._lastVideoName||'TextTunes_Ad.mp4';
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
 }
 
 /* ══════════════════════════
@@ -1705,9 +1707,9 @@ function downloadLatestVideo(){
 ══════════════════════════ */
 function getVideoHistory(){return JSON.parse(localStorage.getItem('tt_video_history')||'[]');}
 function saveVideoHistory(h){localStorage.setItem('tt_video_history',JSON.stringify(h));}
-function addToHistory(scenario,timestamp){
+function addToHistory(scenario,timestamp,blobId){
   const h=getVideoHistory();
-  h.unshift({scenario,timestamp:timestamp||new Date().toISOString(),id:Date.now()});
+  h.unshift({scenario,timestamp:timestamp||new Date().toISOString(),id:Date.now(),blobId:blobId||null});
   if(h.length>50)h.length=50;
   saveVideoHistory(h);
 }
@@ -1721,15 +1723,27 @@ function renderHistory(){
   el.innerHTML=h.map((v,i)=>{
     const d=new Date(v.timestamp);
     const dateStr=d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})+' '+d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+    const hasBlob=v.blobId&&window._videoBlobStore&&window._videoBlobStore[v.blobId];
+    const dlBtnHtml=hasBlob?`<button onclick="downloadHistoryItem(${v.blobId},'${(v.scenario||'Ad').replace(/'/g,"\\'").replace(/[^a-zA-Z0-9 _]/g,'')}')" style="background:var(--accent);border:none;color:#fff;font-size:11px;padding:6px 12px;border-radius:8px;cursor:pointer;white-space:nowrap;">⬇ Download</button>`:`<span style="font-size:11px;color:#4a4a6a;">Session expired</span>`;
     return`<div style="background:#0f0f1c;border:1px solid #1c1c30;border-radius:12px;padding:14px 18px;margin-bottom:8px;display:flex;align-items:center;gap:14px;">
       <div style="font-size:24px;opacity:.6;">🎬</div>
       <div style="flex:1;min-width:0;">
         <div style="font-size:13px;font-weight:600;color:#f0f0ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${v.scenario||'Untitled Video'}</div>
         <div style="font-size:11px;color:#6b6b8e;margin-top:2px;">${dateStr}</div>
       </div>
+      ${dlBtnHtml}
       <button onclick="deleteHistoryItem(${i})" style="background:none;border:none;color:#ff453a;font-size:14px;cursor:pointer;opacity:.5;transition:opacity .15s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.5">✕</button>
     </div>`;
   }).join('');
+}
+function downloadHistoryItem(blobId,name){
+  const blob=window._videoBlobStore&&window._videoBlobStore[blobId];
+  if(!blob)return;
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='TextTunes_'+name.replace(/[^a-zA-Z0-9]/g,'_')+'.mp4';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 function deleteHistoryItem(idx){
   const h=getVideoHistory();h.splice(idx,1);saveVideoHistory(h);renderHistory();
