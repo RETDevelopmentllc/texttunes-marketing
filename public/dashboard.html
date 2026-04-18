@@ -50,6 +50,15 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .sb-item.active .sb-dot{opacity:1;}
 .sb-icon{font-size:18px;width:24px;text-align:center;flex-shrink:0;}
 .sb-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);margin-left:auto;opacity:0;transition:opacity .15s;}
+.sb-section-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;padding:16px 14px 6px;margin-top:4px;}
+.sb-sub-item{
+  display:flex;align-items:center;gap:10px;padding:8px 14px 8px 26px;
+  border-radius:8px;cursor:pointer;transition:all .15s;
+  border:1px solid transparent;font-size:12px;font-weight:500;color:var(--muted);
+}
+.sb-sub-item:hover{background:var(--surface2);color:var(--text);}
+.sb-sub-item.active{background:var(--surface2);border-color:var(--border);color:var(--text);font-weight:600;}
+.sb-sub-item .sb-sub-icon{font-size:14px;width:20px;text-align:center;flex-shrink:0;}
 .sb-footer{padding:16px 20px;border-top:1px solid var(--border);font-size:11px;color:var(--muted);}
 .sb-footer a{color:var(--accent);text-decoration:none;}
 
@@ -274,14 +283,35 @@ select.input{cursor:pointer;appearance:none;background-image:url("data:image/svg
     </div>
     <div class="sb-sub">Business HQ</div>
     <nav class="sb-nav">
-      <div class="sb-item active" onclick="openModule('marketing')">
-        <span class="sb-icon">📣</span><span class="sb-label">Marketing</span><span class="sb-dot"></span>
-      </div>
-      <div class="sb-item" onclick="openModule('development')">
-        <span class="sb-icon">🛠</span><span class="sb-label">Development</span><span class="sb-dot"></span>
-      </div>
-      <div class="sb-item" onclick="openModule('team')">
+      <div class="sb-item active" onclick="openModule('team')">
         <span class="sb-icon">👥</span><span class="sb-label">Team</span><span class="sb-dot"></span>
+      </div>
+
+      <div class="sb-section-label">📣 Marketing</div>
+      <div class="sb-sub-item" onclick="openModule('mkt-video')">
+        <span class="sb-sub-icon">🎬</span><span class="sb-label">Video Ad Creator</span>
+      </div>
+      <div class="sb-sub-item" onclick="openModule('mkt-gameplan')">
+        <span class="sb-sub-icon">🗺</span><span class="sb-label">Game Plan</span>
+      </div>
+      <div class="sb-sub-item" onclick="openModule('mkt-gtm')">
+        <span class="sb-sub-icon">🚀</span><span class="sb-label">GTM Strategy</span>
+      </div>
+      <div class="sb-sub-item" onclick="openModule('mkt-personas')">
+        <span class="sb-sub-icon">👥</span><span class="sb-label">Personas</span>
+      </div>
+      <div class="sb-sub-item" onclick="openModule('mkt-adcopy')">
+        <span class="sb-sub-icon">✍️</span><span class="sb-label">Ad Copy</span>
+      </div>
+      <div class="sb-sub-item" onclick="openModule('mkt-calendar')">
+        <span class="sb-sub-icon">📅</span><span class="sb-label">Calendar</span>
+      </div>
+      <div class="sb-sub-item" onclick="openModule('mkt-kpi')">
+        <span class="sb-sub-icon">📊</span><span class="sb-label">KPIs</span>
+      </div>
+
+      <div class="sb-item" onclick="openModule('development')" style="margin-top:8px;">
+        <span class="sb-icon">🛠</span><span class="sb-label">Development</span><span class="sb-dot"></span>
       </div>
       <div class="sb-item" onclick="openModule('social')">
         <span class="sb-icon">📱</span><span class="sb-label">Social Media</span><span class="sb-dot"></span>
@@ -312,168 +342,167 @@ select.input{cursor:pointer;appearance:none;background-image:url("data:image/svg
     </div>
 
     <!-- ═══════════════════════ -->
-    <!-- 1. MARKETING            -->
+    <!-- MARKETING SUBPAGES      -->
     <!-- ═══════════════════════ -->
-    <div class="panel active" id="panel-marketing">
-      <div class="page-title">📣 <em>Marketing</em></div>
-      <div class="page-sub">Video ad creation, content strategy, and the road to $50K/month.</div>
 
-      <div class="mkt-tab-bar">
-        <button class="mkt-tab active" onclick="switchMkt('video')">🎬 Video Ad Creator</button>
-        <button class="mkt-tab" onclick="switchMkt('gameplan')">🗺 Game Plan</button>
-        <button class="mkt-tab" onclick="switchMkt('gtm')">🚀 GTM Strategy</button>
-        <button class="mkt-tab" onclick="switchMkt('personas')">👥 Personas</button>
-        <button class="mkt-tab" onclick="switchMkt('adcopy')">✍️ Ad Copy</button>
-        <button class="mkt-tab" onclick="switchMkt('calendar')">📅 Calendar</button>
-        <button class="mkt-tab" onclick="switchMkt('kpi')">📊 KPIs</button>
+    <!-- Video Ad Creator -->
+    <div class="panel" id="panel-mkt-video">
+      <div class="page-title">🎬 <em>Video Ad Creator</em></div>
+      <div class="page-sub">Type a scenario, hit AI, and screen-record the result.</div>
+      <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
+        <a href="/index.html" target="_blank" class="btn-outline" style="text-decoration:none;">Open in new tab ↗</a>
       </div>
-
-      <!-- Video Ad Creator -->
-      <div class="mkt-panel active" id="mkt-video">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-          <div style="font-size:13px;color:var(--muted);">Type a scenario, hit AI, and screen-record the result</div>
-          <a href="/index.html" target="_blank" class="btn-outline" style="text-decoration:none;flex-shrink:0;">Open in new tab ↗</a>
-        </div>
-        <div style="border-radius:16px;overflow:hidden;border:1px solid var(--border);height:calc(100vh - 220px);min-height:500px;">
-          <iframe src="/index.html" style="width:100%;height:100%;border:none;background:var(--bg);"></iframe>
-        </div>
+      <div style="border-radius:16px;overflow:hidden;border:1px solid var(--border);height:calc(100vh - 220px);min-height:500px;">
+        <iframe src="/index.html" style="width:100%;height:100%;border:none;background:var(--bg);"></iframe>
       </div>
+    </div>
 
-      <!-- Game Plan -->
-      <div class="mkt-panel" id="mkt-gameplan">
-        <div class="gameplan">
-          <div class="gameplan-title">1-Year Game Plan to <em>$50K/Month</em></div>
-          <div class="quarter-card">
-            <div class="quarter-header">
-              <span class="quarter-label">Q1 — Foundation (Months 1-3)</span>
-              <span class="quarter-goal">Goal: $2K/mo</span>
-            </div>
-            <ul class="quarter-items">
-              <li><span>Launch MVP</span> — Core text-to-song feature live on App Store</li>
-              <li><span>Content Engine</span> — 3 TikTok/Reels per day using video ad creator</li>
-              <li><span>Viral Seeding</span> — Partner with 10 micro-influencers (10K-50K followers)</li>
-              <li><span>Monetization</span> — Free tier (3 songs/day) + Premium ($4.99/week)</li>
-            </ul>
+    <!-- Game Plan -->
+    <div class="panel" id="panel-mkt-gameplan">
+      <div class="page-title">🗺 <em>Game Plan</em></div>
+      <div class="page-sub">Your 1-year roadmap to $50K/month.</div>
+      <div class="gameplan">
+        <div class="gameplan-title">1-Year Game Plan to <em>$50K/Month</em></div>
+        <div class="quarter-card">
+          <div class="quarter-header">
+            <span class="quarter-label">Q1 — Foundation (Months 1-3)</span>
+            <span class="quarter-goal">Goal: $2K/mo</span>
           </div>
-          <div class="quarter-card">
-            <div class="quarter-header">
-              <span class="quarter-label">Q2 — Growth (Months 4-6)</span>
-              <span class="quarter-goal">Goal: $10K/mo</span>
-            </div>
-            <ul class="quarter-items">
-              <li><span>Paid Ads</span> — Scale winning organic content into TikTok + Meta ads</li>
-              <li><span>Referral Program</span> — Invite friends = free premium days</li>
-              <li><span>Feature Drop</span> — Group chat songs, voice cloning, beat maker</li>
-              <li><span>Community</span> — Discord server + user-generated content challenges</li>
-            </ul>
+          <ul class="quarter-items">
+            <li><span>Launch MVP</span> — Core text-to-song feature live on App Store</li>
+            <li><span>Content Engine</span> — 3 TikTok/Reels per day using video ad creator</li>
+            <li><span>Viral Seeding</span> — Partner with 10 micro-influencers (10K-50K followers)</li>
+            <li><span>Monetization</span> — Free tier (3 songs/day) + Premium ($4.99/week)</li>
+          </ul>
+        </div>
+        <div class="quarter-card">
+          <div class="quarter-header">
+            <span class="quarter-label">Q2 — Growth (Months 4-6)</span>
+            <span class="quarter-goal">Goal: $10K/mo</span>
           </div>
-          <div class="quarter-card">
-            <div class="quarter-header">
-              <span class="quarter-label">Q3 — Scale (Months 7-9)</span>
-              <span class="quarter-goal">Goal: $25K/mo</span>
-            </div>
-            <ul class="quarter-items">
-              <li><span>Android Launch</span> — Expand to Google Play Store</li>
-              <li><span>Creator Partnerships</span> — 50+ influencer deals, UGC campaigns</li>
-              <li><span>Enterprise</span> — Brand partnerships for custom branded songs</li>
-              <li><span>Optimization</span> — A/B test pricing, reduce churn, improve onboarding</li>
-            </ul>
+          <ul class="quarter-items">
+            <li><span>Paid Ads</span> — Scale winning organic content into TikTok + Meta ads</li>
+            <li><span>Referral Program</span> — Invite friends = free premium days</li>
+            <li><span>Feature Drop</span> — Group chat songs, voice cloning, beat maker</li>
+            <li><span>Community</span> — Discord server + user-generated content challenges</li>
+          </ul>
+        </div>
+        <div class="quarter-card">
+          <div class="quarter-header">
+            <span class="quarter-label">Q3 — Scale (Months 7-9)</span>
+            <span class="quarter-goal">Goal: $25K/mo</span>
           </div>
-          <div class="quarter-card">
-            <div class="quarter-header">
-              <span class="quarter-label">Q4 — Dominate (Months 10-12)</span>
-              <span class="quarter-goal">Goal: $50K/mo</span>
-            </div>
-            <ul class="quarter-items">
-              <li><span>International</span> — Localize for Spanish, Portuguese, French markets</li>
-              <li><span>Platform Expansion</span> — iMessage app, Snapchat integration, web app</li>
-              <li><span>AI Upgrade</span> — Real-time voice generation, multi-language songs</li>
-              <li><span>Revenue Mix</span> — Subscriptions + in-app purchases + brand deals</li>
-            </ul>
+          <ul class="quarter-items">
+            <li><span>Android Launch</span> — Expand to Google Play Store</li>
+            <li><span>Creator Partnerships</span> — 50+ influencer deals, UGC campaigns</li>
+            <li><span>Enterprise</span> — Brand partnerships for custom branded songs</li>
+            <li><span>Optimization</span> — A/B test pricing, reduce churn, improve onboarding</li>
+          </ul>
+        </div>
+        <div class="quarter-card">
+          <div class="quarter-header">
+            <span class="quarter-label">Q4 — Dominate (Months 10-12)</span>
+            <span class="quarter-goal">Goal: $50K/mo</span>
           </div>
+          <ul class="quarter-items">
+            <li><span>International</span> — Localize for Spanish, Portuguese, French markets</li>
+            <li><span>Platform Expansion</span> — iMessage app, Snapchat integration, web app</li>
+            <li><span>AI Upgrade</span> — Real-time voice generation, multi-language songs</li>
+            <li><span>Revenue Mix</span> — Subscriptions + in-app purchases + brand deals</li>
+          </ul>
         </div>
       </div>
+    </div>
 
-      <!-- GTM Strategy -->
-      <div class="mkt-panel" id="mkt-gtm">
-        <div class="card">
-          <div class="wizard-steps" id="wzSteps">
-            <div class="wz-step current"></div><div class="wz-step"></div><div class="wz-step"></div><div class="wz-step"></div>
+    <!-- GTM Strategy -->
+    <div class="panel" id="panel-mkt-gtm">
+      <div class="page-title">🚀 <em>GTM Strategy</em></div>
+      <div class="page-sub">AI-powered go-to-market plan builder.</div>
+      <div class="card">
+        <div class="wizard-steps" id="wzSteps">
+          <div class="wz-step current"></div><div class="wz-step"></div><div class="wz-step"></div><div class="wz-step"></div>
+        </div>
+        <div class="wizard-content" id="wzContent"></div>
+        <div class="btn-row" id="wzBtns"></div>
+      </div>
+      <div id="gtmResult"></div>
+    </div>
+
+    <!-- Personas -->
+    <div class="panel" id="panel-mkt-personas">
+      <div class="page-title">👥 <em>Personas</em></div>
+      <div class="page-sub">AI-generated audience personas for targeting.</div>
+      <div class="card">
+        <div class="label">Target Market Focus (optional)</div>
+        <input class="input" id="personaFocus" placeholder="e.g. Gen Z college students, young professionals, parents..." style="margin-bottom:16px;"/>
+        <button class="btn-ai" id="personaBtn" onclick="generatePersonas()">✨ Generate Personas</button>
+        <div id="personaStatus" class="status-msg"></div>
+      </div>
+      <div id="personaResults"></div>
+    </div>
+
+    <!-- Ad Copy -->
+    <div class="panel" id="panel-mkt-adcopy">
+      <div class="page-title">✍️ <em>Ad Copy</em></div>
+      <div class="page-sub">Generate platform-specific ad copy with AI.</div>
+      <div class="card">
+        <div class="grid-2" style="margin-bottom:16px;">
+          <div>
+            <div class="label">Platform</div>
+            <select class="input" id="adPlatform">
+              <option value="tiktok">TikTok</option><option value="instagram">Instagram Reels</option>
+              <option value="youtube">YouTube Shorts</option><option value="twitter">X / Twitter</option>
+              <option value="linkedin">LinkedIn</option><option value="reddit">Reddit</option>
+              <option value="all">All Platforms</option>
+            </select>
           </div>
-          <div class="wizard-content" id="wzContent"></div>
-          <div class="btn-row" id="wzBtns"></div>
-        </div>
-        <div id="gtmResult"></div>
-      </div>
-
-      <!-- Audience Personas -->
-      <div class="mkt-panel" id="mkt-personas">
-        <div class="card">
-          <div class="label">Target Market Focus (optional)</div>
-          <input class="input" id="personaFocus" placeholder="e.g. Gen Z college students, young professionals, parents..." style="margin-bottom:16px;"/>
-          <button class="btn-ai" id="personaBtn" onclick="generatePersonas()">✨ Generate Personas</button>
-          <div id="personaStatus" class="status-msg"></div>
-        </div>
-        <div id="personaResults"></div>
-      </div>
-
-      <!-- Ad Copy Generator -->
-      <div class="mkt-panel" id="mkt-adcopy">
-        <div class="card">
-          <div class="grid-2" style="margin-bottom:16px;">
-            <div>
-              <div class="label">Platform</div>
-              <select class="input" id="adPlatform">
-                <option value="tiktok">TikTok</option><option value="instagram">Instagram Reels</option>
-                <option value="youtube">YouTube Shorts</option><option value="twitter">X / Twitter</option>
-                <option value="linkedin">LinkedIn</option><option value="reddit">Reddit</option>
-                <option value="all">All Platforms</option>
-              </select>
-            </div>
-            <div>
-              <div class="label">Tone</div>
-              <select class="input" id="adTone">
-                <option value="funny">Funny / Viral</option><option value="professional">Professional</option>
-                <option value="edgy">Edgy / Bold</option><option value="heartfelt">Heartfelt</option>
-              </select>
-            </div>
+          <div>
+            <div class="label">Tone</div>
+            <select class="input" id="adTone">
+              <option value="funny">Funny / Viral</option><option value="professional">Professional</option>
+              <option value="edgy">Edgy / Bold</option><option value="heartfelt">Heartfelt</option>
+            </select>
           </div>
-          <div class="label">What are you promoting?</div>
-          <input class="input" id="adTopic" placeholder="e.g. New feature launch, app download, specific scenario..." style="margin-bottom:16px;"/>
-          <button class="btn-ai" id="adCopyBtn" onclick="generateAdCopy()">✨ Generate Ad Copy</button>
-          <div id="adCopyStatus" class="status-msg"></div>
         </div>
-        <div id="adCopyResults"></div>
+        <div class="label">What are you promoting?</div>
+        <input class="input" id="adTopic" placeholder="e.g. New feature launch, app download, specific scenario..." style="margin-bottom:16px;"/>
+        <button class="btn-ai" id="adCopyBtn" onclick="generateAdCopy()">✨ Generate Ad Copy</button>
+        <div id="adCopyStatus" class="status-msg"></div>
       </div>
+      <div id="adCopyResults"></div>
+    </div>
 
-      <!-- Content Calendar -->
-      <div class="mkt-panel" id="mkt-calendar">
-        <div class="card" style="margin-bottom:16px;">
-          <div class="grid-2" style="margin-bottom:16px;">
-            <div>
-              <div class="label">Launch Focus</div>
-              <input class="input" id="calFocus" placeholder="e.g. App launch, viral campaign, holiday push..."/>
-            </div>
-            <div>
-              <div class="label">Posts Per Day</div>
-              <select class="input" id="calFreq">
-                <option value="1">1 per day</option><option value="2" selected>2 per day</option><option value="3">3 per day</option>
-              </select>
-            </div>
+    <!-- Calendar -->
+    <div class="panel" id="panel-mkt-calendar">
+      <div class="page-title">📅 <em>Content Calendar</em></div>
+      <div class="page-sub">AI-generated 30-day content posting plan.</div>
+      <div class="card" style="margin-bottom:16px;">
+        <div class="grid-2" style="margin-bottom:16px;">
+          <div>
+            <div class="label">Launch Focus</div>
+            <input class="input" id="calFocus" placeholder="e.g. App launch, viral campaign, holiday push..."/>
           </div>
-          <button class="btn-ai" id="calBtn" onclick="generateCalendar()">✨ Generate 30-Day Plan</button>
-          <div id="calStatus" class="status-msg"></div>
+          <div>
+            <div class="label">Posts Per Day</div>
+            <select class="input" id="calFreq">
+              <option value="1">1 per day</option><option value="2" selected>2 per day</option><option value="3">3 per day</option>
+            </select>
+          </div>
         </div>
-        <div id="calResults"></div>
+        <button class="btn-ai" id="calBtn" onclick="generateCalendar()">✨ Generate 30-Day Plan</button>
+        <div id="calStatus" class="status-msg"></div>
       </div>
+      <div id="calResults"></div>
+    </div>
 
-      <!-- KPI Tracker -->
-      <div class="mkt-panel" id="mkt-kpi">
-        <div class="grid-3" id="kpiGrid"></div>
-        <div style="margin-top:16px;">
-          <button class="btn-outline" onclick="addKPI()">+ Add Metric</button>
-          <button class="btn-outline" onclick="resetKPIs()" style="margin-left:8px;">Reset All</button>
-        </div>
+    <!-- KPIs -->
+    <div class="panel" id="panel-mkt-kpi">
+      <div class="page-title">📊 <em>KPI Tracker</em></div>
+      <div class="page-sub">Track your key metrics and goals.</div>
+      <div class="grid-3" id="kpiGrid"></div>
+      <div style="margin-top:16px;">
+        <button class="btn-outline" onclick="addKPI()">+ Add Metric</button>
+        <button class="btn-outline" onclick="resetKPIs()" style="margin-left:8px;">Reset All</button>
       </div>
     </div>
 
@@ -514,15 +543,11 @@ select.input{cursor:pointer;appearance:none;background-image:url("data:image/svg
     <!-- ═══════════════════════ -->
     <!-- 3. TEAM                 -->
     <!-- ═══════════════════════ -->
-    <div class="panel" id="panel-team">
+    <div class="panel active" id="panel-team">
       <div class="page-title">👥 <em>Team</em></div>
       <div class="page-sub">Your team directory and communication hub.</div>
-      <div style="margin-bottom:24px;text-align:center;">
-        <a href="https://discord.gg/texttunes" target="_blank" class="discord-btn">
-          <svg width="20" height="16" viewBox="0 0 71 55" fill="white"><path d="M60.1 4.9A58.5 58.5 0 0045.4.2a.2.2 0 00-.2.1 40.7 40.7 0 00-1.8 3.7 54 54 0 00-16.2 0A26.4 26.4 0 0025.4.3a.2.2 0 00-.2-.1A58.4 58.4 0 0010.6 4.9a.2.2 0 00-.1.1C1.5 18.7-.9 32.2.3 45.5v.1a58.7 58.7 0 0017.7 9a.2.2 0 00.3-.1 42 42 0 003.6-5.9.2.2 0 00-.1-.3 38.6 38.6 0 01-5.5-2.6.2.2 0 01.5-.4l1.1.9a42 42 0 0035.8 0l1.1-.9a.2.2 0 01.5.3 36.3 36.3 0 01-5.5 2.6.2.2 0 00-.1.3 47.2 47.2 0 003.6 5.9.2.2 0 00.3.1 58.5 58.5 0 0017.7-9v-.1c1.4-15.2-2.4-28.4-10-40.1a.2.2 0 00-.1-.1zM23.7 37.3c-3.5 0-6.3-3.2-6.3-7.1s2.8-7.1 6.3-7.1 6.4 3.2 6.3 7.1c0 3.9-2.8 7.1-6.3 7.1zm23.3 0c-3.5 0-6.3-3.2-6.3-7.1s2.8-7.1 6.3-7.1 6.4 3.2 6.3 7.1c0 3.9-2.8 7.1-6.3 7.1z"/></svg>
-          Open Discord Chat
-        </a>
-      </div>
+
+      <!-- Team Directory (top) -->
       <div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Team Directory</div>
       <div class="team-add-form" id="teamAddForm">
         <input type="text" id="teamNameInput" placeholder="Name..." style="flex:1;min-width:120px;"/>
@@ -531,6 +556,17 @@ select.input{cursor:pointer;appearance:none;background-image:url("data:image/svg
         <button onclick="teamAddMember()" style="padding:10px 18px;background:linear-gradient(135deg,var(--accent),var(--pink));border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--display);white-space:nowrap;">+ Add</button>
       </div>
       <div class="team-grid" id="teamGrid"></div>
+
+      <!-- Discord Embed -->
+      <div style="margin-top:28px;">
+        <div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Discord Chat</div>
+        <div style="border-radius:16px;overflow:hidden;border:1px solid var(--border);">
+          <iframe src="https://discord.com/widget?id=1494967115650826372&theme=dark" width="100%" height="500" allowtransparency="true" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts" style="border:none;background:var(--surface);"></iframe>
+        </div>
+        <div style="margin-top:10px;font-size:11px;color:var(--muted);line-height:1.6;">
+          <a href="https://discord.com/channels/1494967115650826372/1494971834678906990" target="_blank" style="color:var(--accent);text-decoration:none;">Open Discord in new tab ↗</a>
+        </div>
+      </div>
     </div>
 
     <!-- ═══════════════════════ -->
@@ -619,18 +655,8 @@ if(sessionStorage.getItem('tt_auth')==='1'){
 ══════════════════════════ */
 function openModule(id){
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.sb-item').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.sb-item,.sb-sub-item').forEach(s=>s.classList.remove('active'));
   document.getElementById('panel-'+id).classList.add('active');
-  event.currentTarget.classList.add('active');
-}
-
-/* ══════════════════════════
-   MARKETING SUB-TABS
-══════════════════════════ */
-function switchMkt(tab){
-  document.querySelectorAll('.mkt-panel').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.mkt-tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById('mkt-'+tab).classList.add('active');
   event.currentTarget.classList.add('active');
 }
 

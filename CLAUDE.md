@@ -1,1 +1,1 @@
-Try to complete tasks with using as little tokens or usage as possible.
+Try to complete tasks with using as little tokens or usage as possible. the end of every responds should give me the command to update git hub
