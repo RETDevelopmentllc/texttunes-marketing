@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>TextTunes — Marketing HQ</title>
+<title>TextTunes — Business HQ</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -16,6 +16,19 @@
   --sidebar:240px;
 }
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);overflow:hidden;}
+
+/* ══ LOGIN ══ */
+.login-overlay{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;}
+.login-overlay.hidden{display:none;}
+.login-box{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:40px 36px;display:flex;flex-direction:column;align-items:center;gap:16px;width:340px;max-width:90vw;}
+.login-box img{width:64px;height:64px;border-radius:16px;}
+.login-title{font-family:var(--display);font-size:24px;font-weight:800;letter-spacing:-.5px;}
+.login-title em{color:var(--pink);font-style:normal;}
+.login-input{width:100%;background:#07070f;border:1px solid var(--border);border-radius:12px;padding:12px 16px;color:var(--text);font-size:14px;font-family:var(--font);outline:none;text-align:center;}
+.login-input:focus{border-color:var(--accent);}
+.login-btn{width:100%;padding:12px;background:linear-gradient(135deg,var(--accent),var(--pink));border:none;border-radius:12px;color:#fff;font-size:14px;font-weight:800;cursor:pointer;font-family:var(--display);transition:transform .15s;}
+.login-btn:hover{transform:scale(1.02);}
+.login-error{font-size:12px;color:var(--red);min-height:18px;}
 
 /* LAYOUT */
 .app{display:flex;height:100vh;}
@@ -158,6 +171,70 @@ select.input{cursor:pointer;appearance:none;background-image:url("data:image/svg
 .loading-dot:nth-child(3){animation-delay:.3s;}
 @keyframes ldBounce{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-6px);opacity:1}}
 
+/* ══ GAME PLAN ══ */
+.gameplan{margin-top:28px;width:100%;}
+.gameplan-title{font-family:var(--display);font-size:22px;font-weight:800;margin-bottom:16px;}
+.gameplan-title em{color:var(--pink);font-style:normal;}
+.quarter-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:12px;}
+.quarter-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.quarter-label{font-size:14px;font-weight:700;color:var(--text);}
+.quarter-goal{font-size:12px;font-weight:700;color:var(--green);background:rgba(0,255,136,.08);padding:4px 10px;border-radius:8px;}
+.quarter-items{list-style:none;display:flex;flex-direction:column;gap:8px;}
+.quarter-items li{font-size:13px;color:var(--text2);line-height:1.5;padding-left:8px;border-left:2px solid var(--border);}
+.quarter-items li span{color:var(--text);font-weight:600;}
+
+/* ══ KANBAN ══ */
+.kanban-board{display:flex;gap:16px;width:100%;overflow-x:auto;padding-bottom:16px;min-height:400px;}
+.kanban-col{flex:1;min-width:240px;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:10px;}
+.kanban-col-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
+.kanban-col-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);}
+.kanban-count{font-size:11px;background:var(--border);color:var(--text);padding:2px 8px;border-radius:8px;font-weight:700;}
+.kanban-drop-zone{flex:1;min-height:40px;display:flex;flex-direction:column;gap:8px;border:2px dashed transparent;border-radius:10px;transition:all .15s;padding:4px;}
+.kanban-drop-zone.over{border-color:var(--accent);background:rgba(124,58,237,.05);}
+.kanban-card{background:#07070f;border:1px solid var(--border);border-radius:12px;padding:14px;cursor:grab;transition:all .15s;position:relative;}
+.kanban-card:hover{border-color:var(--accent);box-shadow:0 2px 12px rgba(124,58,237,.15);}
+.kanban-card.dragging{opacity:.5;transform:rotate(2deg);}
+.kanban-card-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px;}
+.kanban-card-desc{font-size:11px;color:var(--muted);line-height:1.4;}
+.kanban-card-tag{display:inline-block;font-size:9px;font-weight:700;padding:2px 8px;border-radius:6px;margin-top:8px;text-transform:uppercase;letter-spacing:.5px;}
+.kanban-card-del{position:absolute;top:6px;right:8px;background:none;border:none;color:var(--red);font-size:12px;cursor:pointer;opacity:0;transition:opacity .15s;}
+.kanban-card:hover .kanban-card-del{opacity:1;}
+.kanban-add-btn{width:100%;padding:10px;border:1px dashed var(--border);border-radius:10px;background:none;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);transition:all .15s;margin-top:auto;}
+.kanban-add-btn:hover{border-color:var(--accent);color:var(--accent);}
+
+/* ══ TEAM ══ */
+.team-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;width:100%;}
+.team-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;text-align:center;position:relative;transition:all .15s;}
+.team-card:hover{border-color:var(--accent);}
+.team-card-emoji{font-size:36px;margin-bottom:8px;}
+.team-card-name{font-size:14px;font-weight:700;color:var(--text);margin-bottom:2px;}
+.team-card-role{font-size:12px;color:var(--muted);}
+.team-card-del{position:absolute;top:8px;right:10px;background:none;border:none;color:var(--red);font-size:12px;cursor:pointer;opacity:0;transition:opacity .15s;}
+.team-card:hover .team-card-del{opacity:1;}
+.team-add-form{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;align-items:center;}
+.team-add-form input{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);font-size:13px;font-family:var(--font);outline:none;}
+.team-add-form input:focus{border-color:var(--accent);}
+.discord-btn{display:inline-flex;align-items:center;gap:8px;background:#5865F2;border:none;border-radius:12px;padding:12px 24px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--display);transition:transform .15s;text-decoration:none;}
+.discord-btn:hover{transform:scale(1.03);}
+
+/* ══ SOCIAL MEDIA ══ */
+.social-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;width:100%;}
+.social-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;transition:all .15s;}
+.social-card:hover{border-color:var(--accent);}
+.social-card-header{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.social-card-icon{font-size:24px;}
+.social-card-name{font-size:18px;font-weight:800;font-family:var(--display);}
+.social-card-strategy{list-style:none;display:flex;flex-direction:column;gap:10px;}
+.social-card-strategy li{font-size:12px;color:var(--text2);line-height:1.5;}
+
+/* ══ MARKETING SUB-TABS ══ */
+.mkt-tab-bar{display:flex;gap:4px;background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:3px;margin-bottom:20px;}
+.mkt-tab{padding:8px 16px;border-radius:10px;border:none;background:none;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);transition:all .15s;white-space:nowrap;}
+.mkt-tab:hover{color:var(--text);}
+.mkt-tab.active{background:var(--accent);color:#fff;}
+.mkt-panel{display:none;width:100%;}
+.mkt-panel.active{display:block;}
+
 @media(max-width:768px){
   :root{--sidebar:60px;}
   .sb-label,.sb-sub,.sb-footer{display:none;}
@@ -169,36 +246,45 @@ select.input{cursor:pointer;appearance:none;background-image:url("data:image/svg
   .cal-grid{grid-template-columns:repeat(7,1fr);}
   .cal-day{min-height:50px;padding:4px;}
   .cal-item{font-size:8px;}
+  .kanban-board{flex-direction:column;}
+  .kanban-col{min-width:unset;}
 }
 </style>
 </head>
 <body>
-<div class="app">
+
+<!-- ══ LOGIN ══ -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-box">
+    <img src="/TextTunes%20Marketing.png" alt="TextTunes" onerror="this.style.display='none'"/>
+    <div class="login-title">Text<em>Tunes</em></div>
+    <div style="font-size:12px;color:var(--muted);text-align:center;">Employee Login</div>
+    <input class="login-input" type="password" id="loginPassword" placeholder="Enter password..." onkeydown="if(event.key==='Enter')doLogin()"/>
+    <button class="login-btn" onclick="doLogin()">Sign In</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
+<div class="app" id="appShell" style="display:none;">
   <!-- SIDEBAR -->
   <div class="sidebar">
     <div style="padding:16px 20px 4px;display:flex;align-items:center;gap:10px;">
       <img src="/TextTunes%20Marketing.png" alt="TextTunes" style="width:36px;height:36px;border-radius:8px;"/>
       <div class="sb-logo" style="padding:0;margin:0;">Text<em>Tunes</em></div>
     </div>
-    <div class="sb-sub">Marketing HQ</div>
+    <div class="sb-sub">Business HQ</div>
     <nav class="sb-nav">
-      <div class="sb-item active" onclick="openModule('video')">
-        <span class="sb-icon">🎬</span><span class="sb-label">Video Ad Creator</span><span class="sb-dot"></span>
+      <div class="sb-item active" onclick="openModule('marketing')">
+        <span class="sb-icon">📣</span><span class="sb-label">Marketing</span><span class="sb-dot"></span>
       </div>
-      <div class="sb-item" onclick="openModule('gtm')">
-        <span class="sb-icon">🚀</span><span class="sb-label">GTM Strategy</span><span class="sb-dot"></span>
+      <div class="sb-item" onclick="openModule('development')">
+        <span class="sb-icon">🛠</span><span class="sb-label">Development</span><span class="sb-dot"></span>
       </div>
-      <div class="sb-item" onclick="openModule('personas')">
-        <span class="sb-icon">👥</span><span class="sb-label">Audience Personas</span><span class="sb-dot"></span>
+      <div class="sb-item" onclick="openModule('team')">
+        <span class="sb-icon">👥</span><span class="sb-label">Team</span><span class="sb-dot"></span>
       </div>
-      <div class="sb-item" onclick="openModule('adcopy')">
-        <span class="sb-icon">✍️</span><span class="sb-label">Ad Copy Generator</span><span class="sb-dot"></span>
-      </div>
-      <div class="sb-item" onclick="openModule('calendar')">
-        <span class="sb-icon">📅</span><span class="sb-label">Content Calendar</span><span class="sb-dot"></span>
-      </div>
-      <div class="sb-item" onclick="openModule('kpi')">
-        <span class="sb-icon">📊</span><span class="sb-label">KPI Tracker</span><span class="sb-dot"></span>
+      <div class="sb-item" onclick="openModule('social')">
+        <span class="sb-icon">📱</span><span class="sb-label">Social Media</span><span class="sb-dot"></span>
       </div>
     </nav>
     <div class="sb-footer">
@@ -210,7 +296,7 @@ select.input{cursor:pointer;appearance:none;background-image:url("data:image/svg
   <div class="main" id="mainArea">
 
     <!-- SETTINGS OVERLAY -->
-    <div id="settingsOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;display:none;align-items:center;justify-content:center;">
+    <div id="settingsOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;align-items:center;justify-content:center;">
       <div class="card" style="max-width:420px;width:90%;">
         <div class="card-title"><span class="ct-icon">⚙️</span> API Keys</div>
         <div class="label">Anthropic Key</div>
@@ -225,119 +311,280 @@ select.input{cursor:pointer;appearance:none;background-image:url("data:image/svg
       </div>
     </div>
 
-    <!-- 1. VIDEO AD CREATOR (embedded) -->
-    <div class="panel active" id="panel-video">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-        <div>
-          <div class="page-title" style="margin-bottom:2px;">Video Ad <em>Creator</em></div>
+    <!-- ═══════════════════════ -->
+    <!-- 1. MARKETING            -->
+    <!-- ═══════════════════════ -->
+    <div class="panel active" id="panel-marketing">
+      <div class="page-title">📣 <em>Marketing</em></div>
+      <div class="page-sub">Video ad creation, content strategy, and the road to $50K/month.</div>
+
+      <div class="mkt-tab-bar">
+        <button class="mkt-tab active" onclick="switchMkt('video')">🎬 Video Ad Creator</button>
+        <button class="mkt-tab" onclick="switchMkt('gameplan')">🗺 Game Plan</button>
+        <button class="mkt-tab" onclick="switchMkt('gtm')">🚀 GTM Strategy</button>
+        <button class="mkt-tab" onclick="switchMkt('personas')">👥 Personas</button>
+        <button class="mkt-tab" onclick="switchMkt('adcopy')">✍️ Ad Copy</button>
+        <button class="mkt-tab" onclick="switchMkt('calendar')">📅 Calendar</button>
+        <button class="mkt-tab" onclick="switchMkt('kpi')">📊 KPIs</button>
+      </div>
+
+      <!-- Video Ad Creator -->
+      <div class="mkt-panel active" id="mkt-video">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
           <div style="font-size:13px;color:var(--muted);">Type a scenario, hit AI, and screen-record the result</div>
+          <a href="/index.html" target="_blank" class="btn-outline" style="text-decoration:none;flex-shrink:0;">Open in new tab ↗</a>
         </div>
-        <a href="/index.html" target="_blank" class="btn-outline" style="text-decoration:none;flex-shrink:0;">Open in new tab ↗</a>
-      </div>
-      <div style="border-radius:16px;overflow:hidden;border:1px solid var(--border);height:calc(100vh - 120px);min-height:500px;">
-        <iframe src="/index.html" style="width:100%;height:100%;border:none;background:var(--bg);"></iframe>
-      </div>
-    </div>
-
-    <!-- 2. GTM STRATEGY -->
-    <div class="panel" id="panel-gtm">
-      <div class="page-title">GTM <em>Strategy</em></div>
-      <div class="page-sub">Answer a few questions and get a tailored go-to-market launch plan for TextTunes.</div>
-      <div class="card">
-        <div class="wizard-steps" id="wzSteps">
-          <div class="wz-step current"></div>
-          <div class="wz-step"></div>
-          <div class="wz-step"></div>
-          <div class="wz-step"></div>
+        <div style="border-radius:16px;overflow:hidden;border:1px solid var(--border);height:calc(100vh - 220px);min-height:500px;">
+          <iframe src="/index.html" style="width:100%;height:100%;border:none;background:var(--bg);"></iframe>
         </div>
-        <div class="wizard-content" id="wzContent"></div>
-        <div class="btn-row" id="wzBtns"></div>
       </div>
-      <div id="gtmResult"></div>
-    </div>
 
-    <!-- 3. AUDIENCE PERSONAS -->
-    <div class="panel" id="panel-personas">
-      <div class="page-title">Audience <em>Personas</em></div>
-      <div class="page-sub">Generate detailed user personas for TextTunes based on your target market.</div>
-      <div class="card">
-        <div class="label">Target Market Focus (optional)</div>
-        <input class="input" id="personaFocus" placeholder="e.g. Gen Z college students, young professionals, parents..." style="margin-bottom:16px;"/>
-        <button class="btn-ai" id="personaBtn" onclick="generatePersonas()">✨ Generate Personas</button>
-        <div id="personaStatus" class="status-msg"></div>
-      </div>
-      <div id="personaResults"></div>
-    </div>
-
-    <!-- 4. AD COPY GENERATOR -->
-    <div class="panel" id="panel-adcopy">
-      <div class="page-title">Ad Copy <em>Generator</em></div>
-      <div class="page-sub">Generate scroll-stopping ad copy tailored for each platform.</div>
-      <div class="card">
-        <div class="grid-2" style="margin-bottom:16px;">
-          <div>
-            <div class="label">Platform</div>
-            <select class="input" id="adPlatform">
-              <option value="tiktok">TikTok</option>
-              <option value="instagram">Instagram Reels</option>
-              <option value="youtube">YouTube Shorts</option>
-              <option value="twitter">X / Twitter</option>
-              <option value="linkedin">LinkedIn</option>
-              <option value="reddit">Reddit</option>
-              <option value="all">All Platforms</option>
-            </select>
+      <!-- Game Plan -->
+      <div class="mkt-panel" id="mkt-gameplan">
+        <div class="gameplan">
+          <div class="gameplan-title">1-Year Game Plan to <em>$50K/Month</em></div>
+          <div class="quarter-card">
+            <div class="quarter-header">
+              <span class="quarter-label">Q1 — Foundation (Months 1-3)</span>
+              <span class="quarter-goal">Goal: $2K/mo</span>
+            </div>
+            <ul class="quarter-items">
+              <li><span>Launch MVP</span> — Core text-to-song feature live on App Store</li>
+              <li><span>Content Engine</span> — 3 TikTok/Reels per day using video ad creator</li>
+              <li><span>Viral Seeding</span> — Partner with 10 micro-influencers (10K-50K followers)</li>
+              <li><span>Monetization</span> — Free tier (3 songs/day) + Premium ($4.99/week)</li>
+            </ul>
           </div>
-          <div>
-            <div class="label">Tone</div>
-            <select class="input" id="adTone">
-              <option value="funny">Funny / Viral</option>
-              <option value="professional">Professional</option>
-              <option value="edgy">Edgy / Bold</option>
-              <option value="heartfelt">Heartfelt</option>
-            </select>
+          <div class="quarter-card">
+            <div class="quarter-header">
+              <span class="quarter-label">Q2 — Growth (Months 4-6)</span>
+              <span class="quarter-goal">Goal: $10K/mo</span>
+            </div>
+            <ul class="quarter-items">
+              <li><span>Paid Ads</span> — Scale winning organic content into TikTok + Meta ads</li>
+              <li><span>Referral Program</span> — Invite friends = free premium days</li>
+              <li><span>Feature Drop</span> — Group chat songs, voice cloning, beat maker</li>
+              <li><span>Community</span> — Discord server + user-generated content challenges</li>
+            </ul>
+          </div>
+          <div class="quarter-card">
+            <div class="quarter-header">
+              <span class="quarter-label">Q3 — Scale (Months 7-9)</span>
+              <span class="quarter-goal">Goal: $25K/mo</span>
+            </div>
+            <ul class="quarter-items">
+              <li><span>Android Launch</span> — Expand to Google Play Store</li>
+              <li><span>Creator Partnerships</span> — 50+ influencer deals, UGC campaigns</li>
+              <li><span>Enterprise</span> — Brand partnerships for custom branded songs</li>
+              <li><span>Optimization</span> — A/B test pricing, reduce churn, improve onboarding</li>
+            </ul>
+          </div>
+          <div class="quarter-card">
+            <div class="quarter-header">
+              <span class="quarter-label">Q4 — Dominate (Months 10-12)</span>
+              <span class="quarter-goal">Goal: $50K/mo</span>
+            </div>
+            <ul class="quarter-items">
+              <li><span>International</span> — Localize for Spanish, Portuguese, French markets</li>
+              <li><span>Platform Expansion</span> — iMessage app, Snapchat integration, web app</li>
+              <li><span>AI Upgrade</span> — Real-time voice generation, multi-language songs</li>
+              <li><span>Revenue Mix</span> — Subscriptions + in-app purchases + brand deals</li>
+            </ul>
           </div>
         </div>
-        <div class="label">What are you promoting?</div>
-        <input class="input" id="adTopic" placeholder="e.g. New feature launch, app download, specific scenario..." style="margin-bottom:16px;"/>
-        <button class="btn-ai" id="adCopyBtn" onclick="generateAdCopy()">✨ Generate Ad Copy</button>
-        <div id="adCopyStatus" class="status-msg"></div>
       </div>
-      <div id="adCopyResults"></div>
-    </div>
 
-    <!-- 5. CONTENT CALENDAR -->
-    <div class="panel" id="panel-calendar">
-      <div class="page-title">Content <em>Calendar</em></div>
-      <div class="page-sub">Generate a 30-day content schedule optimized for each platform's best posting times.</div>
-      <div class="card" style="margin-bottom:16px;">
-        <div class="grid-2" style="margin-bottom:16px;">
-          <div>
-            <div class="label">Launch Focus</div>
-            <input class="input" id="calFocus" placeholder="e.g. App launch, viral campaign, holiday push..."/>
+      <!-- GTM Strategy -->
+      <div class="mkt-panel" id="mkt-gtm">
+        <div class="card">
+          <div class="wizard-steps" id="wzSteps">
+            <div class="wz-step current"></div><div class="wz-step"></div><div class="wz-step"></div><div class="wz-step"></div>
           </div>
-          <div>
-            <div class="label">Posts Per Day</div>
-            <select class="input" id="calFreq">
-              <option value="1">1 per day</option>
-              <option value="2" selected>2 per day</option>
-              <option value="3">3 per day</option>
-            </select>
-          </div>
+          <div class="wizard-content" id="wzContent"></div>
+          <div class="btn-row" id="wzBtns"></div>
         </div>
-        <button class="btn-ai" id="calBtn" onclick="generateCalendar()">✨ Generate 30-Day Plan</button>
-        <div id="calStatus" class="status-msg"></div>
+        <div id="gtmResult"></div>
       </div>
-      <div id="calResults"></div>
+
+      <!-- Audience Personas -->
+      <div class="mkt-panel" id="mkt-personas">
+        <div class="card">
+          <div class="label">Target Market Focus (optional)</div>
+          <input class="input" id="personaFocus" placeholder="e.g. Gen Z college students, young professionals, parents..." style="margin-bottom:16px;"/>
+          <button class="btn-ai" id="personaBtn" onclick="generatePersonas()">✨ Generate Personas</button>
+          <div id="personaStatus" class="status-msg"></div>
+        </div>
+        <div id="personaResults"></div>
+      </div>
+
+      <!-- Ad Copy Generator -->
+      <div class="mkt-panel" id="mkt-adcopy">
+        <div class="card">
+          <div class="grid-2" style="margin-bottom:16px;">
+            <div>
+              <div class="label">Platform</div>
+              <select class="input" id="adPlatform">
+                <option value="tiktok">TikTok</option><option value="instagram">Instagram Reels</option>
+                <option value="youtube">YouTube Shorts</option><option value="twitter">X / Twitter</option>
+                <option value="linkedin">LinkedIn</option><option value="reddit">Reddit</option>
+                <option value="all">All Platforms</option>
+              </select>
+            </div>
+            <div>
+              <div class="label">Tone</div>
+              <select class="input" id="adTone">
+                <option value="funny">Funny / Viral</option><option value="professional">Professional</option>
+                <option value="edgy">Edgy / Bold</option><option value="heartfelt">Heartfelt</option>
+              </select>
+            </div>
+          </div>
+          <div class="label">What are you promoting?</div>
+          <input class="input" id="adTopic" placeholder="e.g. New feature launch, app download, specific scenario..." style="margin-bottom:16px;"/>
+          <button class="btn-ai" id="adCopyBtn" onclick="generateAdCopy()">✨ Generate Ad Copy</button>
+          <div id="adCopyStatus" class="status-msg"></div>
+        </div>
+        <div id="adCopyResults"></div>
+      </div>
+
+      <!-- Content Calendar -->
+      <div class="mkt-panel" id="mkt-calendar">
+        <div class="card" style="margin-bottom:16px;">
+          <div class="grid-2" style="margin-bottom:16px;">
+            <div>
+              <div class="label">Launch Focus</div>
+              <input class="input" id="calFocus" placeholder="e.g. App launch, viral campaign, holiday push..."/>
+            </div>
+            <div>
+              <div class="label">Posts Per Day</div>
+              <select class="input" id="calFreq">
+                <option value="1">1 per day</option><option value="2" selected>2 per day</option><option value="3">3 per day</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn-ai" id="calBtn" onclick="generateCalendar()">✨ Generate 30-Day Plan</button>
+          <div id="calStatus" class="status-msg"></div>
+        </div>
+        <div id="calResults"></div>
+      </div>
+
+      <!-- KPI Tracker -->
+      <div class="mkt-panel" id="mkt-kpi">
+        <div class="grid-3" id="kpiGrid"></div>
+        <div style="margin-top:16px;">
+          <button class="btn-outline" onclick="addKPI()">+ Add Metric</button>
+          <button class="btn-outline" onclick="resetKPIs()" style="margin-left:8px;">Reset All</button>
+        </div>
+      </div>
     </div>
 
-    <!-- 6. KPI TRACKER -->
-    <div class="panel" id="panel-kpi">
-      <div class="page-title">KPI <em>Tracker</em></div>
-      <div class="page-sub">Set goals and track your marketing performance across key metrics.</div>
-      <div class="grid-3" id="kpiGrid"></div>
-      <div style="margin-top:16px;">
-        <button class="btn-outline" onclick="addKPI()">+ Add Metric</button>
-        <button class="btn-outline" onclick="resetKPIs()" style="margin-left:8px;">Reset All</button>
+    <!-- ═══════════════════════ -->
+    <!-- 2. DEVELOPMENT          -->
+    <!-- ═══════════════════════ -->
+    <div class="panel" id="panel-development">
+      <div class="page-title">🛠 <em>Development</em></div>
+      <div class="page-sub">Track features, bugs, and your product roadmap.</div>
+      <div class="kanban-board" id="kanbanBoard">
+        <div class="kanban-col" data-col="backlog">
+          <div class="kanban-col-header">
+            <span class="kanban-col-title">Backlog</span>
+            <span class="kanban-count" id="countBacklog">0</span>
+          </div>
+          <div class="kanban-drop-zone" id="dropBacklog"></div>
+          <button class="kanban-add-btn" onclick="kanbanAddCard('backlog')">+ Add Card</button>
+        </div>
+        <div class="kanban-col" data-col="progress">
+          <div class="kanban-col-header">
+            <span class="kanban-col-title">In Progress</span>
+            <span class="kanban-count" id="countProgress">0</span>
+          </div>
+          <div class="kanban-drop-zone" id="dropProgress"></div>
+          <button class="kanban-add-btn" onclick="kanbanAddCard('progress')">+ Add Card</button>
+        </div>
+        <div class="kanban-col" data-col="done">
+          <div class="kanban-col-header">
+            <span class="kanban-col-title">Done</span>
+            <span class="kanban-count" id="countDone">0</span>
+          </div>
+          <div class="kanban-drop-zone" id="dropDone"></div>
+          <button class="kanban-add-btn" onclick="kanbanAddCard('done')">+ Add Card</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════ -->
+    <!-- 3. TEAM                 -->
+    <!-- ═══════════════════════ -->
+    <div class="panel" id="panel-team">
+      <div class="page-title">👥 <em>Team</em></div>
+      <div class="page-sub">Your team directory and communication hub.</div>
+      <div style="margin-bottom:24px;text-align:center;">
+        <a href="https://discord.gg/texttunes" target="_blank" class="discord-btn">
+          <svg width="20" height="16" viewBox="0 0 71 55" fill="white"><path d="M60.1 4.9A58.5 58.5 0 0045.4.2a.2.2 0 00-.2.1 40.7 40.7 0 00-1.8 3.7 54 54 0 00-16.2 0A26.4 26.4 0 0025.4.3a.2.2 0 00-.2-.1A58.4 58.4 0 0010.6 4.9a.2.2 0 00-.1.1C1.5 18.7-.9 32.2.3 45.5v.1a58.7 58.7 0 0017.7 9a.2.2 0 00.3-.1 42 42 0 003.6-5.9.2.2 0 00-.1-.3 38.6 38.6 0 01-5.5-2.6.2.2 0 01.5-.4l1.1.9a42 42 0 0035.8 0l1.1-.9a.2.2 0 01.5.3 36.3 36.3 0 01-5.5 2.6.2.2 0 00-.1.3 47.2 47.2 0 003.6 5.9.2.2 0 00.3.1 58.5 58.5 0 0017.7-9v-.1c1.4-15.2-2.4-28.4-10-40.1a.2.2 0 00-.1-.1zM23.7 37.3c-3.5 0-6.3-3.2-6.3-7.1s2.8-7.1 6.3-7.1 6.4 3.2 6.3 7.1c0 3.9-2.8 7.1-6.3 7.1zm23.3 0c-3.5 0-6.3-3.2-6.3-7.1s2.8-7.1 6.3-7.1 6.4 3.2 6.3 7.1c0 3.9-2.8 7.1-6.3 7.1z"/></svg>
+          Open Discord Chat
+        </a>
+      </div>
+      <div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Team Directory</div>
+      <div class="team-add-form" id="teamAddForm">
+        <input type="text" id="teamNameInput" placeholder="Name..." style="flex:1;min-width:120px;"/>
+        <input type="text" id="teamRoleInput" placeholder="Role..." style="flex:1;min-width:120px;"/>
+        <input type="text" id="teamEmojiInput" placeholder="😎" maxlength="4" style="max-width:60px;text-align:center;"/>
+        <button onclick="teamAddMember()" style="padding:10px 18px;background:linear-gradient(135deg,var(--accent),var(--pink));border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--display);white-space:nowrap;">+ Add</button>
+      </div>
+      <div class="team-grid" id="teamGrid"></div>
+    </div>
+
+    <!-- ═══════════════════════ -->
+    <!-- 4. SOCIAL MEDIA         -->
+    <!-- ═══════════════════════ -->
+    <div class="panel" id="panel-social">
+      <div class="page-title">📱 Social Media <em>Playbooks</em></div>
+      <div class="page-sub">Platform-specific strategies to grow TextTunes everywhere.</div>
+      <div class="social-grid">
+        <!-- TikTok -->
+        <div class="social-card" style="border-left:3px solid #ff0050;">
+          <div class="social-card-header">
+            <span class="social-card-icon">🎵</span>
+            <span class="social-card-name">TikTok</span>
+          </div>
+          <ul class="social-card-strategy">
+            <li>📅 <span style="color:var(--text);font-weight:600;">Posting:</span> 3x daily — morning (8am), lunch (12pm), evening (7pm)</li>
+            <li>🎬 <span style="color:var(--text);font-weight:600;">Format:</span> Text convo screen recordings with song reveal, 15-30 seconds</li>
+            <li>🔥 <span style="color:var(--text);font-weight:600;">Hooks:</span> "POV: your ex texts back and you turn it into a song" / "Watch me turn this argument into a banger"</li>
+            <li>🏷 <span style="color:var(--text);font-weight:600;">Hashtags:</span> #TextTunes #TextToSong #iMessagePrank #FunnyTexts #ViralText</li>
+            <li>🤝 <span style="color:var(--text);font-weight:600;">Collabs:</span> Duet with viral text screenshots, stitch reaction videos</li>
+            <li>📈 <span style="color:var(--text);font-weight:600;">Goal:</span> 100K followers in 90 days, 1M views/week on best content</li>
+          </ul>
+        </div>
+        <!-- Instagram -->
+        <div class="social-card" style="border-left:3px solid #E1306C;">
+          <div class="social-card-header">
+            <span class="social-card-icon">📸</span>
+            <span class="social-card-name">Instagram</span>
+          </div>
+          <ul class="social-card-strategy">
+            <li>📅 <span style="color:var(--text);font-weight:600;">Posting:</span> 2 Reels/day + 3 Stories + 1 carousel per week</li>
+            <li>🎬 <span style="color:var(--text);font-weight:600;">Reels:</span> Same TikTok content repurposed, add captions and cover images</li>
+            <li>📖 <span style="color:var(--text);font-weight:600;">Stories:</span> Behind-the-scenes, polls ("which scenario next?"), user submissions</li>
+            <li>🖼 <span style="color:var(--text);font-weight:600;">Carousels:</span> "5 Funniest Texts Turned Into Songs This Week" — screenshot dumps</li>
+            <li>💬 <span style="color:var(--text);font-weight:600;">Engagement:</span> Reply to every comment in first hour, use question stickers</li>
+            <li>📈 <span style="color:var(--text);font-weight:600;">Goal:</span> 50K followers in 90 days, 10K Reels views average</li>
+          </ul>
+        </div>
+        <!-- Facebook -->
+        <div class="social-card" style="border-left:3px solid #1877F2;">
+          <div class="social-card-header">
+            <span class="social-card-icon">📘</span>
+            <span class="social-card-name">Facebook</span>
+          </div>
+          <ul class="social-card-strategy">
+            <li>📅 <span style="color:var(--text);font-weight:600;">Posting:</span> 1 Reel/day + 2 feed posts per week</li>
+            <li>🎬 <span style="color:var(--text);font-weight:600;">Reels:</span> Repurpose top TikTok content with Facebook-optimized captions</li>
+            <li>👥 <span style="color:var(--text);font-weight:600;">Groups:</span> Share in meme groups, music groups, relationship groups (organic, not spammy)</li>
+            <li>💰 <span style="color:var(--text);font-weight:600;">Ads:</span> Retarget TikTok/IG visitors, lookalike audiences from app installs</li>
+            <li>🎯 <span style="color:var(--text);font-weight:600;">Targeting:</span> 18-34, interests: texting apps, music creation, memes, social media</li>
+            <li>📈 <span style="color:var(--text);font-weight:600;">Goal:</span> $2-3 CPI on paid ads, 5K organic page followers in 90 days</li>
+          </ul>
+        </div>
       </div>
     </div>
 
@@ -346,12 +593,44 @@ select.input{cursor:pointer;appearance:none;background-image:url("data:image/svg
 
 <script>
 /* ══════════════════════════
+   LOGIN
+══════════════════════════ */
+function doLogin(){
+  const pw=document.getElementById('loginPassword').value;
+  if(pw==='texttunes2026'){
+    sessionStorage.setItem('tt_auth','1');
+    document.getElementById('loginOverlay').classList.add('hidden');
+    document.getElementById('appShell').style.display='flex';
+  } else {
+    document.getElementById('loginError').textContent='Incorrect password. Try again.';
+    document.getElementById('loginPassword').value='';
+    document.getElementById('loginPassword').focus();
+  }
+}
+if(sessionStorage.getItem('tt_auth')==='1'){
+  document.getElementById('loginOverlay').classList.add('hidden');
+  document.getElementById('appShell').style.display='flex';
+} else {
+  document.getElementById('loginPassword').focus();
+}
+
+/* ══════════════════════════
    MODULE NAVIGATION
 ══════════════════════════ */
 function openModule(id){
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.sb-item').forEach(s=>s.classList.remove('active'));
   document.getElementById('panel-'+id).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+/* ══════════════════════════
+   MARKETING SUB-TABS
+══════════════════════════ */
+function switchMkt(tab){
+  document.querySelectorAll('.mkt-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.mkt-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('mkt-'+tab).classList.add('active');
   event.currentTarget.classList.add('active');
 }
 
@@ -399,7 +678,7 @@ async function callClaude(prompt){
 function showLoading(el){el.innerHTML='<div class="loading"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div>';}
 
 /* ══════════════════════════
-   2. GTM STRATEGY WIZARD
+   GTM STRATEGY WIZARD
 ══════════════════════════ */
 const wzData={step:0,answers:{}};
 const wzQuestions=[
@@ -431,13 +710,11 @@ const wzQuestions=[
 
 function renderWizard(){
   const s=wzData.step;
-  // steps
   document.querySelectorAll('#wzSteps .wz-step').forEach((el,i)=>{
     el.className='wz-step'+(i<s?' done':'')+(i===s?' current':'');
   });
   const content=document.getElementById('wzContent');
   const btns=document.getElementById('wzBtns');
-
   if(s<wzQuestions.length){
     const wq=wzQuestions[s];
     content.innerHTML=`<div class="label" style="margin-bottom:16px;font-size:13px;color:var(--text);letter-spacing:0;text-transform:none;">${wq.q}</div>
@@ -449,7 +726,6 @@ function renderWizard(){
       <button class="btn-ai" onclick="wzNext()" ${wzData.answers[s]===undefined?'disabled':''}>Next →</button>`;
   }
 }
-
 function wzSelect(step,idx){
   wzData.answers[step]=idx;
   document.querySelectorAll('.wz-option').forEach((o,i)=>o.classList.toggle('selected',i===idx));
@@ -466,31 +742,11 @@ function wzBack(){wzData.step=Math.max(0,wzData.step-1);renderWizard();}
 async function generateGTM(){
   const content=document.getElementById('wzContent');
   const btns=document.getElementById('wzBtns');
-  showLoading(content);
-  btns.innerHTML='';
+  showLoading(content);btns.innerHTML='';
   document.querySelectorAll('#wzSteps .wz-step').forEach(el=>el.className='wz-step done');
-
   const answers=Object.entries(wzData.answers).map(([i,a])=>`${wzQuestions[i].q} → ${wzQuestions[i].opts[a].text}`).join('\n');
-
   try{
-    const text=await callClaude(`You are a marketing strategist for TextTunes, a mobile app that turns text conversations into short funny songs using AI.
-
-Based on these answers:
-${answers}
-
-Generate a detailed 30-day go-to-market launch plan. Structure it as:
-1. WEEK 1 (Days 1-7): Title — 3-4 specific action items
-2. WEEK 2 (Days 8-14): Title — 3-4 specific action items
-3. WEEK 3 (Days 15-21): Title — 3-4 specific action items
-4. WEEK 4 (Days 22-30): Title — 3-4 specific action items
-
-Then add:
-- TOP 3 CHANNELS to focus on (with why)
-- KEY METRICS to track
-- ONE BIG BET — the single highest-impact thing to do
-
-Be specific to TextTunes. No generic advice. Use plain text, no markdown formatting.`);
-
+    const text=await callClaude(`You are a marketing strategist for TextTunes, a mobile app that turns text conversations into short funny songs using AI.\n\nBased on these answers:\n${answers}\n\nGenerate a detailed 30-day go-to-market launch plan. Structure it as:\n1. WEEK 1 (Days 1-7): Title — 3-4 specific action items\n2. WEEK 2 (Days 8-14): Title — 3-4 specific action items\n3. WEEK 3 (Days 15-21): Title — 3-4 specific action items\n4. WEEK 4 (Days 22-30): Title — 3-4 specific action items\n\nThen add:\n- TOP 3 CHANNELS to focus on (with why)\n- KEY METRICS to track\n- ONE BIG BET — the single highest-impact thing to do\n\nBe specific to TextTunes. No generic advice. Use plain text, no markdown formatting.`);
     content.innerHTML='';
     document.getElementById('gtmResult').innerHTML=`<div class="card"><div class="card-title"><span class="ct-icon">📋</span> Your GTM Plan</div><div style="font-size:13px;color:var(--text2);line-height:1.8;white-space:pre-wrap;">${text}</div></div>`;
     btns.innerHTML='<button class="btn-outline" onclick="wzData.step=0;wzData.answers={};document.getElementById(\'gtmResult\').innerHTML=\'\';renderWizard();">Start Over</button>';
@@ -501,7 +757,7 @@ Be specific to TextTunes. No generic advice. Use plain text, no markdown formatt
 }
 
 /* ══════════════════════════
-   3. AUDIENCE PERSONAS
+   AUDIENCE PERSONAS
 ══════════════════════════ */
 async function generatePersonas(){
   const focus=document.getElementById('personaFocus').value.trim();
@@ -510,30 +766,10 @@ async function generatePersonas(){
   const results=document.getElementById('personaResults');
   btn.disabled=true;
   status.textContent='Generating personas...';status.style.color='var(--accent)';
-
   try{
-    const text=await callClaude(`You are a marketing researcher for TextTunes, a mobile app that turns text conversations into short funny AI-generated songs.
-
-Generate exactly 3 detailed user personas${focus?' focused on: '+focus:''}.
-
-For each persona, provide:
-- NAME and emoji (a fictional but realistic name)
-- AGE, LOCATION, OCCUPATION
-- WHY THEY USE TEXTTUNES (2-3 sentences, be specific)
-- HOW THEY DISCOVER IT (the exact channel/moment)
-- FAVORITE FEATURE (what hooks them)
-- POSTING BEHAVIOR (how they share content)
-- PAIN POINT TEXTTUNES SOLVES
-
-Return as JSON array with keys: name, emoji, age, location, occupation, why, discovery, feature, posting, painPoint
-No markdown. Raw JSON only.`);
-
+    const text=await callClaude(`You are a marketing researcher for TextTunes, a mobile app that turns text conversations into short funny AI-generated songs.\n\nGenerate exactly 3 detailed user personas${focus?' focused on: '+focus:''}.\n\nFor each persona, provide:\n- NAME and emoji\n- AGE, LOCATION, OCCUPATION\n- WHY THEY USE TEXTTUNES\n- HOW THEY DISCOVER IT\n- FAVORITE FEATURE\n- POSTING BEHAVIOR\n- PAIN POINT TEXTTUNES SOLVES\n\nReturn as JSON array with keys: name, emoji, age, location, occupation, why, discovery, feature, posting, painPoint\nNo markdown. Raw JSON only.`);
     let personas;
-    try{personas=JSON.parse(text);}catch{
-      const m=text.match(/\[[\s\S]*\]/);
-      if(m)personas=JSON.parse(m[0]);else throw new Error('Bad response');
-    }
-
+    try{personas=JSON.parse(text);}catch{const m=text.match(/\[[\s\S]*\]/);if(m)personas=JSON.parse(m[0]);else throw new Error('Bad response');}
     results.innerHTML=personas.map(p=>`<div class="card"><div class="persona">
       <div class="persona-name">${p.emoji} ${p.name}</div>
       <div class="persona-demo">${p.age} · ${p.location} · ${p.occupation}</div>
@@ -546,14 +782,12 @@ No markdown. Raw JSON only.`);
       </div>
     </div></div>`).join('');
     status.textContent='';
-  }catch(e){
-    status.textContent='Error: '+e.message;status.style.color='var(--red)';
-  }
+  }catch(e){status.textContent='Error: '+e.message;status.style.color='var(--red)';}
   btn.disabled=false;
 }
 
 /* ══════════════════════════
-   4. AD COPY GENERATOR
+   AD COPY GENERATOR
 ══════════════════════════ */
 async function generateAdCopy(){
   const platform=document.getElementById('adPlatform').value;
@@ -564,32 +798,11 @@ async function generateAdCopy(){
   const results=document.getElementById('adCopyResults');
   btn.disabled=true;
   status.textContent='Writing ad copy...';status.style.color='var(--accent)';
-
   const platNames={tiktok:'TikTok',instagram:'Instagram Reels',youtube:'YouTube Shorts',twitter:'X / Twitter',linkedin:'LinkedIn',reddit:'Reddit',all:'TikTok, Instagram, YouTube Shorts, X/Twitter, LinkedIn, and Reddit'};
-
   try{
-    const text=await callClaude(`You are an elite social media copywriter for TextTunes, a mobile app that turns text conversations into short funny AI-generated songs.
-
-Write ad copy for: ${platNames[platform]}
-Tone: ${tone}
-Promoting: ${topic}
-
-${platform==='all'?'Generate one post per platform (6 total).':'Generate 3 variations.'}
-
-For each, include:
-- The platform name
-- The caption/post text (with line breaks where natural)
-- 5-8 relevant hashtags
-
-Return as JSON array: [{platform, caption, hashtags}]
-No markdown. Raw JSON only. Make the copy feel native to each platform. No apostrophes.`);
-
+    const text=await callClaude(`You are an elite social media copywriter for TextTunes, a mobile app that turns text conversations into short funny AI-generated songs.\n\nWrite ad copy for: ${platNames[platform]}\nTone: ${tone}\nPromoting: ${topic}\n\n${platform==='all'?'Generate one post per platform (6 total).':'Generate 3 variations.'}\n\nFor each, include:\n- The platform name\n- The caption/post text\n- 5-8 relevant hashtags\n\nReturn as JSON array: [{platform, caption, hashtags}]\nNo markdown. Raw JSON only. No apostrophes.`);
     let copies;
-    try{copies=JSON.parse(text);}catch{
-      const m=text.match(/\[[\s\S]*\]/);
-      if(m)copies=JSON.parse(m[0]);else throw new Error('Bad response');
-    }
-
+    try{copies=JSON.parse(text);}catch{const m=text.match(/\[[\s\S]*\]/);if(m)copies=JSON.parse(m[0]);else throw new Error('Bad response');}
     results.innerHTML=copies.map(c=>`<div class="ad-output">
       <div class="ad-platform">${getPlatIcon(c.platform)} ${c.platform}</div>
       <div class="ad-text">${c.caption}</div>
@@ -597,19 +810,15 @@ No markdown. Raw JSON only. Make the copy feel native to each platform. No apost
       <button class="copy-btn" onclick="copyText(this,\`${(c.caption+'\n\n'+(c.hashtags||[]).map(h=>'#'+h.replace(/^#/,'')).join(' ')).replace(/`/g,'').replace(/\\/g,'\\\\')}\`)">Copy</button>
     </div>`).join('');
     status.textContent='';
-  }catch(e){
-    status.textContent='Error: '+e.message;status.style.color='var(--red)';
-  }
+  }catch(e){status.textContent='Error: '+e.message;status.style.color='var(--red)';}
   btn.disabled=false;
 }
-
 function getPlatIcon(name){
   const n=(name||'').toLowerCase();
   if(n.includes('tiktok'))return'🎵';if(n.includes('instagram'))return'📸';
   if(n.includes('youtube'))return'▶️';if(n.includes('twitter')||n.includes('x '))return'𝕏';
   if(n.includes('linkedin'))return'💼';if(n.includes('reddit'))return'🤖';return'📱';
 }
-
 function copyText(btn,text){
   navigator.clipboard.writeText(text).then(()=>{
     btn.textContent='✓ Copied!';setTimeout(()=>btn.textContent='Copy',1500);
@@ -617,7 +826,7 @@ function copyText(btn,text){
 }
 
 /* ══════════════════════════
-   5. CONTENT CALENDAR
+   CONTENT CALENDAR
 ══════════════════════════ */
 async function generateCalendar(){
   const focus=document.getElementById('calFocus').value.trim()||'TextTunes viral launch campaign';
@@ -627,64 +836,29 @@ async function generateCalendar(){
   const results=document.getElementById('calResults');
   btn.disabled=true;
   status.textContent='Building your 30-day calendar...';status.style.color='var(--accent)';
-
   try{
-    const text=await callClaude(`You are a content strategist for TextTunes, a mobile app that turns text conversations into short funny AI-generated songs.
-
-Generate a 30-day content calendar.
-Focus: ${focus}
-Frequency: ${freq} posts per day
-
-For each day (1-30), provide ${freq} post(s). Each post needs:
-- day (number 1-30)
-- platform (one of: TikTok, Instagram, YouTube, Twitter, LinkedIn, Reddit)
-- type (e.g. "Video ad", "Meme", "Story", "Thread", "Behind-the-scenes")
-- description (1 short sentence, max 60 chars)
-
-Vary the platforms across the month. Prioritize TikTok early, expand later.
-
-Return as JSON array: [{day, platform, type, description}]
-No markdown. Raw JSON only.`);
-
+    const text=await callClaude(`You are a content strategist for TextTunes, a mobile app that turns text conversations into short funny AI-generated songs.\n\nGenerate a 30-day content calendar.\nFocus: ${focus}\nFrequency: ${freq} posts per day\n\nFor each day (1-30), provide ${freq} post(s). Each post needs:\n- day (number 1-30)\n- platform (one of: TikTok, Instagram, YouTube, Twitter, LinkedIn, Reddit)\n- type (e.g. "Video ad", "Meme", "Story", "Thread", "Behind-the-scenes")\n- description (1 short sentence, max 60 chars)\n\nVary the platforms. Prioritize TikTok early, expand later.\n\nReturn as JSON array: [{day, platform, type, description}]\nNo markdown. Raw JSON only.`);
     let items;
-    try{items=JSON.parse(text);}catch{
-      const m=text.match(/\[[\s\S]*\]/);
-      if(m)items=JSON.parse(m[0]);else throw new Error('Bad response');
-    }
-
-    // Build calendar grid
-    const today=new Date();
-    const startDate=new Date(today.getFullYear(),today.getMonth(),today.getDate());
+    try{items=JSON.parse(text);}catch{const m=text.match(/\[[\s\S]*\]/);if(m)items=JSON.parse(m[0]);else throw new Error('Bad response');}
+    const today=new Date();const startDate=new Date(today.getFullYear(),today.getMonth(),today.getDate());
     const dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-
     let html='<div class="card" style="padding:16px;overflow-x:auto;"><div class="cal-grid">';
     dayNames.forEach(d=>{html+=`<div class="cal-header">${d}</div>`;});
-
-    // pad start
     const startDay=startDate.getDay();
     for(let i=0;i<startDay;i++)html+='<div></div>';
-
     for(let d=1;d<=30;d++){
       const dayItems=items.filter(it=>it.day===d);
       const date=new Date(startDate);date.setDate(date.getDate()+d-1);
       const platClass=p=>{const n=(p||'').toLowerCase();if(n.includes('tiktok'))return'tiktok';if(n.includes('instagram'))return'instagram';if(n.includes('youtube'))return'youtube';if(n.includes('twitter'))return'twitter';if(n.includes('linkedin'))return'linkedin';if(n.includes('reddit'))return'reddit';return'';};
-
-      html+=`<div class="cal-day">
-        <div class="cal-day-num">${date.getMonth()+1}/${date.getDate()}</div>
-        ${dayItems.map(it=>`<div class="cal-item ${platClass(it.platform)}" title="${it.platform}: ${it.type} — ${it.description}">${it.type}</div>`).join('')}
-      </div>`;
+      html+=`<div class="cal-day"><div class="cal-day-num">${date.getMonth()+1}/${date.getDate()}</div>${dayItems.map(it=>`<div class="cal-item ${platClass(it.platform)}" title="${it.platform}: ${it.type} — ${it.description}">${it.type}</div>`).join('')}</div>`;
     }
-    html+='</div></div>';
-    results.innerHTML=html;
-    status.textContent='';
-  }catch(e){
-    status.textContent='Error: '+e.message;status.style.color='var(--red)';
-  }
+    html+='</div></div>';results.innerHTML=html;status.textContent='';
+  }catch(e){status.textContent='Error: '+e.message;status.style.color='var(--red)';}
   btn.disabled=false;
 }
 
 /* ══════════════════════════
-   6. KPI TRACKER
+   KPI TRACKER
 ══════════════════════════ */
 const defaultKPIs=[
   {id:'downloads',label:'App Downloads',goal:10000,current:0,color:'var(--accent)'},
@@ -694,16 +868,10 @@ const defaultKPIs=[
   {id:'songs_created',label:'Songs Created',goal:5000,current:0,color:'var(--blue)'},
   {id:'viral_videos',label:'Viral Videos (10K+)',goal:10,current:0,color:'var(--cyan)'},
 ];
-
-function loadKPIs(){
-  const saved=localStorage.getItem('tt_kpis');
-  return saved?JSON.parse(saved):defaultKPIs;
-}
+function loadKPIs(){const saved=localStorage.getItem('tt_kpis');return saved?JSON.parse(saved):defaultKPIs;}
 function saveKPIData(kpis){localStorage.setItem('tt_kpis',JSON.stringify(kpis));}
-
 function renderKPIs(){
-  const kpis=loadKPIs();
-  const grid=document.getElementById('kpiGrid');
+  const kpis=loadKPIs();const grid=document.getElementById('kpiGrid');
   grid.innerHTML=kpis.map((k,i)=>{
     const pct=k.goal>0?Math.min(Math.round((k.current/k.goal)*100),100):0;
     return`<div class="kpi-card">
@@ -719,43 +887,109 @@ function renderKPIs(){
     </div>`;
   }).join('');
 }
+function updateKPI(idx){const kpis=loadKPIs();kpis[idx].current=Number(document.getElementById('kpi-val-'+idx).value)||0;kpis[idx].goal=Number(document.getElementById('kpi-goal-'+idx).value)||1;saveKPIData(kpis);renderKPIs();}
+function addKPI(){const kpis=loadKPIs();const name=prompt('Metric name:');if(!name)return;const goal=Number(prompt('Goal:'))||100;const colors=['var(--accent)','var(--pink)','var(--green)','var(--amber)','var(--blue)','var(--cyan)','var(--red)'];kpis.push({id:'custom_'+Date.now(),label:name,goal,current:0,color:colors[kpis.length%colors.length]});saveKPIData(kpis);renderKPIs();}
+function resetKPIs(){if(!confirm('Reset all KPIs to defaults?'))return;localStorage.removeItem('tt_kpis');renderKPIs();}
+function formatNum(n){if(n>=1000000)return(n/1000000).toFixed(1)+'M';if(n>=1000)return(n/1000).toFixed(1)+'K';return n.toString();}
 
-function updateKPI(idx){
-  const kpis=loadKPIs();
-  kpis[idx].current=Number(document.getElementById('kpi-val-'+idx).value)||0;
-  kpis[idx].goal=Number(document.getElementById('kpi-goal-'+idx).value)||1;
-  saveKPIData(kpis);
-  renderKPIs();
+/* ══════════════════════════
+   KANBAN BOARD
+══════════════════════════ */
+const defaultKanban={
+  backlog:[
+    {title:'Push Notifications',desc:'Send alerts for new song shares',tag:'feature',tagColor:'rgba(124,58,237,.2)',tagText:'var(--accent)'},
+    {title:'Song Sharing to Stories',desc:'One-tap share to IG/TikTok stories',tag:'feature',tagColor:'rgba(124,58,237,.2)',tagText:'var(--accent)'},
+    {title:'Android Beta',desc:'Start Android development branch',tag:'platform',tagColor:'rgba(0,229,255,.15)',tagText:'var(--cyan)'}
+  ],
+  progress:[
+    {title:'Voice Cloning V2',desc:'Improve quality of cloned voices',tag:'ai',tagColor:'rgba(155,111,255,.2)',tagText:'var(--pink)'},
+    {title:'Fix Audio Sync Bug',desc:'Song and text animation out of sync on some devices',tag:'bug',tagColor:'rgba(255,69,58,.15)',tagText:'var(--red)'}
+  ],
+  done:[
+    {title:'App Store Launch',desc:'Successfully published on iOS App Store',tag:'milestone',tagColor:'rgba(0,255,136,.12)',tagText:'var(--green)'},
+    {title:'Text-to-Song Core',desc:'AI generates songs from text conversations',tag:'feature',tagColor:'rgba(124,58,237,.2)',tagText:'var(--accent)'}
+  ]
+};
+function kanbanLoad(){const s=localStorage.getItem('tt_kanban');return s?JSON.parse(s):{...defaultKanban};}
+function kanbanSave(data){localStorage.setItem('tt_kanban',JSON.stringify(data));}
+let dragCol=null,dragIdx=null;
+
+function kanbanRender(){
+  const data=kanbanLoad();
+  ['backlog','progress','done'].forEach(col=>{
+    const zone=document.getElementById('drop'+col.charAt(0).toUpperCase()+col.slice(1));
+    const count=document.getElementById('count'+col.charAt(0).toUpperCase()+col.slice(1));
+    const cards=data[col]||[];
+    count.textContent=cards.length;
+    zone.innerHTML='';
+    cards.forEach((c,i)=>{
+      const el=document.createElement('div');
+      el.className='kanban-card';
+      el.draggable=true;
+      el.innerHTML=`<div class="kanban-card-title">${c.title}</div><div class="kanban-card-desc">${c.desc}</div>${c.tag?`<span class="kanban-card-tag" style="background:${c.tagColor};color:${c.tagText};">${c.tag}</span>`:''}<button class="kanban-card-del" onclick="kanbanDeleteCard('${col}',${i})">✕</button>`;
+      el.addEventListener('dragstart',()=>{dragCol=col;dragIdx=i;el.classList.add('dragging');});
+      el.addEventListener('dragend',()=>{el.classList.remove('dragging');dragCol=null;dragIdx=null;});
+      zone.appendChild(el);
+    });
+    // Drop zone events
+    zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('over');});
+    zone.addEventListener('dragleave',()=>{zone.classList.remove('over');});
+    zone.addEventListener('drop',e=>{
+      e.preventDefault();zone.classList.remove('over');
+      if(dragCol===null||dragIdx===null)return;
+      const data2=kanbanLoad();
+      const card=data2[dragCol].splice(dragIdx,1)[0];
+      data2[col].push(card);
+      kanbanSave(data2);kanbanRender();
+    });
+  });
+}
+function kanbanAddCard(col){
+  const title=prompt('Card title:');if(!title)return;
+  const desc=prompt('Description (optional):')||'';
+  const data=kanbanLoad();
+  data[col].push({title,desc,tag:'',tagColor:'',tagText:''});
+  kanbanSave(data);kanbanRender();
+}
+function kanbanDeleteCard(col,idx){
+  const data=kanbanLoad();data[col].splice(idx,1);kanbanSave(data);kanbanRender();
 }
 
-function addKPI(){
-  const kpis=loadKPIs();
-  const name=prompt('Metric name:');
-  if(!name)return;
-  const goal=Number(prompt('Goal:'))||100;
-  const colors=['var(--accent)','var(--pink)','var(--green)','var(--amber)','var(--blue)','var(--cyan)','var(--red)'];
-  kpis.push({id:'custom_'+Date.now(),label:name,goal,current:0,color:colors[kpis.length%colors.length]});
-  saveKPIData(kpis);
-  renderKPIs();
+/* ══════════════════════════
+   TEAM DIRECTORY
+══════════════════════════ */
+const defaultTeam=[{name:'Drew',role:'Founder & CEO',emoji:'👨‍💻'}];
+function teamLoad(){const s=localStorage.getItem('tt_team');return s?JSON.parse(s):[...defaultTeam];}
+function teamSave(data){localStorage.setItem('tt_team',JSON.stringify(data));}
+function teamRender(){
+  const team=teamLoad();
+  document.getElementById('teamGrid').innerHTML=team.map((m,i)=>`<div class="team-card">
+    <div class="team-card-emoji">${m.emoji}</div>
+    <div class="team-card-name">${m.name}</div>
+    <div class="team-card-role">${m.role}</div>
+    <button class="team-card-del" onclick="teamRemove(${i})">✕</button>
+  </div>`).join('');
 }
-
-function resetKPIs(){
-  if(!confirm('Reset all KPIs to defaults?'))return;
-  localStorage.removeItem('tt_kpis');
-  renderKPIs();
+function teamAddMember(){
+  const name=document.getElementById('teamNameInput').value.trim();
+  const role=document.getElementById('teamRoleInput').value.trim();
+  const emoji=document.getElementById('teamEmojiInput').value.trim()||'😎';
+  if(!name){alert('Name is required');return;}
+  const team=teamLoad();team.push({name,role:role||'Team Member',emoji});
+  teamSave(team);teamRender();
+  document.getElementById('teamNameInput').value='';
+  document.getElementById('teamRoleInput').value='';
+  document.getElementById('teamEmojiInput').value='';
 }
-
-function formatNum(n){
-  if(n>=1000000)return(n/1000000).toFixed(1)+'M';
-  if(n>=1000)return(n/1000).toFixed(1)+'K';
-  return n.toString();
-}
+function teamRemove(idx){const team=teamLoad();team.splice(idx,1);teamSave(team);teamRender();}
 
 /* ══════════════════════════
    INIT
 ══════════════════════════ */
 renderWizard();
 renderKPIs();
+kanbanRender();
+teamRender();
 </script>
 </body>
 </html>
