@@ -84,18 +84,15 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60p
 .row.me{justify-content:flex-end;}
 .row.them{justify-content:flex-start;}
 .row.vis{opacity:1;transform:none;}
-.bub{max-width:210px;padding:8px 12px;border-radius:17px;font-size:14px;line-height:1.38;word-break:break-word;}
+.bub{max-width:210px;padding:8px 12px;border-radius:17px;font-size:14px;line-height:1.38;word-break:break-word;white-space:pre-wrap;}
 .row.them .bub{background:#3a3a3c;color:#fff;border-bottom-left-radius:5px;}
 .row.me .bub{background:#0a84ff;color:#fff;border-bottom-right-radius:5px;}
 @keyframes bPop{0%{transform:scale(.82);opacity:0}60%{transform:scale(1.04)}100%{transform:scale(1);opacity:1}}
 .bpop{animation:bPop .22s ease forwards;}
-.no-anim .bpop{animation:none!important;transform:scale(1)!important;opacity:1!important;}
-.no-anim .row{transition:none!important;}
+/* During recording: only kill the bubble pop scale animation, keep player/progress/bars alive */
+.no-anim .bpop{animation:none!important;transform:none!important;opacity:1!important;}
+.no-anim .row{transition:opacity .15s!important;}
 .no-anim .row.vis{transform:none!important;opacity:1!important;}
-.no-anim .receipt{transition:none!important;}
-.no-anim .tapback{transition:none!important;}
-.no-anim .player{transition:none!important;}
-.no-anim .file-row{transition:none!important;}
 .receipt{font-size:10px;color:#8e8e93;text-align:right;padding-right:3px;margin-top:1px;margin-bottom:3px;opacity:0;transition:opacity .4s .3s;}
 .receipt.vis{opacity:1;}
 
@@ -144,7 +141,7 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60p
 .input-bar{padding:6px 8px 20px;background:#000;border-top:.5px solid rgba(255,255,255,.1);display:flex;align-items:center;gap:7px;flex-shrink:0;}
 .input-plus{width:28px;height:28px;background:#3a3a3c;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:17px;font-weight:300;}
 .input-wrap{flex:1;position:relative;display:flex;align-items:center;}
-.input-field{flex:1;background:#1c1c1e;border-radius:19px;border:1px solid #3a3a3c;padding:7px 30px 7px 11px;color:#8e8e93;font-size:14px;min-height:32px;display:flex;align-items:center;font-family:var(--font);}
+.input-field{flex:1;background:#1c1c1e;border-radius:19px;border:1px solid #3a3a3c;padding:7px 30px 7px 11px;color:#8e8e93;font-size:14px;min-height:32px;display:flex;align-items:center;font-family:var(--font);white-space:pre-wrap;}
 .input-mic{position:absolute;right:9px;display:flex;align-items:center;pointer-events:none;transition:opacity .15s;}
 .input-send{width:26px;height:26px;background:#0a84ff;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;position:absolute;right:3px;transform:scale(0);transition:transform .2s cubic-bezier(.34,1.56,.64,1);}
 .input-send.vis{transform:scale(1);}
