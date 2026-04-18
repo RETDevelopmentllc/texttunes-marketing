@@ -50,7 +50,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .sb-item.active .sb-dot{opacity:1;}
 .sb-icon{font-size:18px;width:24px;text-align:center;flex-shrink:0;}
 .sb-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);margin-left:auto;opacity:0;transition:opacity .15s;}
-.sb-section-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;padding:16px 14px 6px;margin-top:4px;}
 .sb-sub-item{
   display:flex;align-items:center;gap:10px;padding:8px 14px 8px 26px;
   border-radius:8px;cursor:pointer;transition:all .15s;
@@ -287,27 +286,22 @@ select.input{cursor:pointer;appearance:none;background-image:url("data:image/svg
         <span class="sb-icon">👥</span><span class="sb-label">Team</span><span class="sb-dot"></span>
       </div>
 
-      <div class="sb-section-label">📣 Marketing</div>
-      <div class="sb-sub-item" onclick="openModule('mkt-video')">
-        <span class="sb-sub-icon">🎬</span><span class="sb-label">Video Ad Creator</span>
+      <div class="sb-item" onclick="toggleMktMenu()">
+        <span class="sb-icon">📣</span><span class="sb-label">Marketing</span><span class="sb-chevron" id="mktChevron" style="margin-left:auto;font-size:10px;color:var(--muted);transition:transform .2s;">▸</span>
       </div>
-      <div class="sb-sub-item" onclick="openModule('mkt-gameplan')">
-        <span class="sb-sub-icon">🗺</span><span class="sb-label">Game Plan</span>
-      </div>
-      <div class="sb-sub-item" onclick="openModule('mkt-gtm')">
-        <span class="sb-sub-icon">🚀</span><span class="sb-label">GTM Strategy</span>
-      </div>
-      <div class="sb-sub-item" onclick="openModule('mkt-personas')">
-        <span class="sb-sub-icon">👥</span><span class="sb-label">Personas</span>
-      </div>
-      <div class="sb-sub-item" onclick="openModule('mkt-adcopy')">
-        <span class="sb-sub-icon">✍️</span><span class="sb-label">Ad Copy</span>
-      </div>
-      <div class="sb-sub-item" onclick="openModule('mkt-calendar')">
-        <span class="sb-sub-icon">📅</span><span class="sb-label">Calendar</span>
-      </div>
-      <div class="sb-sub-item" onclick="openModule('mkt-kpi')">
-        <span class="sb-sub-icon">📊</span><span class="sb-label">KPIs</span>
+      <div id="mktSubMenu" style="display:none;flex-direction:column;gap:2px;">
+        <div class="sb-sub-item" onclick="openModule('mkt-video')">
+          <span class="sb-sub-icon">🎬</span><span class="sb-label">Video Ad Creator</span>
+        </div>
+        <div class="sb-sub-item" onclick="openModule('mkt-gameplan')">
+          <span class="sb-sub-icon">🗺</span><span class="sb-label">Game Plan</span>
+        </div>
+        <div class="sb-sub-item" onclick="openModule('mkt-calendar')">
+          <span class="sb-sub-icon">📅</span><span class="sb-label">Calendar</span>
+        </div>
+        <div class="sb-sub-item" onclick="openModule('mkt-kpi')">
+          <span class="sb-sub-icon">📊</span><span class="sb-label">KPIs</span>
+        </div>
       </div>
 
       <div class="sb-item" onclick="openModule('development')" style="margin-top:8px;">
@@ -365,64 +359,6 @@ select.input{cursor:pointer;appearance:none;background-image:url("data:image/svg
         <div class="es-icon">🗺</div>
         Coming soon — your custom game plan builder.
       </div>
-    </div>
-
-    <!-- GTM Strategy -->
-    <div class="panel" id="panel-mkt-gtm">
-      <div class="page-title">🚀 <em>GTM Strategy</em></div>
-      <div class="page-sub">AI-powered go-to-market plan builder.</div>
-      <div class="card">
-        <div class="wizard-steps" id="wzSteps">
-          <div class="wz-step current"></div><div class="wz-step"></div><div class="wz-step"></div><div class="wz-step"></div>
-        </div>
-        <div class="wizard-content" id="wzContent"></div>
-        <div class="btn-row" id="wzBtns"></div>
-      </div>
-      <div id="gtmResult"></div>
-    </div>
-
-    <!-- Personas -->
-    <div class="panel" id="panel-mkt-personas">
-      <div class="page-title">👥 <em>Personas</em></div>
-      <div class="page-sub">AI-generated audience personas for targeting.</div>
-      <div class="card">
-        <div class="label">Target Market Focus (optional)</div>
-        <input class="input" id="personaFocus" placeholder="e.g. Gen Z college students, young professionals, parents..." style="margin-bottom:16px;"/>
-        <button class="btn-ai" id="personaBtn" onclick="generatePersonas()">✨ Generate Personas</button>
-        <div id="personaStatus" class="status-msg"></div>
-      </div>
-      <div id="personaResults"></div>
-    </div>
-
-    <!-- Ad Copy -->
-    <div class="panel" id="panel-mkt-adcopy">
-      <div class="page-title">✍️ <em>Ad Copy</em></div>
-      <div class="page-sub">Generate platform-specific ad copy with AI.</div>
-      <div class="card">
-        <div class="grid-2" style="margin-bottom:16px;">
-          <div>
-            <div class="label">Platform</div>
-            <select class="input" id="adPlatform">
-              <option value="tiktok">TikTok</option><option value="instagram">Instagram Reels</option>
-              <option value="youtube">YouTube Shorts</option><option value="twitter">X / Twitter</option>
-              <option value="linkedin">LinkedIn</option><option value="reddit">Reddit</option>
-              <option value="all">All Platforms</option>
-            </select>
-          </div>
-          <div>
-            <div class="label">Tone</div>
-            <select class="input" id="adTone">
-              <option value="funny">Funny / Viral</option><option value="professional">Professional</option>
-              <option value="edgy">Edgy / Bold</option><option value="heartfelt">Heartfelt</option>
-            </select>
-          </div>
-        </div>
-        <div class="label">What are you promoting?</div>
-        <input class="input" id="adTopic" placeholder="e.g. New feature launch, app download, specific scenario..." style="margin-bottom:16px;"/>
-        <button class="btn-ai" id="adCopyBtn" onclick="generateAdCopy()">✨ Generate Ad Copy</button>
-        <div id="adCopyStatus" class="status-msg"></div>
-      </div>
-      <div id="adCopyResults"></div>
     </div>
 
     <!-- Calendar -->
@@ -611,6 +547,18 @@ function openModule(id){
   document.querySelectorAll('.sb-item,.sb-sub-item').forEach(s=>s.classList.remove('active'));
   document.getElementById('panel-'+id).classList.add('active');
   event.currentTarget.classList.add('active');
+  // Auto-expand marketing submenu when opening a marketing subpage
+  if(id.startsWith('mkt-')){
+    document.getElementById('mktSubMenu').style.display='flex';
+    document.getElementById('mktChevron').style.transform='rotate(90deg)';
+  }
+}
+function toggleMktMenu(){
+  const menu=document.getElementById('mktSubMenu');
+  const chev=document.getElementById('mktChevron');
+  const open=menu.style.display==='flex';
+  menu.style.display=open?'none':'flex';
+  chev.style.transform=open?'rotate(0deg)':'rotate(90deg)';
 }
 
 /* ══════════════════════════
@@ -965,7 +913,6 @@ function teamRemove(idx){const team=teamLoad();team.splice(idx,1);teamSave(team)
 /* ══════════════════════════
    INIT
 ══════════════════════════ */
-renderWizard();
 renderKPIs();
 kanbanRender();
 teamRender();
