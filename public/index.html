@@ -2315,7 +2315,21 @@ async function cbRecordAd(){
   rec.stop();
   await donePromise;
 
-  cbShowVideoPlayer();
+  // Send to Download tab instead of showing inline player
+  if(cbVideoUrl)URL.revokeObjectURL(cbVideoUrl);
+  cbVideoUrl=URL.createObjectURL(cbVideoBlob);
+  window._lastVideoBlob=cbVideoBlob;
+  window._lastVideoName=`TextTunes_${(currentAd?.songTitle||'Ad').replace(/[^a-zA-Z0-9]/g,'_')}.${cbVideoBlob.type.includes('mp4')?'mp4':'webm'}`;
+  window._lastVideoUrl=cbVideoUrl;
+  updateDownloadTab(cbVideoUrl,window._lastVideoName);
+  // Also add to history
+  const historyId=Date.now();
+  window._videoBlobStore=window._videoBlobStore||{};
+  window._videoBlobStore[historyId]=cbVideoBlob;
+  addToHistory(window._lastAdScenario||currentAd?.songTitle||'Custom Video',new Date().toISOString(),historyId);
+  document.getElementById('cbStatus').textContent='';
+  // Switch to Download tab
+  switchHQ('download');
 }
 
 function cbShowVideoPlayer(){
