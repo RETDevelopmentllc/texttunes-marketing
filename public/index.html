@@ -379,10 +379,10 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60p
   <button class="sub-tab" id="tabCustomBtn" onclick="switchTab('custom')">🛠 Custom Builder</button>
 </div>
 <div id="tab-ai">
-<!-- Side-by-side layout: phone left, controls right -->
-<div style="display:flex;gap:28px;align-items:flex-start;width:100%;justify-content:center;flex-wrap:wrap;">
+<!-- Phone centered, controls floating right -->
+<div style="position:relative;width:100%;display:flex;flex-direction:column;align-items:center;">
 
-<!-- LEFT: Phone -->
+<!-- CENTER: Phone -->
 <div id="tab-studio" style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;">
   <!-- PHONE -->
   <div class="phone-wrap">
@@ -456,10 +456,10 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60p
       <button onclick="toggleEditPanel()" style="flex:1;padding:10px;background:#1c1c30;border:none;border-radius:10px;color:#f0f0ff;font-size:13px;font-weight:700;cursor:pointer;">Cancel</button>
     </div>
   </div>
-</div><!-- end left column (phone) -->
+</div><!-- end center column (phone) -->
 
-<!-- RIGHT: Controls -->
-<div style="display:flex;flex-direction:column;gap:8px;width:100%;max-width:340px;min-width:280px;">
+<!-- RIGHT: Controls (floating) -->
+<div id="aiControlsPanel" style="position:absolute;top:0;right:0;display:flex;flex-direction:column;gap:8px;width:320px;">
 <div style="display:flex;gap:8px;">
   <input id="ttScenario" placeholder="Type your own scenario..." style="flex:1;background:#0f0f1c;border:1px solid #1c1c30;border-radius:12px;padding:10px 14px;color:#f0f0ff;font-size:14px;font-family:DM Sans,sans-serif;outline:none;"/>
   <button onclick="runAIGenerate('custom')" style="background:linear-gradient(135deg,#7C3AED,#9B6FFF);border:none;border-radius:12px;padding:10px 14px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;">✨ AI</button>
@@ -555,9 +555,9 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60p
   </div>
 </div>
 <div id="aiStatus" style="min-height:20px;text-align:center;"></div>
-</div><!-- end right column (controls) -->
+</div><!-- end right controls panel -->
 
-</div><!-- end side-by-side layout -->
+</div><!-- end phone centered layout -->
 </div><!-- end tab-ai -->
 
 <!-- ══ CUSTOM BUILDER TAB ══ -->
