@@ -379,11 +379,11 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60p
   <button class="sub-tab" id="tabCustomBtn" onclick="switchTab('custom')">🛠 Custom Builder</button>
 </div>
 <div id="tab-ai">
-<!-- Phone centered, controls floating right -->
+<!-- Phone centered, controls to the right -->
 <div style="position:relative;width:100%;display:flex;flex-direction:column;align-items:center;">
 
 <!-- CENTER: Phone -->
-<div id="tab-studio" style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;">
+<div id="tab-studio" style="display:flex;flex-direction:column;align-items:center;">
   <!-- PHONE -->
   <div class="phone-wrap">
     <div class="phone">
@@ -458,8 +458,8 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60p
   </div>
 </div><!-- end center column (phone) -->
 
-<!-- RIGHT: Controls (floating) -->
-<div id="aiControlsPanel" style="position:absolute;top:0;right:0;display:flex;flex-direction:column;gap:8px;width:320px;">
+<!-- RIGHT: Controls (positioned to right of centered phone) -->
+<div id="aiControlsPanel" style="position:absolute;top:0;left:calc(50% + 170px);display:flex;flex-direction:column;gap:8px;width:320px;">
 <div style="display:flex;gap:8px;">
   <input id="ttScenario" placeholder="Type your own scenario..." style="flex:1;background:#0f0f1c;border:1px solid #1c1c30;border-radius:12px;padding:10px 14px;color:#f0f0ff;font-size:14px;font-family:DM Sans,sans-serif;outline:none;"/>
   <button onclick="runAIGenerate('custom')" style="background:linear-gradient(135deg,#7C3AED,#9B6FFF);border:none;border-radius:12px;padding:10px 14px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;">✨ AI</button>
