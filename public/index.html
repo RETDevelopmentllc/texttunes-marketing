@@ -89,6 +89,13 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60p
 .row.me .bub{background:#0a84ff;color:#fff;border-bottom-right-radius:5px;}
 @keyframes bPop{0%{transform:scale(.82);opacity:0}60%{transform:scale(1.04)}100%{transform:scale(1);opacity:1}}
 .bpop{animation:bPop .22s ease forwards;}
+.no-anim .bpop{animation:none!important;transform:scale(1)!important;opacity:1!important;}
+.no-anim .row{transition:none!important;}
+.no-anim .row.vis{transform:none!important;opacity:1!important;}
+.no-anim .receipt{transition:none!important;}
+.no-anim .tapback{transition:none!important;}
+.no-anim .player{transition:none!important;}
+.no-anim .file-row{transition:none!important;}
 .receipt{font-size:10px;color:#8e8e93;text-align:right;padding-right:3px;margin-top:1px;margin-bottom:3px;opacity:0;transition:opacity .4s .3s;}
 .receipt.vis{opacity:1;}
 
@@ -379,7 +386,7 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60p
 <div id="tab-studio" style="display:flex;flex-direction:column;align-items:center;">
   <!-- PHONE -->
   <div class="phone-wrap">
-    <div class="phone">
+    <div class="phone" id="aiPhone">
       <div class="screen">
         <div class="di"><div class="di-cam"></div><div class="di-fid"></div></div>
         <div class="sbar">
@@ -1223,8 +1230,10 @@ async function recordAndDownload(){
   if(isRecording)return;
   adSpeedMult=1;
 
-  const phone=document.querySelector('.phone');
+  const phone=document.getElementById('aiPhone');
   const dlBtn=document.getElementById('downloadBtn');
+  // Disable CSS animations so html2canvas doesn't capture mid-scale frames
+  phone.classList.add('no-anim');
   const FPS=30;
 
   // Use 1x scale for speed — html2canvas at 2x is the #1 bottleneck
@@ -1287,6 +1296,7 @@ async function recordAndDownload(){
     window._videoBlobStore=window._videoBlobStore||{};
     window._videoBlobStore[historyId]=finalBlob;
     addToHistory(window._lastAdScenario||'Untitled Video',new Date().toISOString(),historyId);
+    phone.classList.remove('no-anim');
     dlBtn.disabled=false;
     dlBtn.classList.remove('recording');
     dlBtn.textContent='⬇ Download Video';
@@ -2201,25 +2211,25 @@ async function cbCreateAd(){
   // Apply speed setting
   adSpeedMult=cbSpeedMult;
 
-  // Record the ad and show video player on this tab
+  // Record the ad — show AI phone in place of custom phone so user sees live preview
   status.textContent='🎬 Recording your ad...';
   status.style.color='#7C3AED';
 
-  // Show AI tab offscreen so html2canvas can render it, but keep Custom Builder visible
-  const aiTab=document.getElementById('tab-ai');
-  aiTab.style.display='block';
-  aiTab.style.position='fixed';
-  aiTab.style.left='-9999px';
-  aiTab.style.top='0';
+  // Hide custom phone, move AI phone into custom tab so user sees the preview
+  const cbPhoneWrap=document.querySelector('#tab-custom .phone-wrap');
+  const aiPhone=document.getElementById('aiPhone');
+  const aiPhoneParent=aiPhone.parentElement;
+  const aiPhoneNext=aiPhone.nextSibling;
+  cbPhoneWrap.style.display='none';
+  cbPhoneWrap.parentElement.insertBefore(aiPhone,cbPhoneWrap);
 
-  // Run the recording
+  // Run the recording (AI phone is now visible in custom tab)
   await cbRecordAd();
 
-  // Hide AI tab again
-  aiTab.style.display='none';
-  aiTab.style.position='';
-  aiTab.style.left='';
-  aiTab.style.top='';
+  // Move AI phone back to its original location and restore custom phone
+  if(aiPhoneNext){aiPhoneParent.insertBefore(aiPhone,aiPhoneNext);}
+  else{aiPhoneParent.appendChild(aiPhone);}
+  cbPhoneWrap.style.display='';
 }
 
 /* ══════════════════════════
@@ -2229,14 +2239,21 @@ let cbVideoBlob=null;
 let cbVideoUrl=null;
 
 async function cbRecordAd(){
-  const phone=document.querySelector('#tab-studio .phone')||document.querySelector('.phone');
+  // Record the AI phone (moved into custom tab for live preview)
+  const phone=document.getElementById('aiPhone');
   const FPS=30;
-  const frameInterval=1000/FPS;
-  const scale=2;
+  const minFrameGap=1000/FPS;
+  const scale=1;
   const canvas=document.createElement('canvas');
   canvas.width=phone.offsetWidth*scale;
   canvas.height=phone.offsetHeight*scale;
-  const ctx=canvas.getContext('2d');
+  const ctx=canvas.getContext('2d',{alpha:false});
+
+  // Disable CSS animations to prevent bubble pulsing
+  phone.classList.add('no-anim');
+
+  // Pre-warm html2canvas
+  await html2canvas(phone,{backgroundColor:'#000000',scale,logging:false,useCORS:true,allowTaint:true,imageTimeout:0,removeContainer:true});
 
   const videoStream=canvas.captureStream(FPS);
   const ac=getAC();
@@ -2253,8 +2270,8 @@ async function cbRecordAd(){
 
   const donePromise=new Promise(resolve=>{
     rec.onstop=async()=>{
+      phone.classList.remove('no-anim');
       const blob=new Blob(chunks,{type:mimeType});
-      // Try MP4 conversion
       try{
         const reader=new FileReader();
         const base64=await new Promise((res,rej)=>{reader.onload=()=>res(reader.result.split(',')[1]);reader.onerror=rej;reader.readAsDataURL(blob);});
@@ -2273,24 +2290,27 @@ async function cbRecordAd(){
 
   rec.start();
 
+  // Smooth frame capture with rAF + throttle
   let capturing=true;
   let lastFrameTime=0;
-  let captureInProgress=false;
+  let frameInFlight=false;
+  const h2cOpts={backgroundColor:'#000000',scale,logging:false,useCORS:true,allowTaint:true,imageTimeout:0,removeContainer:true};
   function captureLoop(ts){
     if(!capturing)return;
-    if(ts-lastFrameTime>=frameInterval&&!captureInProgress){
-      lastFrameTime=ts;
-      captureInProgress=true;
-      html2canvas(phone,{backgroundColor:'#000000',scale,logging:false,useCORS:true,allowTaint:true}).then(fc=>{
-        ctx.clearRect(0,0,canvas.width,canvas.height);
-        ctx.drawImage(fc,0,0,canvas.width,canvas.height);
-        captureInProgress=false;
-      }).catch(()=>{captureInProgress=false;});
-    }
-    if(capturing)requestAnimationFrame(captureLoop);
+    requestAnimationFrame(captureLoop);
+    if(ts-lastFrameTime<minFrameGap)return;
+    if(frameInFlight)return;
+    lastFrameTime=ts;
+    frameInFlight=true;
+    html2canvas(phone,h2cOpts).then(fc=>{
+      if(!capturing)return;
+      ctx.drawImage(fc,0,0,canvas.width,canvas.height);
+      frameInFlight=false;
+    }).catch(()=>{frameInFlight=false;});
   }
   requestAnimationFrame(captureLoop);
 
+  // Play the ad on THIS phone — user sees it live
   await playAd();
   await sleep(1500);
 
@@ -2298,7 +2318,6 @@ async function cbRecordAd(){
   rec.stop();
   await donePromise;
 
-  // Show video player (already on custom tab)
   cbShowVideoPlayer();
 }
 
