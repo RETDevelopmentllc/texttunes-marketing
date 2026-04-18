@@ -1221,33 +1221,32 @@ async function showAfterSongMessages(sc){
 async function recordAndDownload(){
   if(!currentAd){setDLStatus('Generate an ad first!','#ff453a');return;}
   if(isRecording)return;
-  adSpeedMult=1; // AI tab always uses normal speed
+  adSpeedMult=1;
 
   const phone=document.querySelector('.phone');
   const dlBtn=document.getElementById('downloadBtn');
-  const FPS=15;
-  const frameInterval=1000/FPS;
+  const FPS=30;
 
-  // Set up canvas matching phone size (scaled up 2x for quality)
-  const scale=2;
+  // Use 1x scale for speed — html2canvas at 2x is the #1 bottleneck
+  const scale=1;
   const canvas=document.createElement('canvas');
   canvas.width=phone.offsetWidth*scale;
   canvas.height=phone.offsetHeight*scale;
-  const ctx=canvas.getContext('2d');
+  const ctx=canvas.getContext('2d',{alpha:false});
 
-  // Combine video stream (canvas) with audio stream (AudioContext)
+  // Pre-warm html2canvas so first frame isn't slow
+  await html2canvas(phone,{backgroundColor:'#000000',scale,logging:false,useCORS:true,allowTaint:true,imageTimeout:0,removeContainer:true});
+
   const videoStream=canvas.captureStream(FPS);
-  const ac=getAC(); // ensure AudioContext + recDest are ready
+  const ac=getAC();
   const combinedStream=new MediaStream();
-  // Add video track
   videoStream.getVideoTracks().forEach(t=>combinedStream.addTrack(t));
-  // Add audio track from recording destination
   if(recDest && recDest.stream.getAudioTracks().length>0){
     recDest.stream.getAudioTracks().forEach(t=>combinedStream.addTrack(t));
   }
   const mimeType=MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus')?'video/webm;codecs=vp9,opus':
                   MediaRecorder.isTypeSupported('video/webm;codecs=vp8,opus')?'video/webm;codecs=vp8,opus':'video/webm';
-  mediaRecorder=new MediaRecorder(combinedStream,{mimeType,videoBitsPerSecond:5000000});
+  mediaRecorder=new MediaRecorder(combinedStream,{mimeType,videoBitsPerSecond:8000000});
   recordedChunks=[];
   mediaRecorder.ondataavailable=e=>{if(e.data.size>0)recordedChunks.push(e.data);};
   mediaRecorder.onstop=async()=>{
@@ -1279,14 +1278,11 @@ async function recordAndDownload(){
       console.error('MP4 conversion failed, using WebM:',e);
       setDLStatus('Video ready (WebM)','#FFD60A');
     }
-    // Store video for Download tab & History
     const videoUrl=URL.createObjectURL(finalBlob);
     window._lastVideoUrl=videoUrl;
     window._lastVideoName=fileName+'.'+finalExt;
     window._lastVideoBlob=finalBlob;
-    // Update Download tab
     updateDownloadTab(videoUrl,window._lastVideoName);
-    // Store in history with blob
     const historyId=Date.now();
     window._videoBlobStore=window._videoBlobStore||{};
     window._videoBlobStore[historyId]=finalBlob;
@@ -1305,29 +1301,31 @@ async function recordAndDownload(){
   mediaRecorder.start();
   setDLStatus('Recording ad...','#ff453a');
 
-  // Capture frames
+  // Smooth frame capture using requestAnimationFrame + throttle
   let capturing=true;
-  async function captureFrame(){
+  let lastFrameTime=0;
+  const minFrameGap=1000/FPS;
+  // Reusable options object to reduce GC pressure
+  const h2cOpts={backgroundColor:'#000000',scale,logging:false,useCORS:true,allowTaint:true,imageTimeout:0,removeContainer:true};
+  let frameInFlight=false;
+
+  function captureLoop(now){
     if(!capturing)return;
-    try{
-      const frameCanvas=await html2canvas(phone,{
-        backgroundColor:'#000000',
-        scale:scale,
-        logging:false,
-        useCORS:true,
-        allowTaint:true,
-      });
-      ctx.clearRect(0,0,canvas.width,canvas.height);
-      ctx.drawImage(frameCanvas,0,0,canvas.width,canvas.height);
-    }catch(e){}
-    if(capturing)setTimeout(captureFrame,frameInterval);
+    requestAnimationFrame(captureLoop);
+    if(now-lastFrameTime<minFrameGap)return;
+    if(frameInFlight)return; // skip if previous capture still running
+    lastFrameTime=now;
+    frameInFlight=true;
+    html2canvas(phone,h2cOpts).then(fc=>{
+      if(!capturing)return;
+      ctx.drawImage(fc,0,0,canvas.width,canvas.height);
+      frameInFlight=false;
+    }).catch(()=>{frameInFlight=false;});
   }
-  captureFrame();
+  requestAnimationFrame(captureLoop);
 
   // Play the ad
   await playAd();
-
-  // Wait a beat for final reactions to show
   await sleep(1500);
 
   // Stop recording
