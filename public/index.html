@@ -379,88 +379,11 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60p
   <button class="sub-tab" id="tabCustomBtn" onclick="switchTab('custom')">🛠 Custom Builder</button>
 </div>
 <div id="tab-ai">
-<div style="display:flex;gap:8px;margin-bottom:8px;width:100%;max-width:400px;">
-  <input id="ttScenario" placeholder="Type your own scenario..." style="flex:1;background:#0f0f1c;border:1px solid #1c1c30;border-radius:12px;padding:10px 14px;color:#f0f0ff;font-size:14px;font-family:DM Sans,sans-serif;outline:none;"/>
-  <button onclick="runAIGenerate('custom')" style="background:linear-gradient(135deg,#7C3AED,#9B6FFF);border:none;border-radius:12px;padding:10px 14px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;">✨ AI</button>
-  <button onclick="toggleSettings()" style="background:#0f0f1c;border:1px solid #1c1c30;border-radius:12px;padding:10px 14px;color:#6b6b8e;font-size:16px;cursor:pointer;">⚙️</button>
-</div>
-<div style="display:flex;gap:8px;margin-bottom:8px;width:100%;max-width:400px;">
-  <button onclick="runAIGenerate('random')" style="flex:1;background:linear-gradient(135deg,#0f0f1c,#1c1c30);border:1px solid #2c2c3e;border-radius:12px;padding:10px 14px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif;">🎲 Random AI Scenario</button>
-  <button onclick="toggleViralPicker()" style="flex:1;background:linear-gradient(135deg,#FF4500,#FF8C00);border:none;border-radius:12px;padding:10px 14px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif;">🔥 Viral Categories</button>
-</div>
-<div id="viralPicker" style="display:none;width:100%;max-width:400px;margin-bottom:8px;">
-  <div style="display:flex;flex-wrap:wrap;gap:6px;">
-    <button class="vcat" onclick="runViral('Ex texting back')">💔 Ex Texting Back</button>
-    <button class="vcat" onclick="runViral('Mom found out')">😱 Mom Found Out</button>
-    <button class="vcat" onclick="runViral('Caught lying')">🤥 Caught Lying</button>
-    <button class="vcat" onclick="runViral('Autocorrect fail')">😬 Autocorrect Fail</button>
-    <button class="vcat" onclick="runViral('Wrong number text')">📱 Wrong Number</button>
-    <button class="vcat" onclick="runViral('Group chat chaos')">👥 Group Chat Chaos</button>
-    <button class="vcat" onclick="runViral('Breakup text')">💀 Breakup Text</button>
-    <button class="vcat" onclick="runViral('Sibling roast')">🤣 Sibling Roast</button>
-    <button class="vcat" onclick="runViral('Boss text gone wrong')">💼 Boss Text Fail</button>
-    <button class="vcat" onclick="runViral('Landlord being ridiculous')">🏠 Crazy Landlord</button>
-    <button class="vcat" onclick="runViral('Boyfriend or girlfriend caught cheating')">👀 Caught Cheating</button>
-    <button class="vcat" onclick="runViral('Dad joke war in texts')">😂 Dad Joke War</button>
-    <button class="vcat" onclick="runViral('Friend owes money and keeps dodging')">💸 Pay Me Back</button>
-    <button class="vcat" onclick="runViral('Uber driver texts gone wild')">🚗 Uber Driver Texts</button>
-  </div>
-</div>
-<div style="display:flex;gap:8px;margin-bottom:16px;width:100%;max-width:400px;align-items:center;">
-  <div style="display:flex;gap:4px;background:#0f0f1c;border:1px solid #1c1c30;border-radius:12px;padding:4px;flex-shrink:0;">
-    <button id="voiceMale" onclick="setVoice('male')" style="padding:6px 12px;border-radius:9px;border:none;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:#6b6b8e;font-family:DM Sans,sans-serif;">🧑 Male</button>
-    <button id="voiceFemale" onclick="setVoice('female')" style="padding:6px 12px;border-radius:9px;border:none;font-size:12px;font-weight:700;cursor:pointer;background:#7C3AED;color:#fff;font-family:DM Sans,sans-serif;">👩 Female</button>
-  </div>
-  <select id="ttGenre" style="flex:1;background:#0f0f1c;border:1px solid #1c1c30;border-radius:12px;padding:8px 12px;color:#f0f0ff;font-size:13px;font-family:DM Sans,sans-serif;outline:none;cursor:pointer;appearance:auto;">
-    <option value="pop">🎵 Pop</option>
-    <option value="hip-hop">🎤 Hip-Hop</option>
-    <option value="rap">🔥 Rap</option>
-    <option value="r&b">🎶 R&B</option>
-    <option value="reggae">🌴 Reggae</option>
-    <option value="country">🤠 Country</option>
-    <option value="rock">🎸 Rock</option>
-    <option value="indie">🌙 Indie</option>
-    <option value="edm">🎧 EDM</option>
-    <option value="latin">💃 Latin / Reggaeton</option>
-    <option value="afrobeat">🥁 Afrobeat</option>
-    <option value="jazz">🎷 Jazz</option>
-    <option value="soul">🎤 Soul / Funk</option>
-    <option value="acoustic">🪕 Acoustic</option>
-    <option value="lo-fi">🌊 Lo-Fi</option>
-    <option value="punk">⚡ Punk</option>
-    <option value="gospel">🙌 Gospel</option>
-    <option value="kpop">🇰🇷 K-Pop</option>
-    <option value="funk">🕺 Funk</option>
-    <option value="metal">🤘 Metal</option>
-    <option value="techno">🔊 Techno</option>
-    <option value="random">🎲 Surprise Me</option>
-  </select>
-</div>
-<div style="width:100%;max-width:400px;margin-bottom:8px;">
-  <button onclick="toggleCustomSong()" class="dl-btn" style="width:100%;justify-content:center;">🎤 Create Your Own Song</button>
-</div>
-<div id="customSongPanel" style="display:none;width:100%;max-width:400px;background:#0f0f1c;border:1px solid #1c1c30;border-radius:14px;padding:16px;margin-bottom:16px;">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-    <div style="font-size:11px;color:#6b6b8e;font-weight:600;letter-spacing:1px;text-transform:uppercase;">Create Your Own Song</div>
-    <button onclick="toggleCustomSong()" style="background:none;border:none;color:#6b6b8e;font-size:16px;cursor:pointer;">✕</button>
-  </div>
-  <input id="customSongTitle" placeholder="Song title..." style="width:100%;background:#07070f;border:1px solid #1c1c30;border-radius:10px;padding:9px 12px;color:#f0f0ff;font-size:13px;margin-bottom:8px;outline:none;font-family:DM Sans,sans-serif;"/>
-  <textarea id="customLyrics" rows="3" placeholder="Write your lyrics here..." style="width:100%;background:#07070f;border:1px solid #1c1c30;border-radius:10px;padding:9px 12px;color:#f0f0ff;font-size:13px;margin-bottom:8px;outline:none;font-family:DM Sans,sans-serif;resize:vertical;"></textarea>
-  <div style="font-size:10px;color:#6b6b8e;margin-bottom:10px;">Write your own lyrics, generate the song, and it auto-plays in your ad. Uses your selected voice & genre.</div>
-  <button onclick="generateCustomSong()" style="width:100%;padding:10px;background:linear-gradient(135deg,#7C3AED,#9B6FFF);border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;">🎵 Generate & Add to Video</button>
-  <div id="customSongStatus" style="font-size:11px;color:#6b6b8e;margin-top:8px;text-align:center;min-height:16px;"></div>
-</div>
-<div id="settingsPanel" style="display:none;width:100%;max-width:400px;background:#0f0f1c;border:1px solid #1c1c30;border-radius:14px;padding:16px;margin-bottom:16px;">
-  <div style="font-size:11px;color:#6b6b8e;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">API Keys</div>
-  <input id="ttAnthropicKey" type="password" placeholder="Anthropic key (sk-ant-...)" style="width:100%;background:#07070f;border:1px solid #1c1c30;border-radius:10px;padding:9px 12px;color:#f0f0ff;font-size:13px;margin-bottom:8px;outline:none;"/>
-  <input id="ttElevenKey" type="password" placeholder="ElevenLabs key (optional — real song)" style="width:100%;background:#07070f;border:1px solid #1c1c30;border-radius:10px;padding:9px 12px;color:#f0f0ff;font-size:13px;margin-bottom:8px;outline:none;"/>
-  <button onclick="saveKeys()" style="width:100%;padding:10px;background:#7C3AED;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;">Save Keys</button>
-  <div id="keyStatus" style="font-size:11px;color:#6b6b8e;margin-top:8px;text-align:center;"></div>
-</div>
-<div id="aiStatus" style="width:100%;max-width:400px;min-height:20px;text-align:center;margin-bottom:8px;"></div>
+<!-- Side-by-side layout: phone left, controls right -->
+<div style="display:flex;gap:28px;align-items:flex-start;width:100%;justify-content:center;flex-wrap:wrap;">
 
-<!-- ══ STUDIO ══ -->
-<div id="tab-studio" style="display:flex;flex-direction:column;align-items:center;">
+<!-- LEFT: Phone -->
+<div id="tab-studio" style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;">
   <!-- PHONE -->
   <div class="phone-wrap">
     <div class="phone">
@@ -516,22 +439,6 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60p
     <button class="dl-btn" id="downloadBtn" onclick="recordAndDownload()" disabled>⬇ Download Video</button>
   </div>
   <div id="dlStatus" style="margin-top:8px;font-size:11px;color:#6b6b8e;text-align:center;font-family:monospace;min-height:16px;"></div>
-  <!-- Time Settings for AI Tab -->
-  <div id="aiTimeSettings" style="width:300px;margin-top:12px;background:#0f0f1c;border:1px solid #1c1c30;border-radius:14px;padding:12px 16px;">
-    <div style="font-size:9px;color:#6b6b8e;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">⏰ Phone Time Settings</div>
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-      <label style="font-size:11px;color:#f0f0ff;flex:1;">Status Bar</label>
-      <input id="aiTimeInput1" class="cb-input" value="9:41" style="width:70px;padding:5px 8px;font-size:12px;text-align:center;background:#07070f;border:1px solid #1c1c30;border-radius:8px;color:#f0f0ff;outline:none;font-family:DM Sans,sans-serif;" oninput="aiApplyTime('sbar')"/>
-    </div>
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-      <label style="font-size:11px;color:#f0f0ff;flex:1;">Message Time</label>
-      <input id="aiTimeInput2" class="cb-input" value="Today 9:41 AM" style="width:130px;padding:5px 8px;font-size:12px;text-align:center;background:#07070f;border:1px solid #1c1c30;border-radius:8px;color:#f0f0ff;outline:none;font-family:DM Sans,sans-serif;" oninput="aiApplyTime('msg')"/>
-    </div>
-    <div style="display:flex;align-items:center;gap:6px;">
-      <input type="checkbox" id="aiTimeSync" checked style="accent-color:#7C3AED;cursor:pointer;"/>
-      <label for="aiTimeSync" style="font-size:10px;color:#6b6b8e;cursor:pointer;">Sync both times</label>
-    </div>
-  </div>
   <div id="editPanel" style="display:none;width:300px;margin-top:12px;background:#0f0f1c;border:1px solid #1c1c30;border-radius:14px;padding:16px;max-height:320px;overflow-y:auto;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
       <div style="font-size:11px;color:#6b6b8e;font-weight:600;letter-spacing:1px;text-transform:uppercase;">Edit Messages</div>
@@ -549,7 +456,108 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60p
       <button onclick="toggleEditPanel()" style="flex:1;padding:10px;background:#1c1c30;border:none;border-radius:10px;color:#f0f0ff;font-size:13px;font-weight:700;cursor:pointer;">Cancel</button>
     </div>
   </div>
+</div><!-- end left column (phone) -->
+
+<!-- RIGHT: Controls -->
+<div style="display:flex;flex-direction:column;gap:8px;width:100%;max-width:340px;min-width:280px;">
+<div style="display:flex;gap:8px;">
+  <input id="ttScenario" placeholder="Type your own scenario..." style="flex:1;background:#0f0f1c;border:1px solid #1c1c30;border-radius:12px;padding:10px 14px;color:#f0f0ff;font-size:14px;font-family:DM Sans,sans-serif;outline:none;"/>
+  <button onclick="runAIGenerate('custom')" style="background:linear-gradient(135deg,#7C3AED,#9B6FFF);border:none;border-radius:12px;padding:10px 14px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;">✨ AI</button>
+  <button onclick="toggleSettings()" style="background:#0f0f1c;border:1px solid #1c1c30;border-radius:12px;padding:10px 14px;color:#6b6b8e;font-size:16px;cursor:pointer;">⚙️</button>
 </div>
+<div style="display:flex;gap:8px;">
+  <button onclick="runAIGenerate('random')" style="flex:1;background:linear-gradient(135deg,#0f0f1c,#1c1c30);border:1px solid #2c2c3e;border-radius:12px;padding:10px 14px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif;">🎲 Random AI Scenario</button>
+  <button onclick="toggleViralPicker()" style="flex:1;background:linear-gradient(135deg,#FF4500,#FF8C00);border:none;border-radius:12px;padding:10px 14px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif;">🔥 Viral Categories</button>
+</div>
+<div id="viralPicker" style="display:none;">
+  <div style="display:flex;flex-wrap:wrap;gap:6px;">
+    <button class="vcat" onclick="runViral('Ex texting back')">💔 Ex Texting Back</button>
+    <button class="vcat" onclick="runViral('Mom found out')">😱 Mom Found Out</button>
+    <button class="vcat" onclick="runViral('Caught lying')">🤥 Caught Lying</button>
+    <button class="vcat" onclick="runViral('Autocorrect fail')">😬 Autocorrect Fail</button>
+    <button class="vcat" onclick="runViral('Wrong number text')">📱 Wrong Number</button>
+    <button class="vcat" onclick="runViral('Group chat chaos')">👥 Group Chat Chaos</button>
+    <button class="vcat" onclick="runViral('Breakup text')">💀 Breakup Text</button>
+    <button class="vcat" onclick="runViral('Sibling roast')">🤣 Sibling Roast</button>
+    <button class="vcat" onclick="runViral('Boss text gone wrong')">💼 Boss Text Fail</button>
+    <button class="vcat" onclick="runViral('Landlord being ridiculous')">🏠 Crazy Landlord</button>
+    <button class="vcat" onclick="runViral('Boyfriend or girlfriend caught cheating')">👀 Caught Cheating</button>
+    <button class="vcat" onclick="runViral('Dad joke war in texts')">😂 Dad Joke War</button>
+    <button class="vcat" onclick="runViral('Friend owes money and keeps dodging')">💸 Pay Me Back</button>
+    <button class="vcat" onclick="runViral('Uber driver texts gone wild')">🚗 Uber Driver Texts</button>
+  </div>
+</div>
+<div style="display:flex;gap:8px;align-items:center;">
+  <div style="display:flex;gap:4px;background:#0f0f1c;border:1px solid #1c1c30;border-radius:12px;padding:4px;flex-shrink:0;">
+    <button id="voiceMale" onclick="setVoice('male')" style="padding:6px 12px;border-radius:9px;border:none;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:#6b6b8e;font-family:DM Sans,sans-serif;">🧑 Male</button>
+    <button id="voiceFemale" onclick="setVoice('female')" style="padding:6px 12px;border-radius:9px;border:none;font-size:12px;font-weight:700;cursor:pointer;background:#7C3AED;color:#fff;font-family:DM Sans,sans-serif;">👩 Female</button>
+  </div>
+  <select id="ttGenre" style="flex:1;background:#0f0f1c;border:1px solid #1c1c30;border-radius:12px;padding:8px 12px;color:#f0f0ff;font-size:13px;font-family:DM Sans,sans-serif;outline:none;cursor:pointer;appearance:auto;">
+    <option value="pop">🎵 Pop</option>
+    <option value="hip-hop">🎤 Hip-Hop</option>
+    <option value="rap">🔥 Rap</option>
+    <option value="r&b">🎶 R&B</option>
+    <option value="reggae">🌴 Reggae</option>
+    <option value="country">🤠 Country</option>
+    <option value="rock">🎸 Rock</option>
+    <option value="indie">🌙 Indie</option>
+    <option value="edm">🎧 EDM</option>
+    <option value="latin">💃 Latin / Reggaeton</option>
+    <option value="afrobeat">🥁 Afrobeat</option>
+    <option value="jazz">🎷 Jazz</option>
+    <option value="soul">🎤 Soul / Funk</option>
+    <option value="acoustic">🪕 Acoustic</option>
+    <option value="lo-fi">🌊 Lo-Fi</option>
+    <option value="punk">⚡ Punk</option>
+    <option value="gospel">🙌 Gospel</option>
+    <option value="kpop">🇰🇷 K-Pop</option>
+    <option value="funk">🕺 Funk</option>
+    <option value="metal">🤘 Metal</option>
+    <option value="techno">🔊 Techno</option>
+    <option value="random">🎲 Surprise Me</option>
+  </select>
+</div>
+<div>
+  <button onclick="toggleCustomSong()" class="dl-btn" style="width:100%;justify-content:center;">🎤 Create Your Own Song</button>
+</div>
+<div id="customSongPanel" style="display:none;background:#0f0f1c;border:1px solid #1c1c30;border-radius:14px;padding:16px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+    <div style="font-size:11px;color:#6b6b8e;font-weight:600;letter-spacing:1px;text-transform:uppercase;">Create Your Own Song</div>
+    <button onclick="toggleCustomSong()" style="background:none;border:none;color:#6b6b8e;font-size:16px;cursor:pointer;">✕</button>
+  </div>
+  <input id="customSongTitle" placeholder="Song title..." style="width:100%;background:#07070f;border:1px solid #1c1c30;border-radius:10px;padding:9px 12px;color:#f0f0ff;font-size:13px;margin-bottom:8px;outline:none;font-family:DM Sans,sans-serif;"/>
+  <textarea id="customLyrics" rows="3" placeholder="Write your lyrics here..." style="width:100%;background:#07070f;border:1px solid #1c1c30;border-radius:10px;padding:9px 12px;color:#f0f0ff;font-size:13px;margin-bottom:8px;outline:none;font-family:DM Sans,sans-serif;resize:vertical;"></textarea>
+  <div style="font-size:10px;color:#6b6b8e;margin-bottom:10px;">Write your own lyrics, generate the song, and it auto-plays in your ad. Uses your selected voice & genre.</div>
+  <button onclick="generateCustomSong()" style="width:100%;padding:10px;background:linear-gradient(135deg,#7C3AED,#9B6FFF);border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;">🎵 Generate & Add to Video</button>
+  <div id="customSongStatus" style="font-size:11px;color:#6b6b8e;margin-top:8px;text-align:center;min-height:16px;"></div>
+</div>
+<div id="settingsPanel" style="display:none;background:#0f0f1c;border:1px solid #1c1c30;border-radius:14px;padding:16px;">
+  <div style="font-size:11px;color:#6b6b8e;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">API Keys</div>
+  <input id="ttAnthropicKey" type="password" placeholder="Anthropic key (sk-ant-...)" style="width:100%;background:#07070f;border:1px solid #1c1c30;border-radius:10px;padding:9px 12px;color:#f0f0ff;font-size:13px;margin-bottom:8px;outline:none;"/>
+  <input id="ttElevenKey" type="password" placeholder="ElevenLabs key (optional — real song)" style="width:100%;background:#07070f;border:1px solid #1c1c30;border-radius:10px;padding:9px 12px;color:#f0f0ff;font-size:13px;margin-bottom:8px;outline:none;"/>
+  <button onclick="saveKeys()" style="width:100%;padding:10px;background:#7C3AED;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;">Save Keys</button>
+  <div id="keyStatus" style="font-size:11px;color:#6b6b8e;margin-top:8px;text-align:center;"></div>
+</div>
+<!-- Time Settings -->
+<div id="aiTimeSettings" style="background:#0f0f1c;border:1px solid #1c1c30;border-radius:14px;padding:12px 16px;">
+  <div style="font-size:9px;color:#6b6b8e;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">⏰ Phone Time Settings</div>
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+    <label style="font-size:11px;color:#f0f0ff;flex:1;">Status Bar</label>
+    <input id="aiTimeInput1" class="cb-input" value="9:41" style="width:70px;padding:5px 8px;font-size:12px;text-align:center;background:#07070f;border:1px solid #1c1c30;border-radius:8px;color:#f0f0ff;outline:none;font-family:DM Sans,sans-serif;" oninput="aiApplyTime('sbar')"/>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+    <label style="font-size:11px;color:#f0f0ff;flex:1;">Message Time</label>
+    <input id="aiTimeInput2" class="cb-input" value="Today 9:41 AM" style="width:130px;padding:5px 8px;font-size:12px;text-align:center;background:#07070f;border:1px solid #1c1c30;border-radius:8px;color:#f0f0ff;outline:none;font-family:DM Sans,sans-serif;" oninput="aiApplyTime('msg')"/>
+  </div>
+  <div style="display:flex;align-items:center;gap:6px;">
+    <input type="checkbox" id="aiTimeSync" checked style="accent-color:#7C3AED;cursor:pointer;"/>
+    <label for="aiTimeSync" style="font-size:10px;color:#6b6b8e;cursor:pointer;">Sync both times</label>
+  </div>
+</div>
+<div id="aiStatus" style="min-height:20px;text-align:center;"></div>
+</div><!-- end right column (controls) -->
+
+</div><!-- end side-by-side layout -->
 </div><!-- end tab-ai -->
 
 <!-- ══ CUSTOM BUILDER TAB ══ -->
