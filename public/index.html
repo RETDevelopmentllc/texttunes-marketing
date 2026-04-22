@@ -41,43 +41,44 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60p
 .phone{
   width:300px;height:620px;
   border-radius:48px;
-  background:linear-gradient(160deg,#252525,#0f0f0f);
-  box-shadow:0 0 0 1px #333,0 0 0 2px #0a0a0a,0 40px 80px rgba(0,0,0,.85),0 0 50px rgba(124,58,237,.1);
+  background:linear-gradient(160deg,#1a1a1a,#0a0a0a);
+  box-shadow:0 0 0 1px #444,0 0 0 2px #111,0 40px 80px rgba(0,0,0,.85),0 0 50px rgba(124,58,237,.1);
   position:relative;overflow:hidden;
 }
-.phone::before{content:'';position:absolute;left:-3px;top:120px;width:3px;height:28px;background:#252525;border-radius:2px 0 0 2px;box-shadow:0 44px 0 #252525,0 88px 0 #252525;}
-.phone::after{content:'';position:absolute;right:-3px;top:160px;width:3px;height:56px;background:#252525;border-radius:0 2px 2px 0;}
-.screen{position:absolute;inset:7px;border-radius:42px;background:#000;overflow:hidden;display:flex;flex-direction:column;}
+.phone::before{content:'';position:absolute;left:-3px;top:120px;width:3px;height:28px;background:#1a1a1a;border-radius:2px 0 0 2px;box-shadow:0 44px 0 #1a1a1a,0 88px 0 #1a1a1a;}
+.phone::after{content:'';position:absolute;right:-3px;top:160px;width:3px;height:56px;background:#1a1a1a;border-radius:0 2px 2px 0;}
+.screen{position:absolute;inset:7px;border-radius:42px;background:#fff;overflow:hidden;display:flex;flex-direction:column;}
 
 /* DYNAMIC ISLAND */
 .di{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:100px;height:30px;background:#000;border-radius:16px;z-index:20;display:flex;align-items:center;justify-content:space-between;padding:0 10px;}
-.di-cam{width:10px;height:10px;border-radius:50%;background:#111;border:1px solid #222;}
-.di-fid{width:11px;height:11px;border-radius:3px;border:1.5px solid #222;}
+.di-cam{width:10px;height:10px;border-radius:50%;background:#0a0a0a;border:1px solid #1a1a1a;}
+.di-fid{width:11px;height:11px;border-radius:3px;border:1.5px solid #1a1a1a;}
 
 /* STATUS BAR */
 .sbar{position:absolute;top:0;left:0;right:0;height:48px;display:flex;align-items:center;justify-content:space-between;padding:14px 20px 0;z-index:15;pointer-events:none;}
-.sbar-time{font-size:14px;font-weight:700;color:#fff;letter-spacing:-.3px;line-height:1;}
+.sbar-time{font-size:14px;font-weight:700;color:#000;letter-spacing:-.3px;line-height:1;}
 .sbar-icons{display:flex;align-items:center;gap:5px;line-height:1;}
 
 /* NAV */
 .nav{
-  padding:46px 10px 8px;background:#000;
-  border-bottom:.5px solid rgba(255,255,255,.1);
+  padding:46px 10px 8px;background:rgba(249,249,249,.94);
+  border-bottom:.5px solid rgba(0,0,0,.15);
   display:grid;grid-template-columns:1fr auto 1fr;
   align-items:center;flex-shrink:0;
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
 }
-.nav-back{color:#0a84ff;display:flex;align-items:center;gap:2px;font-size:14px;}
-.nav-chev{font-size:22px;font-weight:200;color:#0a84ff;margin-top:-2px;line-height:1;}
-.nav-badge{background:#3a3a3c;color:#fff;font-size:11px;font-weight:700;padding:2px 7px;border-radius:8px;}
+.nav-back{color:#007AFF;display:flex;align-items:center;gap:2px;font-size:14px;}
+.nav-chev{font-size:22px;font-weight:200;color:#007AFF;margin-top:-2px;line-height:1;}
+.nav-badge{background:#c7c7cc;color:#000;font-size:11px;font-weight:700;padding:2px 7px;border-radius:8px;}
 .nav-center{display:flex;flex-direction:column;align-items:center;gap:3px;justify-self:center;}
 .nav-avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;position:relative;}
-.nav-dot{position:absolute;bottom:1px;right:1px;width:9px;height:9px;background:#30d158;border-radius:50%;border:2px solid #000;}
-.nav-name{font-size:11px;font-weight:600;color:#fff;display:flex;align-items:center;gap:2px;}
+.nav-dot{position:absolute;bottom:1px;right:1px;width:9px;height:9px;background:#30d158;border-radius:50%;border:2px solid #f9f9f9;}
+.nav-name{font-size:11px;font-weight:600;color:#000;display:flex;align-items:center;gap:2px;}
 .nav-icons{display:flex;gap:10px;justify-content:flex-end;}
-.nav-icon-btn{width:28px;height:28px;background:#3a3a3c;border-radius:50%;display:flex;align-items:center;justify-content:center;}
+.nav-icon-btn{width:28px;height:28px;background:#e5e5ea;border-radius:50%;display:flex;align-items:center;justify-content:center;}
 
 /* MESSAGES */
-.msgs{flex:1;overflow-y:auto;overflow-x:hidden;padding:5px 8px 4px;display:flex;flex-direction:column;gap:2px;-webkit-overflow-scrolling:touch;}
+.msgs{flex:1;overflow-y:auto;overflow-x:hidden;padding:5px 8px 4px;display:flex;flex-direction:column;gap:2px;-webkit-overflow-scrolling:touch;background:#fff;}
 .msgs::-webkit-scrollbar{width:0;display:none;}
 .time-div{text-align:center;font-size:10px;color:#8e8e93;margin:5px 0 3px;}
 .row{display:flex;align-items:flex-end;opacity:0;transform:translateY(8px) scale(.97);transition:opacity .22s,transform .22s;flex-shrink:0;}
@@ -85,8 +86,8 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60p
 .row.them{justify-content:flex-start;}
 .row.vis{opacity:1;transform:none;}
 .bub{max-width:210px;padding:8px 12px;border-radius:17px;font-size:14px;line-height:1.38;word-break:break-word;white-space:pre-wrap;}
-.row.them .bub{background:#3a3a3c;color:#fff;border-bottom-left-radius:5px;}
-.row.me .bub{background:#0a84ff;color:#fff;border-bottom-right-radius:5px;}
+.row.them .bub{background:#e9e9eb;color:#000;border-bottom-left-radius:5px;}
+.row.me .bub{background:#007AFF;color:#fff;border-bottom-right-radius:5px;}
 @keyframes bPop{0%{transform:scale(.82);opacity:0}60%{transform:scale(1.04)}100%{transform:scale(1);opacity:1}}
 .bpop{animation:bPop .22s ease forwards;}
 /* During recording: only kill the bubble pop scale animation, keep player/progress/bars alive */
@@ -99,51 +100,51 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60p
 /* TYPING */
 .typing-row{display:flex;align-items:flex-end;opacity:0;transition:opacity .22s;flex-shrink:0;}
 .typing-row.vis{opacity:1;}
-.typing-bub{background:#3a3a3c;border-radius:17px;border-bottom-left-radius:5px;padding:9px 12px;display:flex;gap:4px;align-items:center;}
-.td{width:6px;height:6px;background:#8e8e93;border-radius:50%;animation:tBounce 1.2s ease-in-out infinite;}
+.typing-bub{background:#e9e9eb;border-radius:17px;border-bottom-left-radius:5px;padding:9px 12px;display:flex;gap:4px;align-items:center;}
+.td{width:6px;height:6px;background:#a5a5a5;border-radius:50%;animation:tBounce 1.2s ease-in-out infinite;}
 .td:nth-child(2){animation-delay:.18s;}.td:nth-child(3){animation-delay:.36s;}
 @keyframes tBounce{0%,60%,100%{transform:translateY(0);opacity:.5}30%{transform:translateY(-4px);opacity:1}}
 
 /* FILE BUBBLE */
 .file-row{display:flex;justify-content:flex-end;flex-shrink:0;opacity:0;transform:translateY(8px);transition:opacity .22s,transform .22s;}
 .file-row.vis{opacity:1;transform:none;}
-.file-bub{background:#0a84ff;border-radius:16px;border-bottom-right-radius:4px;padding:9px 12px;display:flex;align-items:center;gap:8px;max-width:210px;}
+.file-bub{background:#007AFF;border-radius:16px;border-bottom-right-radius:4px;padding:9px 12px;display:flex;align-items:center;gap:8px;max-width:210px;}
 .file-icon{width:32px;height:32px;background:rgba(255,255,255,.22);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
 .file-name{font-size:11px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .file-meta{font-size:10px;color:rgba(255,255,255,.6);margin-top:1px;}
 
 /* PLAYER */
 .player-row{display:flex;justify-content:flex-end;flex-shrink:0;}
-.player{width:224px;background:#1c1c1e;border:1px solid #2c2c2e;border-radius:16px;border-bottom-right-radius:4px;overflow:hidden;opacity:0;transform:scale(.9);transition:opacity .3s,transform .3s;}
+.player{width:224px;background:#f2f2f7;border:1px solid #d1d1d6;border-radius:16px;border-bottom-right-radius:4px;overflow:hidden;opacity:0;transform:scale(.9);transition:opacity .3s,transform .3s;}
 .player.vis{opacity:1;transform:scale(1);}
 .player-art{width:100%;height:76px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;color:#fff;letter-spacing:1px;position:relative;overflow:hidden;font-family:'DM Sans',sans-serif;text-shadow:0 1px 4px rgba(0,0,0,.2);}
-.player-art::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 70% 30%,rgba(255,255,255,.08),transparent 60%);}
+.player-art::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 70% 30%,rgba(255,255,255,.12),transparent 60%);}
 .art-bars{position:absolute;bottom:6px;right:8px;display:flex;gap:2px;align-items:flex-end;}
-.ab{width:3px;border-radius:2px;background:rgba(255,255,255,.65);animation:abAnim .7s ease-in-out infinite;}
+.ab{width:3px;border-radius:2px;background:rgba(255,255,255,.75);animation:abAnim .7s ease-in-out infinite;}
 .ab:nth-child(2){animation-delay:.12s;}.ab:nth-child(3){animation-delay:.24s;}.ab:nth-child(4){animation-delay:.08s;}.ab:nth-child(5){animation-delay:.32s;}
 .ab.paused{animation-play-state:paused;height:3px!important;transition:height .3s;}
 @keyframes abAnim{0%,100%{height:5px}50%{height:var(--h,14px)}}
 .player-body{padding:8px 11px 10px;}
-.player-title{font-size:12px;font-weight:700;color:#fff;margin-bottom:2px;line-height:1.3;}
+.player-title{font-size:12px;font-weight:700;color:#000;margin-bottom:2px;line-height:1.3;}
 .player-sub{font-size:10px;color:#8e8e93;margin-bottom:8px;}
-.prog-wrap{height:3px;background:#3a3a3c;border-radius:2px;margin-bottom:5px;overflow:hidden;}
-.prog-fill{height:100%;background:#fff;border-radius:2px;width:0%;transition:width .1s linear;}
+.prog-wrap{height:3px;background:#d1d1d6;border-radius:2px;margin-bottom:5px;overflow:hidden;}
+.prog-fill{height:100%;background:#007AFF;border-radius:2px;width:0%;transition:width .1s linear;}
 .time-row{display:flex;justify-content:space-between;font-size:9px;color:#8e8e93;margin-bottom:8px;}
 .player-btns{display:flex;align-items:center;justify-content:space-between;}
-.pbtn{background:none;border:none;color:#fff;cursor:pointer;padding:3px;opacity:.8;display:flex;align-items:center;justify-content:center;}
-.pbtn.main{width:30px;height:30px;background:#fff;border-radius:50%;color:#000;opacity:1;}
+.pbtn{background:none;border:none;color:#333;cursor:pointer;padding:3px;opacity:.8;display:flex;align-items:center;justify-content:center;}
+.pbtn.main{width:30px;height:30px;background:#000;border-radius:50%;color:#fff;opacity:1;}
 
 /* TAPBACK */
 .tapback{font-size:18px;opacity:0;transform:scale(0) rotate(-20deg);transition:opacity .4s,transform .5s cubic-bezier(.34,1.56,.64,1);display:inline-block;margin-left:3px;margin-top:2px;}
 .tapback.vis{opacity:1;transform:scale(1) rotate(0deg);}
 
 /* INPUT BAR */
-.input-bar{padding:6px 8px 20px;background:#000;border-top:.5px solid rgba(255,255,255,.1);display:flex;align-items:center;gap:7px;flex-shrink:0;}
-.input-plus{width:28px;height:28px;background:#3a3a3c;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:17px;font-weight:300;}
+.input-bar{padding:6px 8px 20px;background:#f6f6f6;border-top:.5px solid rgba(0,0,0,.12);display:flex;align-items:center;gap:7px;flex-shrink:0;}
+.input-plus{width:28px;height:28px;background:#c7c7cc;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:17px;font-weight:500;}
 .input-wrap{flex:1;position:relative;display:flex;align-items:center;}
-.input-field{flex:1;background:#1c1c1e;border-radius:19px;border:1px solid #3a3a3c;padding:7px 30px 7px 11px;color:#8e8e93;font-size:14px;min-height:32px;display:flex;align-items:center;font-family:var(--font);white-space:pre-wrap;}
+.input-field{flex:1;background:#fff;border-radius:19px;border:1px solid #c7c7cc;padding:7px 30px 7px 11px;color:#8e8e93;font-size:14px;min-height:32px;display:flex;align-items:center;font-family:var(--font);white-space:pre-wrap;}
 .input-mic{position:absolute;right:9px;display:flex;align-items:center;pointer-events:none;transition:opacity .15s;}
-.input-send{width:26px;height:26px;background:#0a84ff;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;position:absolute;right:3px;transform:scale(0);transition:transform .2s cubic-bezier(.34,1.56,.64,1);}
+.input-send{width:26px;height:26px;background:#007AFF;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;position:absolute;right:3px;transform:scale(0);transition:transform .2s cubic-bezier(.34,1.56,.64,1);}
 .input-send.vis{transform:scale(1);}
 
 /* CAPTION BELOW PHONE */
@@ -389,9 +390,9 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60p
         <div class="sbar">
           <span class="sbar-time" id="sbarTime">9:41</span>
           <div class="sbar-icons">
-            <svg width="14" height="10" viewBox="0 0 17 12" fill="white"><rect x="0" y="3" width="3" height="9" rx="1" opacity=".3"/><rect x="4.5" y="2" width="3" height="10" rx="1" opacity=".5"/><rect x="9" y="1" width="3" height="11" rx="1" opacity=".7"/><rect x="13.5" y="0" width="3" height="12" rx="1"/></svg>
-            <svg width="13" height="10" viewBox="0 0 16 12" fill="white"><path d="M8 2.4C10.2 2.4 12.2 3.3 13.6 4.8L15 3.4C13.2 1.3 10.7 0 8 0S2.8 1.3 1 3.4l1.4 1.4C3.8 3.3 5.8 2.4 8 2.4z" opacity=".5"/><circle cx="8" cy="10" r="1.8"/></svg>
-            <svg width="20" height="10" viewBox="0 0 25 12" fill="none"><rect x="0" y="1" width="22" height="10" rx="3" stroke="white" stroke-width="1.2" opacity=".35"/><rect x="1.5" y="2.5" width="16" height="7" rx="2" fill="white"/></svg>
+            <svg width="14" height="10" viewBox="0 0 17 12" fill="black"><rect x="0" y="3" width="3" height="9" rx="1" opacity=".3"/><rect x="4.5" y="2" width="3" height="10" rx="1" opacity=".5"/><rect x="9" y="1" width="3" height="11" rx="1" opacity=".7"/><rect x="13.5" y="0" width="3" height="12" rx="1"/></svg>
+            <svg width="13" height="10" viewBox="0 0 16 12" fill="black"><path d="M8 2.4C10.2 2.4 12.2 3.3 13.6 4.8L15 3.4C13.2 1.3 10.7 0 8 0S2.8 1.3 1 3.4l1.4 1.4C3.8 3.3 5.8 2.4 8 2.4z" opacity=".5"/><circle cx="8" cy="10" r="1.8"/></svg>
+            <svg width="20" height="10" viewBox="0 0 25 12" fill="none"><rect x="0" y="1" width="22" height="10" rx="3" stroke="black" stroke-width="1.2" opacity=".35"/><rect x="1.5" y="2.5" width="16" height="7" rx="2" fill="black"/></svg>
           </div>
         </div>
         <div class="nav">
@@ -401,11 +402,11 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60p
               <span id="navEmoji">👩</span>
               <div class="nav-dot"></div>
             </div>
-            <div class="nav-name" id="navName">Mom <span style="color:#8e8e93;font-size:12px">›</span></div>
+            <div class="nav-name" id="navName">Mom <span style="color:#8e8e93;font-size:12px;">›</span></div>
           </div>
           <div class="nav-icons">
-            <div class="nav-icon-btn"><svg width="15" height="11" viewBox="0 0 18 14" fill="none"><rect x="0" y="1" width="11" height="12" rx="2.5" fill="white"/><path d="M12 5L17 2.5V11.5L12 9V5Z" fill="white"/></svg></div>
-            <div class="nav-icon-btn"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path fill-rule="evenodd" d="M3.2 1C2.6.4 1.7.4 1.1 1L.5 1.6C-.2 2.3-.1 3.5.4 4.5C2 7.3 4.7 10 7.5 11.6C8.5 12.1 9.7 12.2 10.4 11.5L11 10.9C11.6 10.3 11.6 9.4 11 8.8L9.7 7.5C9.1 6.9 8.2 6.8 7.5 7.3L7.1 7.6C6.6 7.9 6 7.8 5.6 7.4L4.6 6.4C4.2 6 4.1 5.4 4.4 4.9L4.7 4.5C5.2 3.8 5.1 2.9 4.5 2.3L3.2 1Z" fill="white"/></svg></div>
+            <div class="nav-icon-btn"><svg width="15" height="11" viewBox="0 0 18 14" fill="none"><rect x="0" y="1" width="11" height="12" rx="2.5" fill="#007AFF"/><path d="M12 5L17 2.5V11.5L12 9V5Z" fill="#007AFF"/></svg></div>
+            <div class="nav-icon-btn"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path fill-rule="evenodd" d="M3.2 1C2.6.4 1.7.4 1.1 1L.5 1.6C-.2 2.3-.1 3.5.4 4.5C2 7.3 4.7 10 7.5 11.6C8.5 12.1 9.7 12.2 10.4 11.5L11 10.9C11.6 10.3 11.6 9.4 11 8.8L9.7 7.5C9.1 6.9 8.2 6.8 7.5 7.3L7.1 7.6C6.6 7.9 6 7.8 5.6 7.4L4.6 6.4C4.2 6 4.1 5.4 4.4 4.9L4.7 4.5C5.2 3.8 5.1 2.9 4.5 2.3L3.2 1Z" fill="#007AFF"/></svg></div>
           </div>
         </div>
         <div class="msgs" id="msgArea">
@@ -417,10 +418,10 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60p
             <div class="input-field" id="inputField">iMessage</div>
             <div class="input-mic" id="inputMic">
               <svg width="11" height="16" viewBox="0 0 14 20" fill="none">
-                <rect x="4" y="0" width="6" height="12" rx="3" fill="#636366"/>
-                <path d="M1 9C1 12.31 3.69 15 7 15C10.31 15 13 12.31 13 9" stroke="#636366" stroke-width="1.8" stroke-linecap="round"/>
-                <line x1="7" y1="15" x2="7" y2="19" stroke="#636366" stroke-width="1.8" stroke-linecap="round"/>
-                <line x1="4" y1="19" x2="10" y2="19" stroke="#636366" stroke-width="1.8" stroke-linecap="round"/>
+                <rect x="4" y="0" width="6" height="12" rx="3" fill="#8e8e93"/>
+                <path d="M1 9C1 12.31 3.69 15 7 15C10.31 15 13 12.31 13 9" stroke="#8e8e93" stroke-width="1.8" stroke-linecap="round"/>
+                <line x1="7" y1="15" x2="7" y2="19" stroke="#8e8e93" stroke-width="1.8" stroke-linecap="round"/>
+                <line x1="4" y1="19" x2="10" y2="19" stroke="#8e8e93" stroke-width="1.8" stroke-linecap="round"/>
               </svg>
             </div>
             <div class="input-send" id="inputSend">↑</div>
@@ -569,9 +570,9 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60p
           <div class="sbar" style="pointer-events:auto;">
             <span class="sbar-time" id="cbSbarTime" style="cursor:pointer;" onclick="cbEditSbarTime()">9:41</span>
             <div class="sbar-icons" id="cbSbarIcons">
-              <span class="cb-icon-wrap" data-icon="signal"><svg width="14" height="10" viewBox="0 0 17 12" fill="white"><rect x="0" y="3" width="3" height="9" rx="1" opacity=".3"/><rect x="4.5" y="2" width="3" height="10" rx="1" opacity=".5"/><rect x="9" y="1" width="3" height="11" rx="1" opacity=".7"/><rect x="13.5" y="0" width="3" height="12" rx="1"/></svg><span class="cb-icon-x" onclick="cbDeleteIcon(this)">✕</span></span>
-              <span class="cb-icon-wrap" data-icon="wifi"><svg width="13" height="10" viewBox="0 0 16 12" fill="white"><path d="M8 2.4C10.2 2.4 12.2 3.3 13.6 4.8L15 3.4C13.2 1.3 10.7 0 8 0S2.8 1.3 1 3.4l1.4 1.4C3.8 3.3 5.8 2.4 8 2.4z" opacity=".5"/><circle cx="8" cy="10" r="1.8"/></svg><span class="cb-icon-x" onclick="cbDeleteIcon(this)">✕</span></span>
-              <span class="cb-icon-wrap" data-icon="battery"><svg width="20" height="10" viewBox="0 0 25 12" fill="none"><rect x="0" y="1" width="22" height="10" rx="3" stroke="white" stroke-width="1.2" opacity=".35"/><rect x="1.5" y="2.5" width="16" height="7" rx="2" fill="white"/></svg><span class="cb-icon-x" onclick="cbDeleteIcon(this)">✕</span></span>
+              <span class="cb-icon-wrap" data-icon="signal"><svg width="14" height="10" viewBox="0 0 17 12" fill="black"><rect x="0" y="3" width="3" height="9" rx="1" opacity=".3"/><rect x="4.5" y="2" width="3" height="10" rx="1" opacity=".5"/><rect x="9" y="1" width="3" height="11" rx="1" opacity=".7"/><rect x="13.5" y="0" width="3" height="12" rx="1"/></svg><span class="cb-icon-x" onclick="cbDeleteIcon(this)">✕</span></span>
+              <span class="cb-icon-wrap" data-icon="wifi"><svg width="13" height="10" viewBox="0 0 16 12" fill="black"><path d="M8 2.4C10.2 2.4 12.2 3.3 13.6 4.8L15 3.4C13.2 1.3 10.7 0 8 0S2.8 1.3 1 3.4l1.4 1.4C3.8 3.3 5.8 2.4 8 2.4z" opacity=".5"/><circle cx="8" cy="10" r="1.8"/></svg><span class="cb-icon-x" onclick="cbDeleteIcon(this)">✕</span></span>
+              <span class="cb-icon-wrap" data-icon="battery"><svg width="20" height="10" viewBox="0 0 25 12" fill="none"><rect x="0" y="1" width="22" height="10" rx="3" stroke="black" stroke-width="1.2" opacity=".35"/><rect x="1.5" y="2.5" width="16" height="7" rx="2" fill="black"/></svg><span class="cb-icon-x" onclick="cbDeleteIcon(this)">✕</span></span>
             </div>
           </div>
           <!-- Editable nav - tap name/emoji/avatar to change -->
@@ -590,11 +591,11 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60p
                 <div class="av-menu-sep"></div>
                 <button class="av-menu-item" onclick="cbTriggerImageUpload()">📷 Upload Image</button>
               </div>
-              <div id="cbNavName" contenteditable="true" style="color:#fff;font-size:14px;font-weight:600;cursor:text;outline:none;min-width:30px;">Mom</div>
+              <div id="cbNavName" contenteditable="true" style="color:#000;font-size:14px;font-weight:600;cursor:text;outline:none;min-width:30px;">Mom</div>
             </div>
             <div class="nav-icons">
-              <div class="nav-icon-btn"><svg width="15" height="11" viewBox="0 0 18 14" fill="none"><rect x="0" y="1" width="11" height="12" rx="2.5" fill="white"/><path d="M12 5L17 2.5V11.5L12 9V5Z" fill="white"/></svg></div>
-              <div class="nav-icon-btn"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path fill-rule="evenodd" d="M3.2 1C2.6.4 1.7.4 1.1 1L.5 1.6C-.2 2.3-.1 3.5.4 4.5C2 7.3 4.7 10 7.5 11.6C8.5 12.1 9.7 12.2 10.4 11.5L11 10.9C11.6 10.3 11.6 9.4 11 8.8L9.7 7.5C9.1 6.9 8.2 6.8 7.5 7.3L7.1 7.6C6.6 7.9 6 7.8 5.6 7.4L4.6 6.4C4.2 6 4.1 5.4 4.4 4.9L4.7 4.5C5.2 3.8 5.1 2.9 4.5 2.3L3.2 1Z" fill="white"/></svg></div>
+              <div class="nav-icon-btn"><svg width="15" height="11" viewBox="0 0 18 14" fill="none"><rect x="0" y="1" width="11" height="12" rx="2.5" fill="#007AFF"/><path d="M12 5L17 2.5V11.5L12 9V5Z" fill="#007AFF"/></svg></div>
+              <div class="nav-icon-btn"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path fill-rule="evenodd" d="M3.2 1C2.6.4 1.7.4 1.1 1L.5 1.6C-.2 2.3-.1 3.5.4 4.5C2 7.3 4.7 10 7.5 11.6C8.5 12.1 9.7 12.2 10.4 11.5L11 10.9C11.6 10.3 11.6 9.4 11 8.8L9.7 7.5C9.1 6.9 8.2 6.8 7.5 7.3L7.1 7.6C6.6 7.9 6 7.8 5.6 7.4L4.6 6.4C4.2 6 4.1 5.4 4.4 4.9L4.7 4.5C5.2 3.8 5.1 2.9 4.5 2.3L3.2 1Z" fill="#007AFF"/></svg></div>
             </div>
           </div>
           <!-- Message area -->
@@ -603,9 +604,9 @@ body{display:flex;flex-direction:column;align-items:center;padding:24px 16px 60p
             <div id="cbPhoneMsgs"></div>
           </div>
           <!-- Builder input bar -->
-          <div style="padding:6px 8px;background:#1c1c1e;display:flex;gap:4px;">
-            <button onclick="cbAddMsg('them')" style="flex:1;padding:7px;border-radius:8px;border:none;background:#3a3a3c;color:#fff;font-size:10px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif;">+ Them</button>
-            <button onclick="cbAddMsg('me')" style="flex:1;padding:7px;border-radius:8px;border:none;background:#0a84ff;color:#fff;font-size:10px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif;">+ Me</button>
+          <div style="padding:6px 8px;background:#f2f2f7;display:flex;gap:4px;">
+            <button onclick="cbAddMsg('them')" style="flex:1;padding:7px;border-radius:8px;border:none;background:#e9e9eb;color:#000;font-size:10px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif;">+ Them</button>
+            <button onclick="cbAddMsg('me')" style="flex:1;padding:7px;border-radius:8px;border:none;background:#007AFF;color:#fff;font-size:10px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif;">+ Me</button>
             <button onclick="cbShowSongPopup()" style="flex:1;padding:7px;border-radius:8px;border:none;background:#7C3AED;color:#fff;font-size:10px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif;">+ Song</button>
           </div>
         </div>
@@ -905,7 +906,7 @@ async function playAd(){
     if(msg.file){
       // type "attaching"
       await sleep(700);
-      iField.textContent='Attaching file...';iField.style.color='#fff';
+      iField.textContent='Attaching file...';iField.style.color='#000';
       iSend.classList.add('vis');iMic.style.opacity='0';
       await sleep(900);
 
@@ -949,7 +950,7 @@ async function playAd(){
 
     } else {
       await sleep(600);
-      iField.textContent='';iField.style.color='#fff';
+      iField.textContent='';iField.style.color='#000';
       for(let c=0;c<=msg.t.length;c++){
         if(adAbortFlag)break;
         iField.textContent=msg.t.slice(0,c);
@@ -1059,14 +1060,14 @@ async function showPlayer(sc){
       <div class="prog-wrap"><div class="prog-fill" id="progFill"></div></div>
       <div class="time-row"><span id="curTime">0:00</span><span id="totTime">0:30</span></div>
       <div class="player-btns">
-        <button class="pbtn"><svg width="14" height="14" viewBox="0 0 18 18" fill="white"><rect x="0" y="0" width="3" height="18" rx="1.5"/><polygon points="3,9 18,0 18,18"/></svg></button>
-        <button class="pbtn"><svg width="14" height="14" viewBox="0 0 18 18" fill="white"><polygon points="18,0 5,9 18,18"/><polygon points="11,0 0,9 11,18"/></svg></button>
+        <button class="pbtn"><svg width="14" height="14" viewBox="0 0 18 18" fill="#333"><rect x="0" y="0" width="3" height="18" rx="1.5"/><polygon points="3,9 18,0 18,18"/></svg></button>
+        <button class="pbtn"><svg width="14" height="14" viewBox="0 0 18 18" fill="#333"><polygon points="18,0 5,9 18,18"/><polygon points="11,0 0,9 11,18"/></svg></button>
         <button class="pbtn main" id="playPauseBtn">
-          <svg id="pIcon" width="12" height="13" viewBox="0 0 16 18" fill="black"><polygon points="0,0 16,9 0,18"/></svg>
-          <svg id="pauseIcon" width="12" height="13" viewBox="0 0 16 18" fill="black" style="display:none"><rect x="0" y="0" width="5" height="18" rx="2"/><rect x="11" y="0" width="5" height="18" rx="2"/></svg>
+          <svg id="pIcon" width="12" height="13" viewBox="0 0 16 18" fill="white"><polygon points="0,0 16,9 0,18"/></svg>
+          <svg id="pauseIcon" width="12" height="13" viewBox="0 0 16 18" fill="white" style="display:none"><rect x="0" y="0" width="5" height="18" rx="2"/><rect x="11" y="0" width="5" height="18" rx="2"/></svg>
         </button>
-        <button class="pbtn"><svg width="14" height="14" viewBox="0 0 18 18" fill="white"><polygon points="0,0 13,9 0,18"/><polygon points="7,0 18,9 7,18"/></svg></button>
-        <button class="pbtn"><svg width="14" height="14" viewBox="0 0 18 18" fill="white"><rect x="15" y="0" width="3" height="18" rx="1.5"/><polygon points="0,0 15,9 0,18"/></svg></button>
+        <button class="pbtn"><svg width="14" height="14" viewBox="0 0 18 18" fill="#333"><polygon points="0,0 13,9 0,18"/><polygon points="7,0 18,9 7,18"/></svg></button>
+        <button class="pbtn"><svg width="14" height="14" viewBox="0 0 18 18" fill="#333"><rect x="15" y="0" width="3" height="18" rx="1.5"/><polygon points="0,0 15,9 0,18"/></svg></button>
       </div>
     </div>
   </div>`;
@@ -1201,7 +1202,7 @@ async function showAfterSongMessages(sc){
       await sleep(1500+Math.random()*600);
     } else {
       await sleep(600);
-      iField.textContent='';iField.style.color='#fff';
+      iField.textContent='';iField.style.color='#000';
       for(let c=0;c<=msg.text.length;c++){
         if(adAbortFlag)return;
         iField.textContent=msg.text.slice(0,c);
@@ -1241,7 +1242,7 @@ async function recordAndDownload(){
   const ctx=canvas.getContext('2d',{alpha:false});
 
   // Pre-warm html2canvas so first frame isn't slow
-  await html2canvas(phone,{backgroundColor:'#000000',scale,logging:false,useCORS:true,allowTaint:true,imageTimeout:0,removeContainer:true});
+  await html2canvas(phone,{backgroundColor:'#ffffff',scale,logging:false,useCORS:true,allowTaint:true,imageTimeout:0,removeContainer:true});
 
   const videoStream=canvas.captureStream(FPS);
   const ac=getAC();
@@ -1313,7 +1314,7 @@ async function recordAndDownload(){
   let lastFrameTime=0;
   const minFrameGap=1000/FPS;
   // Reusable options object to reduce GC pressure
-  const h2cOpts={backgroundColor:'#000000',scale,logging:false,useCORS:true,allowTaint:true,imageTimeout:0,removeContainer:true};
+  const h2cOpts={backgroundColor:'#ffffff',scale,logging:false,useCORS:true,allowTaint:true,imageTimeout:0,removeContainer:true};
   let frameInFlight=false;
 
   function captureLoop(now){
@@ -2250,7 +2251,7 @@ async function cbRecordAd(){
   phone.classList.add('no-anim');
 
   // Pre-warm html2canvas
-  await html2canvas(phone,{backgroundColor:'#000000',scale,logging:false,useCORS:true,allowTaint:true,imageTimeout:0,removeContainer:true});
+  await html2canvas(phone,{backgroundColor:'#ffffff',scale,logging:false,useCORS:true,allowTaint:true,imageTimeout:0,removeContainer:true});
 
   const videoStream=canvas.captureStream(FPS);
   const ac=getAC();
@@ -2291,7 +2292,7 @@ async function cbRecordAd(){
   let capturing=true;
   let lastFrameTime=0;
   let frameInFlight=false;
-  const h2cOpts={backgroundColor:'#000000',scale,logging:false,useCORS:true,allowTaint:true,imageTimeout:0,removeContainer:true};
+  const h2cOpts={backgroundColor:'#ffffff',scale,logging:false,useCORS:true,allowTaint:true,imageTimeout:0,removeContainer:true};
   function captureLoop(ts){
     if(!capturing)return;
     requestAnimationFrame(captureLoop);
