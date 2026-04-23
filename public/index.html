@@ -1227,20 +1227,22 @@ async function recordAndDownload(){
   adSpeedMult=1;
 
   const phone=document.getElementById('aiPhone');
+  // Capture the SCREEN element (not the phone body) to avoid rounded corner artifacts
+  const screen=phone.querySelector('.screen');
   const dlBtn=document.getElementById('downloadBtn');
   // Disable CSS animations so html2canvas doesn't capture mid-scale frames
   phone.classList.add('no-anim');
-  const FPS=30;
+  const FPS=15;
 
-  // Use 1x scale for speed — html2canvas at 2x is the #1 bottleneck
-  const scale=1;
+  // Use 2x scale for crisp quality
+  const scale=2;
   const canvas=document.createElement('canvas');
-  canvas.width=phone.offsetWidth*scale;
-  canvas.height=phone.offsetHeight*scale;
+  canvas.width=screen.offsetWidth*scale;
+  canvas.height=screen.offsetHeight*scale;
   const ctx=canvas.getContext('2d',{alpha:false});
 
-  // Pre-warm html2canvas so first frame isn't slow
-  await html2canvas(phone,{backgroundColor:'#ffffff',scale,logging:false,useCORS:true,allowTaint:true,imageTimeout:0,removeContainer:true});
+  // Pre-warm html2canvas
+  await html2canvas(screen,{backgroundColor:null,scale,logging:false,useCORS:true,allowTaint:true,imageTimeout:0,removeContainer:true});
 
   const videoStream=canvas.captureStream(FPS);
   const ac=getAC();
@@ -1251,7 +1253,7 @@ async function recordAndDownload(){
   }
   const mimeType=MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus')?'video/webm;codecs=vp9,opus':
                   MediaRecorder.isTypeSupported('video/webm;codecs=vp8,opus')?'video/webm;codecs=vp8,opus':'video/webm';
-  mediaRecorder=new MediaRecorder(combinedStream,{mimeType,videoBitsPerSecond:8000000});
+  mediaRecorder=new MediaRecorder(combinedStream,{mimeType,videoBitsPerSecond:12000000});
   recordedChunks=[];
   mediaRecorder.ondataavailable=e=>{if(e.data.size>0)recordedChunks.push(e.data);};
   mediaRecorder.onstop=async()=>{
@@ -1307,22 +1309,21 @@ async function recordAndDownload(){
   mediaRecorder.start();
   setDLStatus('Recording ad...','#ff453a');
 
-  // Smooth frame capture using requestAnimationFrame + throttle
+  // Frame capture — captures screen element (no rounded corners)
   let capturing=true;
   let lastFrameTime=0;
   const minFrameGap=1000/FPS;
-  // Reusable options object to reduce GC pressure
-  const h2cOpts={backgroundColor:'#ffffff',scale,logging:false,useCORS:true,allowTaint:true,imageTimeout:0,removeContainer:true};
+  const h2cOpts={backgroundColor:null,scale,logging:false,useCORS:true,allowTaint:true,imageTimeout:0,removeContainer:true};
   let frameInFlight=false;
 
   function captureLoop(now){
     if(!capturing)return;
     requestAnimationFrame(captureLoop);
     if(now-lastFrameTime<minFrameGap)return;
-    if(frameInFlight)return; // skip if previous capture still running
+    if(frameInFlight)return;
     lastFrameTime=now;
     frameInFlight=true;
-    html2canvas(phone,h2cOpts).then(fc=>{
+    html2canvas(screen,h2cOpts).then(fc=>{
       if(!capturing)return;
       ctx.drawImage(fc,0,0,canvas.width,canvas.height);
       frameInFlight=false;
@@ -2235,21 +2236,22 @@ let cbVideoBlob=null;
 let cbVideoUrl=null;
 
 async function cbRecordAd(){
-  // Record the AI phone (moved into custom tab for live preview)
+  // Record the AI phone's SCREEN (moved into custom tab for live preview)
   const phone=document.getElementById('aiPhone');
-  const FPS=30;
+  const screen=phone.querySelector('.screen');
+  const FPS=15;
   const minFrameGap=1000/FPS;
-  const scale=1;
+  const scale=2;
   const canvas=document.createElement('canvas');
-  canvas.width=phone.offsetWidth*scale;
-  canvas.height=phone.offsetHeight*scale;
+  canvas.width=screen.offsetWidth*scale;
+  canvas.height=screen.offsetHeight*scale;
   const ctx=canvas.getContext('2d',{alpha:false});
 
   // Disable CSS animations to prevent bubble pulsing
   phone.classList.add('no-anim');
 
   // Pre-warm html2canvas
-  await html2canvas(phone,{backgroundColor:'#ffffff',scale,logging:false,useCORS:true,allowTaint:true,imageTimeout:0,removeContainer:true});
+  await html2canvas(screen,{backgroundColor:null,scale,logging:false,useCORS:true,allowTaint:true,imageTimeout:0,removeContainer:true});
 
   const videoStream=canvas.captureStream(FPS);
   const ac=getAC();
@@ -2260,7 +2262,7 @@ async function cbRecordAd(){
   }
   const mimeType=MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus')?'video/webm;codecs=vp9,opus':
                   MediaRecorder.isTypeSupported('video/webm;codecs=vp8,opus')?'video/webm;codecs=vp8,opus':'video/webm';
-  const rec=new MediaRecorder(combinedStream,{mimeType,videoBitsPerSecond:8000000});
+  const rec=new MediaRecorder(combinedStream,{mimeType,videoBitsPerSecond:12000000});
   const chunks=[];
   rec.ondataavailable=e=>{if(e.data.size>0)chunks.push(e.data);};
 
@@ -2290,7 +2292,7 @@ async function cbRecordAd(){
   let capturing=true;
   let lastFrameTime=0;
   let frameInFlight=false;
-  const h2cOpts={backgroundColor:'#ffffff',scale,logging:false,useCORS:true,allowTaint:true,imageTimeout:0,removeContainer:true};
+  const h2cOpts={backgroundColor:null,scale,logging:false,useCORS:true,allowTaint:true,imageTimeout:0,removeContainer:true};
   function captureLoop(ts){
     if(!capturing)return;
     requestAnimationFrame(captureLoop);
@@ -2298,7 +2300,7 @@ async function cbRecordAd(){
     if(frameInFlight)return;
     lastFrameTime=ts;
     frameInFlight=true;
-    html2canvas(phone,h2cOpts).then(fc=>{
+    html2canvas(screen,h2cOpts).then(fc=>{
       if(!capturing)return;
       ctx.drawImage(fc,0,0,canvas.width,canvas.height);
       frameInFlight=false;
