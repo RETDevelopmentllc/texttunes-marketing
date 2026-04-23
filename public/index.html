@@ -1225,120 +1225,153 @@ async function recordAndDownload(){
   if(!currentAd){setDLStatus('Generate an ad first!','#ff453a');return;}
   if(isRecording)return;
   adSpeedMult=1;
+  isRecording=true;
 
   const phone=document.getElementById('aiPhone');
-  // Capture the SCREEN element (not the phone body) to avoid rounded corner artifacts
-  const screen=phone.querySelector('.screen');
+  const scr=phone.querySelector('.screen');
   const dlBtn=document.getElementById('downloadBtn');
-  // Disable CSS animations so html2canvas doesn't capture mid-scale frames
-  phone.classList.add('no-anim');
-  const FPS=15;
+  dlBtn.classList.add('recording');
+  dlBtn.disabled=true;
 
-  // Use 2x scale for crisp quality
+  // ═══════════════════════════════════════════
+  // STEP 1: Live preview + capture AUDIO only
+  // ═══════════════════════════════════════════
+  dlBtn.textContent='▶ Playing preview...';
+  setDLStatus('Playing preview & recording audio...','#007AFF');
+
+  // Set up audio-only recorder
+  const ac=getAC();
+  let audioBlob=null;
+  const audioChunks=[];
+  let audioRec=null;
+  if(recDest&&recDest.stream.getAudioTracks().length>0){
+    const audioStream=new MediaStream();
+    recDest.stream.getAudioTracks().forEach(t=>audioStream.addTrack(t));
+    const aMime=MediaRecorder.isTypeSupported('audio/webm;codecs=opus')?'audio/webm;codecs=opus':'audio/webm';
+    audioRec=new MediaRecorder(audioStream,{mimeType:aMime});
+    audioRec.ondataavailable=e=>{if(e.data.size>0)audioChunks.push(e.data);};
+    audioRec.start(200);
+  }
+
+  // Play ad live — user sees smooth preview, audio is recorded
+  await playAd();
+  await new Promise(r=>setTimeout(r,800));
+
+  // Stop audio recorder
+  if(audioRec&&audioRec.state==='recording'){
+    await new Promise(resolve=>{
+      audioRec.onstop=()=>{
+        audioBlob=new Blob(audioChunks,{type:audioRec.mimeType});
+        resolve();
+      };
+      audioRec.stop();
+    });
+  }
+
+  // ═══════════════════════════════════════════
+  // STEP 2: Offline VIDEO render (frame-perfect)
+  // ═══════════════════════════════════════════
+  dlBtn.textContent='● Creating video...';
+  setDLStatus('Rendering video frames...','#7C3AED');
+  phone.classList.add('no-anim');
+
+  const FPS=15;
   const scale=2;
   const canvas=document.createElement('canvas');
-  canvas.width=screen.offsetWidth*scale;
-  canvas.height=screen.offsetHeight*scale;
+  canvas.width=scr.offsetWidth*scale;
+  canvas.height=scr.offsetHeight*scale;
   const ctx=canvas.getContext('2d',{alpha:false});
+  const h2cOpts={backgroundColor:null,scale,logging:false,useCORS:true,allowTaint:true,imageTimeout:0,removeContainer:true};
 
-  // Pre-warm html2canvas
-  await html2canvas(screen,{backgroundColor:null,scale,logging:false,useCORS:true,allowTaint:true,imageTimeout:0,removeContainer:true});
+  await html2canvas(scr,h2cOpts); // pre-warm
 
-  const videoStream=canvas.captureStream(FPS);
-  const ac=getAC();
-  const combinedStream=new MediaStream();
-  videoStream.getVideoTracks().forEach(t=>combinedStream.addTrack(t));
-  if(recDest && recDest.stream.getAudioTracks().length>0){
-    recDest.stream.getAudioTracks().forEach(t=>combinedStream.addTrack(t));
-  }
-  const mimeType=MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus')?'video/webm;codecs=vp9,opus':
-                  MediaRecorder.isTypeSupported('video/webm;codecs=vp8,opus')?'video/webm;codecs=vp8,opus':'video/webm';
-  mediaRecorder=new MediaRecorder(combinedStream,{mimeType,videoBitsPerSecond:12000000});
-  recordedChunks=[];
-  mediaRecorder.ondataavailable=e=>{if(e.data.size>0)recordedChunks.push(e.data);};
-  mediaRecorder.onstop=async()=>{
-    const blob=new Blob(recordedChunks,{type:mimeType});
-    setDLStatus('Converting to MP4...','#FFD60A');
-    dlBtn.textContent='Converting...';
-    const fileName=`TextTunes_${(currentAd.songTitle||'Ad').replace(/[^a-zA-Z0-9]/g,'_')}`;
-    let finalBlob=blob, finalExt='webm';
+  const videoStream=canvas.captureStream(0);
+  const vMime=MediaRecorder.isTypeSupported('video/webm;codecs=vp9')?'video/webm;codecs=vp9':
+              MediaRecorder.isTypeSupported('video/webm;codecs=vp8')?'video/webm;codecs=vp8':'video/webm';
+  const vidRec=new MediaRecorder(videoStream,{mimeType:vMime,videoBitsPerSecond:12000000});
+  const vidChunks=[];
+  vidRec.ondataavailable=e=>{if(e.data.size>0)vidChunks.push(e.data);};
+
+  async function captureFrame(){
     try{
-      const reader=new FileReader();
-      const base64=await new Promise((resolve,reject)=>{
-        reader.onload=()=>resolve(reader.result.split(',')[1]);
-        reader.onerror=reject;
-        reader.readAsDataURL(blob);
-      });
-      const resp=await fetch('/api/convert-mp4',{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({video:base64})
-      });
-      if(!resp.ok){
-        const err=await resp.json().catch(()=>({error:'Conversion failed'}));
-        throw new Error(err.error||'Conversion failed');
-      }
-      finalBlob=await resp.blob();
-      finalExt='mp4';
-      setDLStatus('Video ready!','#00ff88');
-    }catch(e){
-      console.error('MP4 conversion failed, using WebM:',e);
-      setDLStatus('Video ready (WebM)','#FFD60A');
+      const fc=await html2canvas(scr,h2cOpts);
+      ctx.drawImage(fc,0,0,canvas.width,canvas.height);
+      const track=videoStream.getVideoTracks()[0];
+      if(track&&track.requestFrame)track.requestFrame();
+    }catch(e){}
+  }
+
+  // Override sleep for sequential frame capture
+  const _origSleep=window.sleep;
+  window.sleep=async(ms)=>{
+    if(adAbortFlag)return;
+    const numFrames=Math.max(1,Math.ceil((ms/1000)*FPS));
+    for(let i=0;i<numFrames;i++){
+      if(adAbortFlag)return;
+      await captureFrame();
+      await new Promise(r=>setTimeout(r,10));
     }
-    const videoUrl=URL.createObjectURL(finalBlob);
-    window._lastVideoUrl=videoUrl;
-    window._lastVideoName=fileName+'.'+finalExt;
-    window._lastVideoBlob=finalBlob;
-    updateDownloadTab(videoUrl,window._lastVideoName);
-    const historyId=Date.now();
-    window._videoBlobStore=window._videoBlobStore||{};
-    window._videoBlobStore[historyId]=finalBlob;
-    addToHistory(window._lastAdScenario||'Untitled Video',new Date().toISOString(),historyId);
-    phone.classList.remove('no-anim');
-    dlBtn.disabled=false;
-    dlBtn.classList.remove('recording');
-    dlBtn.textContent='⬇ Download Video';
-    isRecording=false;
   };
 
-  // Start recording
-  isRecording=true;
-  dlBtn.classList.add('recording');
-  dlBtn.textContent='● Recording...';
-  dlBtn.disabled=true;
-  mediaRecorder.start();
-  setDLStatus('Recording ad...','#ff453a');
+  vidRec.start(200);
+  await captureFrame();
+  await playAd(); // replay with frame capture (no audio plays — sleep is overridden)
+  for(let i=0;i<FPS;i++) await captureFrame(); // hold last frame
 
-  // Frame capture — captures screen element (no rounded corners)
-  let capturing=true;
-  let lastFrameTime=0;
-  const minFrameGap=1000/FPS;
-  const h2cOpts={backgroundColor:null,scale,logging:false,useCORS:true,allowTaint:true,imageTimeout:0,removeContainer:true};
-  let frameInFlight=false;
+  window.sleep=_origSleep;
 
-  function captureLoop(now){
-    if(!capturing)return;
-    requestAnimationFrame(captureLoop);
-    if(now-lastFrameTime<minFrameGap)return;
-    if(frameInFlight)return;
-    lastFrameTime=now;
-    frameInFlight=true;
-    html2canvas(screen,h2cOpts).then(fc=>{
-      if(!capturing)return;
-      ctx.drawImage(fc,0,0,canvas.width,canvas.height);
-      frameInFlight=false;
-    }).catch(()=>{frameInFlight=false;});
+  // Stop video recorder
+  const videoBlob=await new Promise(resolve=>{
+    vidRec.onstop=()=>resolve(new Blob(vidChunks,{type:vMime}));
+    vidRec.stop();
+  });
+
+  // ═══════════════════════════════════════════
+  // STEP 3: Send to server to MUX audio + video
+  // ═══════════════════════════════════════════
+  dlBtn.textContent='Combining audio & video...';
+  setDLStatus('Combining audio & video...','#FFD60A');
+  phone.classList.remove('no-anim');
+
+  const fileName=`TextTunes_${(currentAd.songTitle||'Ad').replace(/[^a-zA-Z0-9]/g,'_')}`;
+
+  // Convert blobs to base64
+  async function blobToB64(blob){
+    const reader=new FileReader();
+    return new Promise((res,rej)=>{reader.onload=()=>res(reader.result.split(',')[1]);reader.onerror=rej;reader.readAsDataURL(blob);});
   }
-  requestAnimationFrame(captureLoop);
 
-  // Play the ad
-  await playAd();
-  await sleep(1500);
+  let finalBlob=videoBlob, finalExt='webm';
+  try{
+    const body={video:await blobToB64(videoBlob)};
+    if(audioBlob&&audioBlob.size>100) body.audio=await blobToB64(audioBlob);
+    const resp=await fetch('/api/mux-av',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(body)
+    });
+    if(!resp.ok) throw new Error('Mux failed');
+    finalBlob=await resp.blob();
+    finalExt='mp4';
+    setDLStatus('Video ready!','#00ff88');
+  }catch(e){
+    console.error('Mux failed, using raw video:',e);
+    setDLStatus('Video ready (no audio)','#FFD60A');
+  }
 
-  // Stop recording
-  capturing=false;
-  mediaRecorder.stop();
-  setDLStatus('Processing video...','#7C3AED');
+  const videoUrl=URL.createObjectURL(finalBlob);
+  window._lastVideoUrl=videoUrl;
+  window._lastVideoName=fileName+'.'+finalExt;
+  window._lastVideoBlob=finalBlob;
+  updateDownloadTab(videoUrl,window._lastVideoName);
+  const historyId=Date.now();
+  window._videoBlobStore=window._videoBlobStore||{};
+  window._videoBlobStore[historyId]=finalBlob;
+  addToHistory(window._lastAdScenario||'Untitled Video',new Date().toISOString(),historyId);
+  dlBtn.disabled=false;
+  dlBtn.classList.remove('recording');
+  dlBtn.textContent='⬇ Download Video';
+  isRecording=false;
 }
 
 function setDLStatus(msg,color){
@@ -2208,11 +2241,7 @@ async function cbCreateAd(){
   // Apply speed setting
   adSpeedMult=cbSpeedMult;
 
-  // Record the ad — show AI phone in place of custom phone so user sees live preview
-  status.textContent='🎬 Recording your ad...';
-  status.style.color='#7C3AED';
-
-  // Hide custom phone, move AI phone into custom tab so user sees the preview
+  // Show AI phone in custom tab for live preview
   const cbPhoneWrap=document.querySelector('#tab-custom .phone-wrap');
   const aiPhone=document.getElementById('aiPhone');
   const aiPhoneParent=aiPhone.parentElement;
@@ -2220,13 +2249,67 @@ async function cbCreateAd(){
   cbPhoneWrap.style.display='none';
   cbPhoneWrap.parentElement.insertBefore(aiPhone,cbPhoneWrap);
 
-  // Run the recording (AI phone is now visible in custom tab)
+  // Step 1: Live preview + record audio
+  status.textContent='▶ Playing preview...';
+  status.style.color='#007AFF';
+  const ac=getAC();
+  let audioBlob=null;
+  const audioChunks=[];
+  let audioRec=null;
+  if(recDest&&recDest.stream.getAudioTracks().length>0){
+    const audioStream=new MediaStream();
+    recDest.stream.getAudioTracks().forEach(t=>audioStream.addTrack(t));
+    audioRec=new MediaRecorder(audioStream,{mimeType:'audio/webm;codecs=opus'});
+    audioRec.ondataavailable=e=>{if(e.data.size>0)audioChunks.push(e.data);};
+    audioRec.start(200);
+  }
+  await playAd();
+  await new Promise(r=>setTimeout(r,800));
+  if(audioRec&&audioRec.state==='recording'){
+    await new Promise(resolve=>{
+      audioRec.onstop=()=>{audioBlob=new Blob(audioChunks,{type:audioRec.mimeType});resolve();};
+      audioRec.stop();
+    });
+  }
+
+  // Step 2: Offline video render
+  status.textContent='● Creating video...';
+  status.style.color='#7C3AED';
   await cbRecordAd();
 
-  // Move AI phone back to its original location and restore custom phone
+  // Step 3: Mux audio + video on server
+  status.textContent='Combining audio & video...';
+  status.style.color='#FFD60A';
+
+  async function blobToB64(blob){
+    const reader=new FileReader();
+    return new Promise((res,rej)=>{reader.onload=()=>res(reader.result.split(',')[1]);reader.onerror=rej;reader.readAsDataURL(blob);});
+  }
+  try{
+    const body={video:await blobToB64(cbVideoBlob)};
+    if(audioBlob&&audioBlob.size>100) body.audio=await blobToB64(audioBlob);
+    const resp=await fetch('/api/mux-av',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    if(resp.ok) cbVideoBlob=await resp.blob();
+  }catch(e){console.error('Mux failed:',e);}
+
+  // Restore phones
   if(aiPhoneNext){aiPhoneParent.insertBefore(aiPhone,aiPhoneNext);}
   else{aiPhoneParent.appendChild(aiPhone);}
   cbPhoneWrap.style.display='';
+  status.textContent='';
+
+  // Send to download tab
+  if(cbVideoUrl)URL.revokeObjectURL(cbVideoUrl);
+  cbVideoUrl=URL.createObjectURL(cbVideoBlob);
+  window._lastVideoBlob=cbVideoBlob;
+  window._lastVideoName=`TextTunes_${(currentAd?.songTitle||'Ad').replace(/[^a-zA-Z0-9]/g,'_')}.${cbVideoBlob.type.includes('mp4')?'mp4':'webm'}`;
+  window._lastVideoUrl=cbVideoUrl;
+  updateDownloadTab(cbVideoUrl,window._lastVideoName);
+  const historyId=Date.now();
+  window._videoBlobStore=window._videoBlobStore||{};
+  window._videoBlobStore[historyId]=cbVideoBlob;
+  addToHistory(window._lastAdScenario||currentAd?.songTitle||'Custom Video',new Date().toISOString(),historyId);
+  switchHQ('download');
 }
 
 /* ══════════════════════════
@@ -2236,101 +2319,60 @@ let cbVideoBlob=null;
 let cbVideoUrl=null;
 
 async function cbRecordAd(){
-  // Record the AI phone's SCREEN (moved into custom tab for live preview)
+  // Offline video-only render (audio handled separately in cbCreateAd)
   const phone=document.getElementById('aiPhone');
-  const screen=phone.querySelector('.screen');
-  const FPS=15;
-  const minFrameGap=1000/FPS;
-  const scale=2;
-  const canvas=document.createElement('canvas');
-  canvas.width=screen.offsetWidth*scale;
-  canvas.height=screen.offsetHeight*scale;
-  const ctx=canvas.getContext('2d',{alpha:false});
-
-  // Disable CSS animations to prevent bubble pulsing
+  const scr=phone.querySelector('.screen');
   phone.classList.add('no-anim');
 
-  // Pre-warm html2canvas
-  await html2canvas(screen,{backgroundColor:null,scale,logging:false,useCORS:true,allowTaint:true,imageTimeout:0,removeContainer:true});
+  const FPS=15;
+  const scale=2;
+  const canvas=document.createElement('canvas');
+  canvas.width=scr.offsetWidth*scale;
+  canvas.height=scr.offsetHeight*scale;
+  const ctx=canvas.getContext('2d',{alpha:false});
+  const h2cOpts={backgroundColor:null,scale,logging:false,useCORS:true,allowTaint:true,imageTimeout:0,removeContainer:true};
 
-  const videoStream=canvas.captureStream(FPS);
-  const ac=getAC();
-  const combinedStream=new MediaStream();
-  videoStream.getVideoTracks().forEach(t=>combinedStream.addTrack(t));
-  if(recDest&&recDest.stream.getAudioTracks().length>0){
-    recDest.stream.getAudioTracks().forEach(t=>combinedStream.addTrack(t));
-  }
-  const mimeType=MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus')?'video/webm;codecs=vp9,opus':
-                  MediaRecorder.isTypeSupported('video/webm;codecs=vp8,opus')?'video/webm;codecs=vp8,opus':'video/webm';
-  const rec=new MediaRecorder(combinedStream,{mimeType,videoBitsPerSecond:12000000});
+  await html2canvas(scr,h2cOpts);
+
+  const videoStream=canvas.captureStream(0);
+  const vMime=MediaRecorder.isTypeSupported('video/webm;codecs=vp9')?'video/webm;codecs=vp9':
+              MediaRecorder.isTypeSupported('video/webm;codecs=vp8')?'video/webm;codecs=vp8':'video/webm';
+  const rec=new MediaRecorder(videoStream,{mimeType:vMime,videoBitsPerSecond:12000000});
   const chunks=[];
   rec.ondataavailable=e=>{if(e.data.size>0)chunks.push(e.data);};
 
-  const donePromise=new Promise(resolve=>{
-    rec.onstop=async()=>{
-      phone.classList.remove('no-anim');
-      const blob=new Blob(chunks,{type:mimeType});
-      try{
-        const reader=new FileReader();
-        const base64=await new Promise((res,rej)=>{reader.onload=()=>res(reader.result.split(',')[1]);reader.onerror=rej;reader.readAsDataURL(blob);});
-        const resp=await fetch('/api/convert-mp4',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({video:base64})});
-        if(resp.ok){
-          cbVideoBlob=await resp.blob();
-        } else {
-          cbVideoBlob=blob;
-        }
-      }catch(e){
-        cbVideoBlob=blob;
-      }
-      resolve();
-    };
-  });
-
-  rec.start();
-
-  // Smooth frame capture with rAF + throttle
-  let capturing=true;
-  let lastFrameTime=0;
-  let frameInFlight=false;
-  const h2cOpts={backgroundColor:null,scale,logging:false,useCORS:true,allowTaint:true,imageTimeout:0,removeContainer:true};
-  function captureLoop(ts){
-    if(!capturing)return;
-    requestAnimationFrame(captureLoop);
-    if(ts-lastFrameTime<minFrameGap)return;
-    if(frameInFlight)return;
-    lastFrameTime=ts;
-    frameInFlight=true;
-    html2canvas(screen,h2cOpts).then(fc=>{
-      if(!capturing)return;
+  async function captureFrame(){
+    try{
+      const fc=await html2canvas(scr,h2cOpts);
       ctx.drawImage(fc,0,0,canvas.width,canvas.height);
-      frameInFlight=false;
-    }).catch(()=>{frameInFlight=false;});
+      const track=videoStream.getVideoTracks()[0];
+      if(track&&track.requestFrame)track.requestFrame();
+    }catch(e){}
   }
-  requestAnimationFrame(captureLoop);
 
-  // Play the ad on THIS phone — user sees it live
+  const _origSleep=window.sleep;
+  window.sleep=async(ms)=>{
+    if(adAbortFlag)return;
+    const numFrames=Math.max(1,Math.ceil((ms/1000)*FPS));
+    for(let i=0;i<numFrames;i++){
+      if(adAbortFlag)return;
+      await captureFrame();
+      await new Promise(r=>setTimeout(r,10));
+    }
+  };
+
+  rec.start(200);
+  await captureFrame();
   await playAd();
-  await sleep(1500);
+  for(let i=0;i<FPS;i++) await captureFrame();
 
-  capturing=false;
-  rec.stop();
-  await donePromise;
+  window.sleep=_origSleep;
+  phone.classList.remove('no-anim');
 
-  // Send to Download tab instead of showing inline player
-  if(cbVideoUrl)URL.revokeObjectURL(cbVideoUrl);
-  cbVideoUrl=URL.createObjectURL(cbVideoBlob);
-  window._lastVideoBlob=cbVideoBlob;
-  window._lastVideoName=`TextTunes_${(currentAd?.songTitle||'Ad').replace(/[^a-zA-Z0-9]/g,'_')}.${cbVideoBlob.type.includes('mp4')?'mp4':'webm'}`;
-  window._lastVideoUrl=cbVideoUrl;
-  updateDownloadTab(cbVideoUrl,window._lastVideoName);
-  // Also add to history
-  const historyId=Date.now();
-  window._videoBlobStore=window._videoBlobStore||{};
-  window._videoBlobStore[historyId]=cbVideoBlob;
-  addToHistory(window._lastAdScenario||currentAd?.songTitle||'Custom Video',new Date().toISOString(),historyId);
-  document.getElementById('cbStatus').textContent='';
-  // Switch to Download tab
-  switchHQ('download');
+  cbVideoBlob=await new Promise(resolve=>{
+    rec.onstop=()=>resolve(new Blob(chunks,{type:vMime}));
+    rec.stop();
+  });
 }
 
 function cbShowVideoPlayer(){

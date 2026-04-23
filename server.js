@@ -135,5 +135,63 @@ app.post('/api/convert-mp4', (req, res) => {
   });
 });
 
+// Mux separate video + audio into one MP4
+app.post('/api/mux-av', (req, res) => {
+  const { video, audio } = req.body; // base64 encoded webm blobs
+  if (!video) return res.status(400).json({ error: 'No video data' });
+
+  const tmpDir = os.tmpdir();
+  const id = Date.now() + '_' + Math.random().toString(36).slice(2);
+  const vidPath = path.join(tmpDir, `${id}_v.webm`);
+  const mp4Path = path.join(tmpDir, `${id}.mp4`);
+
+  fs.writeFileSync(vidPath, Buffer.from(video, 'base64'));
+
+  if (audio) {
+    // Have both audio and video — mux them
+    const audPath = path.join(tmpDir, `${id}_a.webm`);
+    fs.writeFileSync(audPath, Buffer.from(audio, 'base64'));
+
+    execFile('ffmpeg', [
+      '-i', vidPath, '-i', audPath,
+      '-c:v', 'libx264', '-preset', 'fast', '-crf', '22',
+      '-c:a', 'aac', '-b:a', '192k',
+      '-map', '0:v:0', '-map', '1:a:0',
+      '-shortest',
+      '-movflags', '+faststart',
+      '-y', mp4Path
+    ], { timeout: 120000 }, (err) => {
+      try { fs.unlinkSync(vidPath); } catch(e) {}
+      try { fs.unlinkSync(audPath); } catch(e) {}
+      if (err) {
+        try { fs.unlinkSync(mp4Path); } catch(e) {}
+        return res.status(500).json({ error: 'Mux failed: ' + err.message });
+      }
+      const mp4Buffer = fs.readFileSync(mp4Path);
+      try { fs.unlinkSync(mp4Path); } catch(e) {}
+      res.set('Content-Type', 'video/mp4');
+      res.send(mp4Buffer);
+    });
+  } else {
+    // Video only — just convert
+    execFile('ffmpeg', [
+      '-i', vidPath,
+      '-c:v', 'libx264', '-preset', 'fast', '-crf', '22',
+      '-movflags', '+faststart',
+      '-y', mp4Path
+    ], { timeout: 120000 }, (err) => {
+      try { fs.unlinkSync(vidPath); } catch(e) {}
+      if (err) {
+        try { fs.unlinkSync(mp4Path); } catch(e) {}
+        return res.status(500).json({ error: 'Convert failed: ' + err.message });
+      }
+      const mp4Buffer = fs.readFileSync(mp4Path);
+      try { fs.unlinkSync(mp4Path); } catch(e) {}
+      res.set('Content-Type', 'video/mp4');
+      res.send(mp4Buffer);
+    });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`TextTunes running on http://localhost:${PORT}`));
