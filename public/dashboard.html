@@ -362,12 +362,569 @@ select.input{cursor:pointer;appearance:none;background-image:url("data:image/svg
 
     <!-- Game Plan -->
     <div class="panel" id="panel-mkt-gameplan">
-      <div class="page-title">🗺 <em>Game Plan</em></div>
-      <div class="page-sub">Build your custom game plan here.</div>
-      <div class="empty-state">
-        <div class="es-icon">🗺</div>
-        Coming soon — your custom game plan builder.
-      </div>
+<style>
+.gp-wrap{font-family:var(--font);color:var(--text);max-width:1100px;margin:0 auto;padding:0 4px;}
+.gp-header{margin-bottom:24px;}
+.gp-header .page-title{margin-bottom:4px;}
+.gp-topbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:20px;padding:16px 20px;background:var(--surface);border:1px solid var(--border);border-radius:16px;}
+.gp-topbar label{font-size:13px;color:var(--text2);font-weight:600;}
+.gp-topbar input[type="date"]{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:8px 14px;color:var(--text);font-family:var(--font);font-size:14px;outline:none;}
+.gp-topbar input[type="date"]:focus{border-color:var(--accent);}
+.gp-topbar .gp-btn{padding:8px 20px;background:linear-gradient(135deg,var(--accent),var(--pink));border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--display);transition:transform .15s;}
+.gp-topbar .gp-btn:hover{transform:scale(1.03);}
+.gp-stats{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:20px;}
+.gp-stat{flex:1;min-width:140px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 18px;text-align:center;}
+.gp-stat .gp-stat-val{font-family:var(--display);font-size:28px;font-weight:800;line-height:1.1;}
+.gp-stat .gp-stat-lbl{font-size:12px;color:var(--text2);margin-top:4px;font-weight:500;}
+.gp-progress-wrap{margin-bottom:24px;}
+.gp-progress-bar{width:100%;height:14px;background:var(--surface2);border-radius:10px;overflow:hidden;border:1px solid var(--border);}
+.gp-progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--pink),var(--green));border-radius:10px;transition:width .4s ease;}
+.gp-progress-text{font-size:12px;color:var(--text2);margin-top:6px;text-align:right;font-weight:600;}
+.gp-legend{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:20px;padding:10px 16px;background:var(--surface);border:1px solid var(--border);border-radius:12px;}
+.gp-legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);font-weight:500;}
+.gp-legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.gp-month{margin-bottom:10px;border:1px solid var(--border);border-radius:14px;overflow:hidden;background:var(--surface);}
+.gp-month-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;cursor:pointer;user-select:none;transition:background .2s;}
+.gp-month-header:hover{background:var(--surface2);}
+.gp-month-title{font-family:var(--display);font-size:17px;font-weight:800;display:flex;align-items:center;gap:10px;}
+.gp-month-title .gp-arrow{transition:transform .25s;font-size:12px;color:var(--muted);}
+.gp-month-title .gp-arrow.open{transform:rotate(90deg);}
+.gp-month-meta{display:flex;align-items:center;gap:16px;font-size:12px;color:var(--text2);}
+.gp-month-rev{color:var(--green);font-weight:700;font-family:var(--display);}
+.gp-month-pct{font-weight:600;}
+.gp-mini-bar{width:60px;height:6px;background:var(--surface2);border-radius:4px;overflow:hidden;}
+.gp-mini-fill{height:100%;border-radius:4px;background:var(--accent);transition:width .3s;}
+.gp-month-body{display:none;padding:0 20px 16px;}
+.gp-month-body.open{display:block;}
+.gp-week{margin-bottom:16px;}
+.gp-week-title{font-size:14px;font-weight:700;color:var(--text2);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+.gp-week-dates{font-size:11px;color:var(--muted);font-weight:500;}
+.gp-task{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid rgba(28,28,48,0.5);}
+.gp-task:last-child{border-bottom:none;}
+.gp-task input[type="checkbox"]{flex-shrink:0;width:18px;height:18px;margin-top:2px;accent-color:var(--accent);cursor:pointer;}
+.gp-task-content{flex:1;min-width:0;}
+.gp-task-text{font-size:13px;line-height:1.5;color:var(--text);}
+.gp-task.checked .gp-task-text{text-decoration:line-through;opacity:.45;}
+.gp-task-cat{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;margin-right:6px;letter-spacing:.3px;text-transform:uppercase;vertical-align:middle;}
+.gp-cat-social{background:rgba(124,58,237,.18);color:#7C3AED;}
+.gp-cat-ads{background:rgba(255,159,10,.15);color:#ff9f0a;}
+.gp-cat-outreach{background:rgba(10,132,255,.15);color:#0a84ff;}
+.gp-cat-tech{background:rgba(0,255,136,.12);color:#00ff88;}
+.gp-cat-content{background:rgba(155,111,255,.15);color:#9B6FFF;}
+.gp-day-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-top:10px;margin-bottom:4px;}
+@media(max-width:700px){
+  .gp-topbar{flex-direction:column;align-items:stretch;}
+  .gp-stats{flex-direction:column;}
+  .gp-stat{min-width:unset;}
+  .gp-month-header{flex-direction:column;align-items:flex-start;gap:8px;}
+  .gp-month-meta{flex-wrap:wrap;gap:8px;}
+  .gp-legend{flex-direction:column;gap:6px;}
+}
+</style>
+
+<div class="gp-wrap">
+  <div class="gp-header">
+    <div class="page-title">🗺 <em>Game Plan</em></div>
+    <div class="page-sub">Your 12-month roadmap from $0 to $50K/month. Check off tasks daily.</div>
+  </div>
+
+  <div class="gp-topbar">
+    <label>Start Date:</label>
+    <input type="date" id="gp-start-date">
+    <button class="gp-btn" id="gp-set-date">Set Start Date</button>
+    <div style="flex:1;"></div>
+    <div id="gp-streak-display" style="font-family:var(--display);font-weight:800;font-size:15px;">🔥 0-day streak</div>
+  </div>
+
+  <div class="gp-stats">
+    <div class="gp-stat"><div class="gp-stat-val" id="gp-stat-done" style="color:var(--green);">0</div><div class="gp-stat-lbl">Tasks Done</div></div>
+    <div class="gp-stat"><div class="gp-stat-val" id="gp-stat-total" style="color:var(--text2);">0</div><div class="gp-stat-lbl">Total Tasks</div></div>
+    <div class="gp-stat"><div class="gp-stat-val" id="gp-stat-pct" style="color:var(--accent);">0%</div><div class="gp-stat-lbl">Complete</div></div>
+    <div class="gp-stat"><div class="gp-stat-val" id="gp-stat-streak" style="color:var(--amber);">0</div><div class="gp-stat-lbl">Day Streak 🔥</div></div>
+  </div>
+
+  <div class="gp-progress-wrap">
+    <div class="gp-progress-bar"><div class="gp-progress-fill" id="gp-progress-fill" style="width:0%;"></div></div>
+    <div class="gp-progress-text" id="gp-progress-text">0% complete</div>
+  </div>
+
+  <div class="gp-legend">
+    <div class="gp-legend-item"><div class="gp-legend-dot" style="background:#7C3AED;"></div>Social Media</div>
+    <div class="gp-legend-item"><div class="gp-legend-dot" style="background:#ff9f0a;"></div>Paid Ads</div>
+    <div class="gp-legend-item"><div class="gp-legend-dot" style="background:#0a84ff;"></div>Outreach</div>
+    <div class="gp-legend-item"><div class="gp-legend-dot" style="background:#00ff88;"></div>Technical</div>
+    <div class="gp-legend-item"><div class="gp-legend-dot" style="background:#9B6FFF;"></div>Content</div>
+  </div>
+
+  <div id="gp-months-container"></div>
+</div>
+
+<script>
+(function(){
+const LS_CHECKED='tt_gameplan_checked';
+const LS_START='tt_gameplan_start';
+const CAT={social:'social',ads:'ads',outreach:'outreach',tech:'tech',content:'content'};
+const REVENUE=[500,1000,2000,3500,5000,8000,12000,18000,25000,32000,40000,50000];
+const CAT_CLASS={social:'gp-cat-social',ads:'gp-cat-ads',outreach:'gp-cat-outreach',tech:'gp-cat-tech',content:'gp-cat-content'};
+const CAT_LABEL={social:'Social',ads:'Ads',outreach:'Outreach',tech:'Tech',content:'Content'};
+
+function getChecked(){try{return JSON.parse(localStorage.getItem(LS_CHECKED))||{};}catch(e){return {};}}
+function saveChecked(obj){localStorage.setItem(LS_CHECKED,JSON.stringify(obj));}
+function getStart(){return localStorage.getItem(LS_START)||'';}
+function saveStart(d){localStorage.setItem(LS_START,d);}
+
+function addDays(d,n){const r=new Date(d);r.setDate(r.getDate()+n);return r;}
+function fmtDate(d){const m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return m[d.getMonth()]+' '+d.getDate();}
+function fmtMoney(n){return n>=1000?'$'+(n/1000)+'K':'$'+n;}
+
+function buildAllTasks(){
+const T=[];
+let id=0;
+function t(day,cat,text){T.push({id:'gp_'+id++,day:day,cat:cat,text:text});}
+
+// MONTH 1 — Foundation & First Content ($500 target)
+
+// Week 1, Day 1
+t(0,CAT.social,'Create TikTok account @TextTunesApp — bio: "We turn your texts into real songs 🎵 Try it free ⬇️" — link to App Store');
+t(0,CAT.social,'Create Instagram account @TextTunesApp — same bio, profile pic = TextTunes logo, add App Store link in bio');
+t(0,CAT.tech,'Set up LinkTree with: App Store link, TikTok, Instagram, "How It Works" YouTube video, email signup');
+t(0,CAT.tech,'Set up SimpleAnalytics or Plausible on TextTunes website to track referral sources');
+t(0,CAT.content,'Write down 20 "text message scenarios" for content ideas — awkward texts, funny group chats, breakup texts, boss emails');
+
+// Week 1, Day 2
+t(1,CAT.content,'Film TikTok #1: POV: Your mom texts "we need to talk" and you turn it into a country song — 15-30 sec, use trending sound');
+t(1,CAT.social,'Post TikTok #1, caption: "mom said we need to talk... so I made it a country banger 🤠 #texttunes #momtexts #countrymusic"');
+t(1,CAT.social,'Repost TikTok #1 to Instagram Reels with same caption + 5 more hashtags (#musicapp #songwriting #indiemusic #funnytexts #aitool)');
+t(1,CAT.outreach,'Follow 50 music creators on TikTok (10K-100K range) and leave genuine comments on 10 of their videos');
+t(1,CAT.tech,'Verify App Store listing: screenshots show real text-to-song examples, description includes keywords "text to song" "turn texts into music"');
+
+// Week 1, Day 3
+t(2,CAT.content,'Film TikTok #2: POV: Your ex texts "I miss you" at 2am and you turn it into an R&B banger — screen record the TextTunes app in action');
+t(2,CAT.social,'Post TikTok #2, caption: "2am texts hit different when they become a whole R&B track 🎤 #texttunes #extext #rnb"');
+t(2,CAT.social,'Create YouTube channel "TextTunes" — upload first Short (repurpose TikTok #2), add channel description + links');
+t(2,CAT.outreach,'Write 3 Reddit posts: r/musicproduction ("I built an app that turns text convos into songs — here\'s how"), r/songwriting (ask for feedback), r/indiemusic (share a song made with TextTunes)');
+t(2,CAT.tech,'Set up Google Alerts for "text to song", "turn messages into music", "ai music app" to track mentions and competitors');
+
+// Week 1, Day 4
+t(3,CAT.content,'Film TikTok #3: POV: Your boss sends a passive-aggressive email so you turn it into a diss track — show the email, then the song');
+t(3,CAT.social,'Post TikTok #3, caption: "my boss really said \'per my last email\' so I had to make it a diss track 💀 #texttunes #worktexts #disstracK"');
+t(3,CAT.social,'Post Instagram Story: behind-the-scenes of making TikTok content, add poll "What text should I turn into a song next?"');
+t(3,CAT.outreach,'Submit TextTunes to Product Hunt — prepare launch page with 5 screenshots, tagline, description, maker comment');
+t(3,CAT.outreach,'Email 5 App Store review sites: AppAdvice, 148Apps, AppStorm, Beautiful Pixels, The Sweet Setup — personalized pitch with promo codes');
+
+// Week 1, Day 5
+t(4,CAT.content,'Film TikTok #4: "Turn your Tinder messages into a love song" — show cringey pickup lines becoming smooth R&B');
+t(4,CAT.social,'Post TikTok #4 + repurpose to Reels and YT Short');
+t(4,CAT.outreach,'Write 2 more Reddit posts: r/apps ("Showoff Saturday" thread), r/iphone (share as a cool new app)');
+t(4,CAT.tech,'Set up Mailchimp free account — create "TextTunes Updates" email list, design welcome email with App Store link');
+t(4,CAT.outreach,'Email 5 more review sites: Cult of Mac, iMore, Lifehacker, Gizmodo tips, MakeUseOf');
+
+// Week 1, Day 6
+t(5,CAT.content,'Film TikTok #5: "I turned my entire group chat into an album" — show 3 different conversations becoming 3 different genre songs');
+t(5,CAT.social,'Post TikTok #5 + cross-post everywhere');
+t(5,CAT.social,'Comment on 20 trending TikToks in music/comedy niche — add value, don\'t spam');
+t(5,CAT.tech,'Create a "How It Works" 60-second explainer video — screen record: open app → paste text → pick genre → hear song');
+
+// Week 1, Day 7
+t(6,CAT.content,'Batch-plan next week\'s content: write scripts for 5 TikToks with specific text scenarios and song genres');
+t(6,CAT.social,'Engage: reply to every comment on your TikToks, DM anyone who shared your video to say thanks');
+t(6,CAT.tech,'Check analytics: which TikTok got most views? Most App Store clicks? Note what hooks worked best');
+
+// Week 2
+t(7,CAT.content,'Film TikTok #6: "Turning my therapist\'s advice into a motivational anthem" — wholesome content angle');
+t(7,CAT.social,'Post TikTok #6 + cross-post. Engage with 30 new accounts in music niche');
+t(7,CAT.outreach,'DM 5 micro-influencers (5K-20K followers) on TikTok: "Hey! Would you want to try turning your texts into a song? I\'ll give you free premium access"');
+
+t(8,CAT.content,'Film TikTok #7: "Your friend texts \'on my way\' but they haven\'t left yet — so I made it a blues song"');
+t(8,CAT.social,'Post TikTok #7. Write 3 Twitter/X posts about TextTunes with screenshots of funny songs generated');
+t(8,CAT.tech,'A/B test App Store screenshots: Version A (lifestyle shots) vs Version B (app screenshots with song previews)');
+
+t(9,CAT.content,'Film TikTok #8: "Turning my DoorDash driver\'s texts into a dramatic opera" — comedy gold');
+t(9,CAT.social,'Post TikTok #8 + cross-post. Go live on TikTok for 15 min: take audience texts and turn them into songs in real-time');
+t(9,CAT.outreach,'Post in 3 Facebook Groups: "Music Makers", "Indie App Developers", "Creative Side Projects" — share the story of building TextTunes');
+
+t(10,CAT.content,'Film TikTok #9: "Turning my grandma\'s birthday text into a jazz standard" — heartwarming angle');
+t(10,CAT.social,'Post TikTok #9. Create an Instagram carousel: "5 Types of Texts That Make Amazing Songs" with examples');
+t(10,CAT.tech,'Set up App Store keyword tracking with AppFollow or Sensor Tower free tier. Target: "text to song", "ai music", "song maker"');
+
+t(11,CAT.content,'Film TikTok #10: "Turning autocorrect fails into a whole mixtape" — relatable comedy');
+t(11,CAT.social,'Post TikTok #10 + YT Short. Run a "Send me your texts" campaign on Instagram Stories');
+t(11,CAT.outreach,'Reach out to 3 music blogs: Hypebot, Digital Music News, Music Business Worldwide — pitch "App turns everyday texts into real songs"');
+
+t(12,CAT.content,'Compile best-of Week 2: "Top 5 songs we made from real texts this week" — compilation TikTok');
+t(12,CAT.social,'Post compilation + engage with all comments. Track: total TikTok followers, App Store downloads this week');
+t(12,CAT.tech,'Optimize App Store listing based on first 2 weeks data. Update keywords, adjust subtitle');
+
+// Week 3
+t(14,CAT.content,'Film TikTok: "What your text style says about you as a song" — personality quiz format');
+t(14,CAT.social,'Post + cross-post. Start a TikTok series: "TextTunes Challenge: you send the text, I make the song"');
+t(14,CAT.outreach,'Send 10 personalized DMs to TikTokers (10K-30K followers) who post music/comedy content — offer free premium + potential collab');
+
+t(15,CAT.content,'Film TikTok: stitch/duet a popular "texting story" TikTok and turn their texts into a song');
+t(15,CAT.social,'Post stitch + respond to 3 fan-submitted texts with song videos');
+t(15,CAT.tech,'Set up Zapier: new App Store review → Slack notification. Monitor 1-star reviews and respond within 24 hours');
+
+t(16,CAT.content,'Create 3 Instagram carousels: "How to write texts that make fire songs", "TextTunes vs actually learning guitar", "Songs from famous texts in history"');
+t(16,CAT.outreach,'Join 5 Discord servers (music production, indie dev, startup) — introduce TextTunes, offer promo codes');
+
+t(17,CAT.content,'Film TikTok: "Rating songs made from celebrity tweets" — use public tweets, generate songs, react');
+t(17,CAT.social,'Post + go live on TikTok again. Target: 30 min live, turn audience texts into songs');
+t(17,CAT.outreach,'Write LinkedIn post: "How I\'m growing a music app from $0 — Week 3 update" — share real numbers');
+
+t(18,CAT.content,'Film TikTok: "Turning my bank statement notifications into a sad ballad" — relatable finance humor');
+t(18,CAT.social,'Post + create Twitter thread: "I\'ve been turning random texts into songs for 3 weeks. Here are the 10 best ones 🧵"');
+
+t(19,CAT.content,'Film 2 TikToks for weekend posting queue. Plan Month 2 content themes');
+t(19,CAT.tech,'Week 3 analytics review: engagement rate, best posting times, top-performing hooks. Document findings');
+t(19,CAT.social,'Engage with every comment, DM fans who tagged friends. Build a list of 20 potential micro-influencer partners');
+
+// Week 4
+t(21,CAT.content,'Film TikTok: "Turning breakup texts from viewers into a full EP" — series concept, episode 1');
+t(21,CAT.social,'Post + announce the "Breakup EP" series. Ask followers to submit their breakup texts via DM');
+t(21,CAT.outreach,'Email 10 podcast hosts who cover apps/tech/music: pitch yourself as a guest to talk about TextTunes');
+
+t(22,CAT.content,'Film TikTok: "Breakup EP track 2" from fan-submitted text');
+t(22,CAT.social,'Post + share fan reaction to hearing their text as a song');
+t(22,CAT.tech,'Build a simple landing page with email capture: "Get 50% off Premium when we launch" — target 200 emails by end of Month 1');
+
+t(23,CAT.content,'Film TikTok: "Breakup EP track 3" + behind the scenes of how AI generates the music');
+t(23,CAT.outreach,'Follow up with all influencers DMed — offer to create content together, their audience + your app');
+
+t(24,CAT.content,'Film TikTok: "Breakup EP finale" — dramatic conclusion');
+t(24,CAT.social,'Post series finale. Create highlight reel of all Month 1 content');
+t(24,CAT.tech,'Month 1 review: total downloads, revenue, followers across all platforms, email subscribers, what worked best');
+
+t(25,CAT.content,'Plan Month 2 content calendar — write out 20 TikTok concepts, 8 IG carousels, 4 YT Shorts');
+t(25,CAT.outreach,'Send personalized "Month 1 milestone" update to all press contacts — share real traction numbers');
+t(25,CAT.social,'Post "Month 1 recap" TikTok — how many songs were generated, funniest ones, community highlights');
+
+// MONTH 2 — Scaling Content & First Collabs ($1K target)
+for(let w=0;w<4;w++){
+  const base=28+w*7;
+  t(base,CAT.content,'Film 2 TikToks using top-performing hook format from Month 1 — batch film for efficiency');
+  t(base,CAT.social,'Post TikTok AM (8am) + PM (6pm). Target: 2 posts/day on TikTok for the entire month');
+  t(base,CAT.outreach,'DM 10 TikTokers (10K-50K followers): "Love your content! Want to try turning your texts into songs? Free premium + I\'ll feature you"');
+  t(base+1,CAT.content,'Create Instagram Reel: repurpose best TikTok with IG-optimized caption (longer, more hashtags)');
+  t(base+1,CAT.social,'Post Reel + 2 Stories (poll + behind-the-scenes). Engage: comment on 30 accounts in niche');
+  t(base+1,CAT.tech,'A/B test TikTok hooks: Test "POV:" vs "What happens when..." vs "I turned..." — track views per hook style');
+  t(base+2,CAT.content,'Film TikTok: trending audio + TextTunes twist. Film YouTube Short: longer-form (45-60 sec) app walkthrough');
+  t(base+2,CAT.outreach,'Engage in 3 Reddit threads about music/songwriting. Write 1 value-add post mentioning TextTunes naturally');
+  t(base+2,CAT.social,'Go live on TikTok 20 min: "Send me your texts, I\'ll turn them into songs live" — target 50+ viewers');
+  t(base+3,CAT.content,'Create Twitter/X thread: "5 reasons texting is the new songwriting" with TextTunes examples');
+  t(base+3,CAT.social,'Post 2 TikToks. Respond to every comment from past 24 hours. DM anyone who shared your content');
+  t(base+3,CAT.outreach,w<2?'Follow up with influencers from Week 1-2 outreach. Confirm 2 collabs with specific dates and content ideas':'Reach out to 5 YouTube creators (50K-200K subs) who review apps or make music content — offer sponsored video');
+  t(base+4,CAT.content,'Batch-create 3 pieces of content for weekend auto-posting. Write next week\'s content scripts');
+  t(base+4,CAT.tech,w===0?'Set up Later or Buffer for social scheduling — queue weekend posts for all platforms':'Review weekly analytics: best performing content, follower growth rate, app downloads from social. Adjust strategy based on data');
+  t(base+4,CAT.social,'Post weekly compilation: "Best TextTunes songs this week" — tag all fan submissions used');
+}
+
+// MONTH 3 — Community Building & Growth Systems ($2K target)
+for(let w=0;w<4;w++){
+  const base=56+w*7;
+  t(base,CAT.content,'Film 2 TikToks — focus on duets/stitches with trending creators. Remix their content through TextTunes');
+  t(base,CAT.social,'Post content + spend 30 min engaging in comments of viral music TikToks (leave witty, value-add comments)');
+  t(base,CAT.outreach,w===0?'Launch "TextTunes Ambassador" program: 10 creators get free premium + 20% revenue share for referrals':'Onboard '+[0,3,3,4][w]+' new ambassadors. Send them content guidelines, promo codes, and collab ideas');
+  t(base+1,CAT.content,'Create long-form YouTube video (5-8 min): "How I Built an App That Turns Texts Into Songs" — founder story');
+  t(base+1,CAT.social,'Post 2 TikToks + 1 Reel. Start "Song of the Day" Instagram Story series — feature best community-created song');
+  t(base+1,CAT.tech,w===0?'Build referral system: users get 1 free song for every friend who downloads. Track with unique referral codes':'Review referral data: '+['','top referrers, conversion rate, cost per acquisition through referrals','optimize referral onboarding flow based on drop-off data','prep referral leaderboard for Month 4 scaling'][w]);
+  t(base+2,CAT.content,'Film TikTok using current week\'s trending sound/format but with TextTunes spin');
+  t(base+2,CAT.outreach,'Send personalized emails to 5 music journalists: pitch "The App That\'s Turning Gen Z Texts Into Hit Songs"');
+  t(base+2,CAT.social,'Host Instagram Q&A: "Ask me anything about TextTunes" — save to Highlights for social proof');
+  t(base+3,CAT.content,'Create 2 IG carousels: "How to write texts that make the best [genre] songs" — educational content');
+  t(base+3,CAT.tech,'Analyze user behavior: which genres are most popular? Which text types convert best? Update App Store keywords accordingly');
+  t(base+3,CAT.outreach,'Post in 5 Facebook groups targeting musicians, songwriters, content creators — share TextTunes as a creative tool');
+  t(base+4,CAT.content,'Batch-create weekend content. Write Month '+(w===3?'4':'3 Week '+(w+2))+' content calendar');
+  t(base+4,CAT.social,'Post weekly recap. Run "Caption This" contest: best text scenario wins free premium year');
+  t(base+4,CAT.tech,'Weekly analytics deep-dive: CAC, LTV, retention rates. '+(w===3?'Full Month 3 review — compare to Month 1-2 growth trajectory':'Track progress toward $2K/month target'));
+}
+
+// MONTH 4 — Paid Acquisition Begins ($3.5K target)
+for(let w=0;w<4;w++){
+  const base=84+w*7;
+  t(base,CAT.social,'Post 2 TikToks (maintain organic momentum). Continue daily engagement: 30 min commenting and DMing');
+  t(base,CAT.ads,w===0?'Set up TikTok Ads Manager. Create first campaign: $20/day, target 18-34, interests: music, songwriting, memes. Use best organic TikTok as ad creative':'Review TikTok ad performance: CPI, CTR, ROAS. '+(w===1?'Kill underperforming ads, double budget on winners':'Scale winning ads to $'+(w===2?'30':'40')+'/day'));
+  t(base,CAT.content,'Create 3 ad variations: different hooks, same product. Test: "POV hook" vs "Problem/Solution" vs "Before/After"');
+  t(base+1,CAT.ads,w===0?'Set up Facebook/Instagram Ads Manager. Create lookalike audience from existing users. First campaign: $15/day':'Optimize Facebook ads: test new audiences (music lovers, podcast listeners, karaoke fans). Budget: $'+(15+w*5)+'/day');
+  t(base+1,CAT.social,'Post 1 TikTok + 1 Reel. Share user testimonial/success story in Stories');
+  t(base+1,CAT.outreach,'DM 5 new micro-influencers (20K-80K range). Offer: free premium + $50 per video that gets 10K+ views');
+  t(base+2,CAT.tech,w===0?'Set up email automation: Welcome sequence (5 emails over 14 days). Email 1: "Welcome + How It Works", Email 2: "3 Best Text Scenarios", Email 3: "Success Stories", Email 4: "Pro Tips", Email 5: "Upgrade to Premium"':'Review email sequence metrics: open rates (target: 40%+), click rates (target: 5%+), conversion to premium. A/B test subject lines');
+  t(base+2,CAT.content,'Film 2 TikToks for organic posting. Create 1 longer YouTube video: "I Turned 100 Texts Into Songs — Here\'s What Happened"');
+  t(base+2,CAT.social,'Engage in 20+ comments. Respond to all DMs. Feature fan content in Stories');
+  t(base+3,CAT.outreach,w===0?'Launch affiliate program: 25% recurring commission. Set up tracking with Rewardful or FirstPromoter. Create affiliate landing page':'Recruit '+[0,10,15,20][w]+' new affiliates: target music bloggers, YouTube reviewers, newsletter writers. Send them media kit + promo codes');
+  t(base+3,CAT.ads,'Review all ad spend: total CPA across platforms should be under $3. If higher, pause and retest creative');
+  t(base+3,CAT.content,'Create 2 pieces of "social proof" content: screenshot reviews, download milestones, user testimonials');
+  t(base+4,CAT.tech,'Friday analytics: ad spend vs revenue, organic vs paid downloads, email list growth, affiliate signups');
+  t(base+4,CAT.social,'Post weekly recap + "Milestone" post if any metric hit a new high. Weekend content queued');
+  t(base+4,CAT.outreach,w===3?'Month 4 full review: total ad spend, total revenue, ROAS, best channel, plan Month 5 scaling strategy':'Follow up with all pending influencer and affiliate conversations');
+}
+
+// MONTH 5 — Scale & Optimize ($5K target)
+for(let w=0;w<4;w++){
+  const base=112+w*7;
+  t(base,CAT.ads,'TikTok Ads: scale daily budget to $'+(30+w*10)+'/day. Launch 2 new ad sets targeting: music students, content creators');
+  t(base,CAT.social,'Post 2 TikToks + 1 Reel. Daily engagement: comment on 20 posts, reply to all comments');
+  t(base,CAT.outreach,'Send 5 cold emails to mid-tier influencers (50K-200K). Offer: $200 flat fee + affiliate link for ongoing revenue');
+  t(base+1,CAT.content,'Create "Challenge" content: "#TextTunesChallenge — turn your most embarrassing text into a song and tag us"');
+  t(base+1,CAT.ads,'Facebook Ads: test video ads vs carousel ads vs static image. Budget: $25/day across 3 ad sets');
+  t(base+1,CAT.tech,'Implement in-app "Share to TikTok" feature push — make it dead simple for users to post their songs');
+  t(base+2,CAT.content,'Film 2 TikToks: "reacting to songs fans made from their texts" — UGC spotlight series');
+  t(base+2,CAT.outreach,'Send affiliate program pitch to 10 newsletter writers in music/tech niche. Offer: 30% commission + exclusive discount code');
+  t(base+2,CAT.social,'Go live on TikTok: "Text-to-Song request hour" — engage live audience, aim for 100+ concurrent viewers');
+  t(base+3,CAT.tech,'Deep dive: user retention analysis. Day 1, Day 7, Day 30 retention. Identify drop-off points. Plan fixes');
+  t(base+3,CAT.ads,'Review weekly ad performance. Kill any ad set with CPA > $4. Reallocate budget to best performers');
+  t(base+3,CAT.content,'Create 3 educational posts: "How AI turns your words into melodies", "Best text formats for each genre", "Pro tips for amazing songs"');
+  t(base+4,CAT.social,'Post weekly compilation. Run giveaway: "Share your best TextTunes song for a chance to win AirPods" (budget: $150)');
+  t(base+4,CAT.outreach,w===3?'Month 5 full review: $5K target check. Revenue breakdown: organic, paid, affiliate, email. Plan Month 6 strategy':'Follow up on all outreach. Track: influencer posts scheduled, affiliate signups, press mentions');
+  t(base+4,CAT.tech,'Weekly metrics: DAU, MAU, premium conversion rate, churn rate, NPS survey results');
+}
+
+// MONTH 6-8 — Scaling Phase ($8K, $12K, $18K targets)
+for(let m=5;m<8;m++){
+  for(let w=0;w<4;w++){
+    const base=(m*28)+w*7;
+    const budget=50+((m-5)*25)+(w*5);
+    t(base,CAT.ads,'Scale TikTok Ads to $'+budget+'/day. Test new audiences: parents, teachers, wedding planners, comedians');
+    t(base,CAT.social,'Post 2 TikToks + 1 Reel + 1 YT Short. Maintain daily engagement cadence (30 min/day minimum)');
+    t(base,CAT.outreach,m===5&&w===0?'Launch YouTube creator partnership program: offer $500/video for creators with 100K+ subs who review TextTunes':'Contact '+[3,5,5,8][w]+' YouTube creators for sponsored reviews. Target: tech review, music, lifestyle channels');
+    t(base+1,CAT.content,'Create 2 pieces of premium content: '+(m===5?'tutorial series "Master TextTunes in 5 Days"':m===6?'"Behind the AI" docuseries about how TextTunes works':'"TextTunes Success Stories" — interview 3 users who went viral with their songs'));
+    t(base+1,CAT.ads,'Facebook/IG Ads: $'+(budget-15)+'/day. Test: Reels placement vs Feed vs Stories. Optimize for app installs');
+    t(base+1,CAT.tech,w===0?'Implement push notification strategy: "Your friend just made a song" social triggers, "New genre available" feature updates':'A/B test onboarding flow: test 3-step vs 5-step. Measure completion rate and first-song-created rate');
+    t(base+2,CAT.outreach,m===5&&w===0?'Begin podcast outreach: pitch "The Future of Music Creation" angle to 20 podcasts (tech, music, entrepreneurship)':m===6&&w===0?'Send press pitches to TechCrunch, Mashable, The Verge, Engadget: "TextTunes hits [X] downloads, turns everyday texts into songs"':'Follow up on '+[0,5,8,10][w]+' pending media/podcast pitches. Send updated metrics and user stories');
+    t(base+2,CAT.content,'Film trending-format TikTok + create Twitter thread showcasing best community songs this week');
+    t(base+2,CAT.social,'Engage with 30+ accounts. Collaborate with 1 ambassador on a live session');
+    t(base+3,CAT.ads,'Review all paid channels: CPA target < $3.50, ROAS target > 3x. Pause underperformers, scale winners');
+    t(base+3,CAT.outreach,'Affiliate program: recruit 5 new affiliates. Send top affiliates bonus ($50 gift card for top performer this month)');
+    t(base+3,CAT.tech,'Product analytics review: feature usage, session duration, songs created per user, share rate. Prioritize features that drive sharing');
+    t(base+4,CAT.content,'Batch-create 5 pieces of content for next week. Update content playbook with latest learnings');
+    t(base+4,CAT.social,'Post weekly recap with real metrics (followers gained, songs created). Celebrate milestones publicly');
+    t(base+4,CAT.tech,w===3?'Monthly review: revenue vs target ($'+fmtMoney(REVENUE[m]).replace('$','')+'), user growth, channel performance, next month priorities':'Weekly metrics dashboard update. Share growth stats with team/investors');
+  }
+}
+
+// MONTH 9-12 — Enterprise & Scale to $50K ($25K, $32K, $40K, $50K targets)
+for(let m=8;m<12;m++){
+  for(let w=0;w<4;w++){
+    const base=(m*28)+w*7;
+    const budget=100+((m-8)*30)+(w*10);
+    t(base,CAT.ads,'Paid ads total budget: $'+budget+'/day across TikTok ($'+(Math.round(budget*0.4))+'), Facebook ($'+(Math.round(budget*0.3))+'), Google UAC ($'+(Math.round(budget*0.3))+')');
+    t(base,CAT.social,'Post 3 pieces of content across platforms. Maintain all organic channels at 2+ posts/day');
+    t(base,CAT.outreach,m===8&&w===0?'Launch B2B outreach: pitch TextTunes to greeting card companies, event planners, wedding DJs — "Custom songs from your messages"':m===9&&w===0?'Hire a part-time social media manager ($1.5K/month) to maintain organic content while you focus on B2B and partnerships':'Contact '+[5,8,10,12][w]+' potential B2B clients/partners. Follow up on all pending deals');
+    t(base+1,CAT.tech,m===8&&w===0?'Build enterprise/API features: bulk song generation, custom branding, team accounts. Target: $500+/month enterprise contracts':m===9&&w===0?'Launch "TextTunes for Business" landing page — target: wedding planners, event companies, marketing agencies':'Optimize enterprise onboarding. Track: enterprise trial → paid conversion rate. Target: 30%+');
+    t(base+1,CAT.content,'Create '+(m>=10?'3':'2')+' pieces of content: mix of organic social + paid ad creative. Test new formats quarterly');
+    t(base+1,CAT.ads,'Optimize all ad campaigns. '+(m>=10?'Test Google App campaigns + Apple Search Ads ($50/day each)':'A/B test 3 new ad creatives. Retire any creative running more than 3 weeks'));
+    t(base+2,CAT.outreach,m===8&&w===2?'Submit to speak at 3 conferences: SXSW, TechCrunch Disrupt, Music Tech Fest — pitch: "How AI is Democratizing Music Creation"':m===10&&w===0?'Begin investor outreach if scaling requires capital: prepare deck showing $40K MRR trajectory, user metrics, unit economics':'Outreach: '+[0,3,5,5][w]+' new partnership conversations. '+(m>=10?'Focus on distribution deals with music platforms':'Focus on B2B enterprise sales'));
+    t(base+2,CAT.social,'Community management: respond to all mentions, feature UGC, maintain ambassador program (now 30+ creators)');
+    t(base+2,CAT.tech,'Product iteration: ship 1 feature improvement per week based on user feedback and data');
+    t(base+3,CAT.ads,'Weekly ad review: total spend $'+(budget*7)+', target ROAS > 4x. Scale any campaign hitting > 5x ROAS');
+    t(base+3,CAT.outreach,'Check all revenue streams: App Store subscriptions, enterprise contracts, affiliate revenue, ad revenue sharing');
+    t(base+3,CAT.content,'Create case study content: "How [Company/Creator] uses TextTunes" — social proof for B2B sales');
+    t(base+4,CAT.social,'Post milestone content. '+(w===3?'Monthly recap with transparent revenue numbers':'Weekly community highlights'));
+    t(base+4,CAT.tech,w===3?'Full month review: revenue ($'+fmtMoney(REVENUE[m]).replace('$','')+' target), user metrics, burn rate, runway. Plan next month':'Weekly metrics: DAU/MAU ratio (target: 25%+), premium conversion (target: 8%+), churn (target: <5%)');
+    t(base+4,CAT.outreach,w===3&&m===11?'🎉 MONTH 12 COMPLETE! Review: total MRR vs $50K target, total users, total songs created, team size, next fundraise/scaling plan':'Follow up on all pending deals. Update CRM with pipeline status');
+  }
+}
+
+return T;
+}
+
+function getMonthWeekDay(taskDay){
+  const month=Math.floor(taskDay/28);
+  const dayInMonth=taskDay%28;
+  const week=Math.floor(dayInMonth/7);
+  return {month:Math.min(month,11),week,dayInWeek:dayInMonth%7};
+}
+
+function render(){
+  const startStr=getStart();
+  const dateInput=document.getElementById('gp-start-date');
+  if(startStr)dateInput.value=startStr;
+  const startDate=startStr?new Date(startStr+'T00:00:00'):null;
+  const tasks=buildAllTasks();
+  const checked=getChecked();
+  const container=document.getElementById('gp-months-container');
+
+  const months=[];
+  for(let m=0;m<12;m++)months.push({weeks:[[],[],[],[]]});
+  tasks.forEach(tk=>{
+    const p=getMonthWeekDay(tk.day);
+    if(p.month<12&&p.week<4)months[p.month].weeks[p.week].push(tk);
+  });
+
+  let currentMonth=-1,currentWeek=-1;
+  if(startDate){
+    const now=new Date();
+    const diffDays=Math.floor((now-startDate)/(86400000));
+    if(diffDays>=0&&diffDays<336){
+      currentMonth=Math.floor(diffDays/28);
+      currentWeek=Math.floor((diffDays%28)/7);
+    }
+  }
+
+  const totalTasks=tasks.length;
+  const doneTasks=tasks.filter(tk=>checked[tk.id]).length;
+  const pct=totalTasks?Math.round((doneTasks/totalTasks)*100):0;
+
+  document.getElementById('gp-stat-done').textContent=doneTasks;
+  document.getElementById('gp-stat-total').textContent=totalTasks;
+  document.getElementById('gp-stat-pct').textContent=pct+'%';
+  document.getElementById('gp-progress-fill').style.width=pct+'%';
+  document.getElementById('gp-progress-text').textContent=pct+'% complete — '+doneTasks+' of '+totalTasks+' tasks';
+
+  let streak=0;
+  if(startDate){
+    const now=new Date();
+    const today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+    for(let d=Math.floor((today-startDate)/86400000);d>=0;d--){
+      const dayTasks=tasks.filter(tk=>tk.day===d);
+      if(dayTasks.length===0){continue;}
+      const allDone=dayTasks.every(tk=>checked[tk.id]);
+      if(allDone){streak++;}else{break;}
+    }
+  }
+  document.getElementById('gp-stat-streak').textContent=streak;
+  document.getElementById('gp-streak-display').textContent='🔥 '+streak+'-day streak';
+
+  let html='';
+  const monthNames=['Month 1 — Foundation','Month 2 — Scale Content','Month 3 — Community','Month 4 — Paid Ads Launch','Month 5 — Optimize & Scale','Month 6 — Growth Engine','Month 7 — Authority Building','Month 8 — Market Expansion','Month 9 — Enterprise & B2B','Month 10 — Acceleration','Month 11 — Dominance','Month 12 — $50K Target'];
+
+  for(let m=0;m<12;m++){
+    const mTasks=months[m].weeks.flat();
+    const mDone=mTasks.filter(tk=>checked[tk.id]).length;
+    const mPct=mTasks.length?Math.round((mDone/mTasks.length)*100):0;
+    const isOpen=m===currentMonth;
+
+    html+='<div class="gp-month">';
+    html+='<div class="gp-month-header" data-month="'+m+'">';
+    html+='<div class="gp-month-title"><span class="gp-arrow '+(isOpen?'open':'')+'">&#9654;</span>'+monthNames[m]+'</div>';
+    html+='<div class="gp-month-meta">';
+    html+='<span class="gp-month-rev">Target: '+fmtMoney(REVENUE[m])+'/mo</span>';
+    html+='<span class="gp-month-pct">'+mDone+'/'+mTasks.length+' ('+mPct+'%)</span>';
+    html+='<div class="gp-mini-bar"><div class="gp-mini-fill" style="width:'+mPct+'%;background:'+(mPct===100?'var(--green)':'var(--accent)')+'"></div></div>';
+    html+='</div></div>';
+
+    html+='<div class="gp-month-body'+(isOpen?' open':'')+'">';
+    for(let w=0;w<4;w++){
+      const wTasks=months[m].weeks[w];
+      if(wTasks.length===0)continue;
+      const weekNum=m*4+w+1;
+      let dateRange='';
+      if(startDate){
+        const wStart=addDays(startDate,m*28+w*7);
+        const wEnd=addDays(wStart,6);
+        dateRange=fmtDate(wStart)+' — '+fmtDate(wEnd);
+      }
+      html+='<div class="gp-week">';
+      html+='<div class="gp-week-title">Week '+weekNum+(dateRange?' <span class="gp-week-dates">'+dateRange+'</span>':'')+'</div>';
+
+      const dayGroups={};
+      wTasks.forEach(tk=>{
+        const d=tk.day;
+        if(!dayGroups[d])dayGroups[d]=[];
+        dayGroups[d].push(tk);
+      });
+      const dayNames=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+      Object.keys(dayGroups).sort((a,b)=>a-b).forEach(d=>{
+        const dayInWeek=d%7;
+        let dayLabel=dayNames[dayInWeek]||'Day '+(dayInWeek+1);
+        if(startDate){
+          const dd=addDays(startDate,parseInt(d));
+          dayLabel=dayNames[dayInWeek]+', '+fmtDate(dd);
+        }
+        html+='<div class="gp-day-label">'+dayLabel+'</div>';
+        dayGroups[d].forEach(tk=>{
+          const isDone=!!checked[tk.id];
+          html+='<div class="gp-task'+(isDone?' checked':'')+'">';
+          html+='<input type="checkbox" data-id="'+tk.id+'"'+(isDone?' checked':'')+'>';
+          html+='<div class="gp-task-content"><div class="gp-task-text"><span class="gp-task-cat '+CAT_CLASS[tk.cat]+'">'+CAT_LABEL[tk.cat]+'</span>'+escHtml(tk.text)+'</div></div>';
+          html+='</div>';
+        });
+      });
+      html+='</div>';
+    }
+    html+='</div></div>';
+  }
+  container.innerHTML=html;
+
+  container.querySelectorAll('.gp-month-header').forEach(h=>{
+    h.addEventListener('click',()=>{
+      const body=h.nextElementSibling;
+      const arrow=h.querySelector('.gp-arrow');
+      body.classList.toggle('open');
+      arrow.classList.toggle('open');
+    });
+  });
+
+  container.querySelectorAll('input[type="checkbox"]').forEach(cb=>{
+    cb.addEventListener('change',()=>{
+      const c=getChecked();
+      if(cb.checked)c[cb.dataset.id]=true;
+      else delete c[cb.dataset.id];
+      saveChecked(c);
+      cb.closest('.gp-task').classList.toggle('checked',cb.checked);
+      updateStats();
+    });
+  });
+}
+
+function updateStats(){
+  const tasks=buildAllTasks();
+  const checked=getChecked();
+  const totalTasks=tasks.length;
+  const doneTasks=tasks.filter(tk=>checked[tk.id]).length;
+  const pct=totalTasks?Math.round((doneTasks/totalTasks)*100):0;
+  document.getElementById('gp-stat-done').textContent=doneTasks;
+  document.getElementById('gp-stat-pct').textContent=pct+'%';
+  document.getElementById('gp-progress-fill').style.width=pct+'%';
+  document.getElementById('gp-progress-text').textContent=pct+'% complete — '+doneTasks+' of '+totalTasks+' tasks';
+
+  const months=[];
+  for(let m=0;m<12;m++)months.push({weeks:[[],[],[],[]]});
+  tasks.forEach(tk=>{
+    const p=getMonthWeekDay(tk.day);
+    if(p.month<12&&p.week<4)months[p.month].weeks[p.week].push(tk);
+  });
+  document.querySelectorAll('.gp-month').forEach((el,m)=>{
+    const mTasks=months[m].weeks.flat();
+    const mDone=mTasks.filter(tk=>checked[tk.id]).length;
+    const mPct=mTasks.length?Math.round((mDone/mTasks.length)*100):0;
+    const meta=el.querySelector('.gp-month-pct');
+    if(meta)meta.textContent=mDone+'/'+mTasks.length+' ('+mPct+'%)';
+    const fill=el.querySelector('.gp-mini-fill');
+    if(fill){fill.style.width=mPct+'%';fill.style.background=mPct===100?'var(--green)':'var(--accent)';}
+  });
+
+  const startStr=getStart();
+  if(startStr){
+    const startDate=new Date(startStr+'T00:00:00');
+    const now=new Date();
+    const today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+    let streak=0;
+    for(let d=Math.floor((today-startDate)/86400000);d>=0;d--){
+      const dayTasks=tasks.filter(tk=>tk.day===d);
+      if(dayTasks.length===0)continue;
+      if(dayTasks.every(tk=>checked[tk.id])){streak++;}else{break;}
+    }
+    document.getElementById('gp-stat-streak').textContent=streak;
+    document.getElementById('gp-streak-display').textContent='🔥 '+streak+'-day streak';
+  }
+}
+
+function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+document.getElementById('gp-set-date').addEventListener('click',()=>{
+  const v=document.getElementById('gp-start-date').value;
+  if(v){saveStart(v);render();}
+});
+
+if(!getStart()){
+  const now=new Date();
+  const y=now.getFullYear(),m=String(now.getMonth()+1).padStart(2,'0'),d=String(now.getDate()).padStart(2,'0');
+  document.getElementById('gp-start-date').value=y+'-'+m+'-'+d;
+}
+
+render();
+})();
+</script>
     </div>
 
     <!-- Calendar -->
