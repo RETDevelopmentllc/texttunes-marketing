@@ -302,6 +302,9 @@ select.input{cursor:pointer;appearance:none;background-image:url("data:image/svg
         <div class="sb-sub-item" onclick="openModule('mkt-video')">
           <span class="sb-sub-icon">🎬</span><span class="sb-label">Video Ad Creator</span>
         </div>
+        <div class="sb-sub-item" onclick="openModule('mkt-appvideo')">
+          <span class="sb-sub-icon">📱</span><span class="sb-label">In-App Video</span>
+        </div>
         <div class="sb-sub-item" onclick="openModule('mkt-gameplan')">
           <span class="sb-sub-icon">🗺</span><span class="sb-label">Game Plan</span>
         </div>
@@ -358,6 +361,418 @@ select.input{cursor:pointer;appearance:none;background-image:url("data:image/svg
       <div style="border-radius:16px;overflow:hidden;border:1px solid var(--border);height:calc(100vh - 220px);min-height:500px;">
         <iframe src="/index.html" style="width:100%;height:100%;border:none;background:var(--bg);"></iframe>
       </div>
+    </div>
+
+    <!-- In-App Video Maker -->
+    <div class="panel" id="panel-mkt-appvideo">
+<style>
+.av-wrap{display:flex;gap:32px;align-items:flex-start;flex-wrap:wrap;}
+.av-phone-col{display:flex;flex-direction:column;align-items:center;gap:16px;flex-shrink:0;}
+.av-phone{width:300px;height:620px;border-radius:48px;background:linear-gradient(160deg,#1a1a1a,#0a0a0a);box-shadow:0 0 0 1px #444,0 0 0 2px #111,0 40px 80px rgba(0,0,0,.85),0 0 50px rgba(124,58,237,.15);position:relative;overflow:hidden;}
+.av-phone::before{content:'';position:absolute;left:-3px;top:120px;width:3px;height:28px;background:#1a1a1a;border-radius:2px 0 0 2px;box-shadow:0 44px 0 #1a1a1a,0 88px 0 #1a1a1a;}
+.av-phone::after{content:'';position:absolute;right:-3px;top:160px;width:3px;height:56px;background:#1a1a1a;border-radius:0 2px 2px 0;}
+.av-screen{position:absolute;inset:7px;border-radius:42px;overflow:hidden;display:flex;flex-direction:column;background:linear-gradient(180deg,#6B3FA0 0%,#3D2066 50%,#1A0E33 100%);}
+.av-di{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:76px;height:20px;background:#000;border-radius:11px;z-index:20;}
+.av-sbar{position:absolute;top:0;left:0;right:0;height:40px;display:flex;align-items:center;justify-content:space-between;padding:13px 20px 0;z-index:15;pointer-events:none;}
+.av-sbar-time{font-size:12px;font-weight:600;color:#fff;font-family:-apple-system,'SF Pro Text',system-ui,sans-serif;}
+.av-sbar-icons{display:flex;align-items:center;gap:3px;}
+/* Compose Screen */
+.av-compose{flex:1;display:flex;flex-direction:column;align-items:center;padding:52px 20px 0;overflow:hidden;}
+.av-share-btn{position:absolute;top:50px;right:16px;z-index:10;}
+.av-share-btn svg{width:18px;height:18px;fill:none;stroke:rgba(255,255,255,.6);stroke-width:1.5;}
+.av-music-notes{position:relative;height:30px;width:80px;margin-bottom:8px;opacity:.3;}
+.av-music-notes span{position:absolute;font-size:18px;color:#fff;}
+.av-music-notes span:first-child{left:10px;top:5px;}
+.av-music-notes span:last-child{left:40px;top:0px;}
+.av-logo-ring{width:110px;height:110px;border-radius:50%;border:2px solid rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;margin-bottom:12px;position:relative;}
+.av-logo-ring::before{content:'';position:absolute;inset:-4px;border-radius:50%;border:1px solid rgba(255,255,255,.06);}
+.av-logo-img{width:80px;height:80px;border-radius:22px;background:linear-gradient(135deg,#7C3AED,#9B6FFF);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 32px rgba(124,58,237,.4);}
+.av-logo-img svg{width:44px;height:44px;}
+.av-app-name{font-family:'Inter',sans-serif;font-size:22px;font-weight:800;color:#fff;margin-bottom:2px;letter-spacing:-.3px;}
+.av-app-name em{color:#d4b8ff;font-style:normal;}
+.av-tagline{font-size:12px;color:rgba(255,255,255,.55);margin-bottom:20px;font-weight:500;}
+.av-msg-box{width:100%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:16px;backdrop-filter:blur(10px);}
+.av-msg-label{font-size:11px;font-weight:700;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;}
+.av-msg-text{font-size:14px;color:rgba(255,255,255,.5);line-height:1.5;min-height:60px;}
+.av-msg-count{text-align:right;font-size:11px;color:rgba(255,255,255,.3);margin-top:8px;}
+.av-style-btn{width:100%;margin-top:10px;padding:10px 16px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:12px;color:rgba(255,255,255,.5);font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px;font-family:'DM Sans',sans-serif;}
+.av-generate-btn{width:100%;margin-top:16px;padding:14px;background:linear-gradient(135deg,rgba(124,58,237,.7),rgba(155,111,255,.7));border:none;border-radius:16px;color:#fff;font-size:16px;font-weight:700;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;letter-spacing:.2px;}
+/* Player Screen */
+.av-player{flex:1;display:none;flex-direction:column;align-items:center;padding:42px 20px 0;overflow:hidden;}
+.av-player-back{position:absolute;top:52px;left:16px;color:rgba(255,255,255,.7);font-size:13px;display:flex;align-items:center;gap:4px;z-index:10;font-weight:500;}
+.av-player-close{position:absolute;top:52px;right:16px;z-index:10;color:rgba(255,255,255,.6);font-size:18px;}
+.av-album-art{width:180px;height:180px;border-radius:20px;background:linear-gradient(135deg,#c9a0dc,#e8c8e8,#d4a0d4);display:flex;align-items:center;justify-content:center;margin-top:40px;margin-bottom:16px;box-shadow:0 12px 40px rgba(0,0,0,.4);}
+.av-album-initials{font-size:48px;font-weight:800;color:rgba(255,255,255,.7);font-family:'Inter',sans-serif;letter-spacing:2px;}
+.av-waveform{display:flex;align-items:center;justify-content:center;gap:2px;height:24px;margin-bottom:8px;}
+.av-waveform span{width:3px;background:rgba(255,255,255,.5);border-radius:2px;transition:height .15s;}
+.av-song-title{font-size:20px;font-weight:800;color:#fff;font-family:'Inter',sans-serif;margin-bottom:2px;}
+.av-song-artist{font-size:13px;color:rgba(255,255,255,.5);margin-bottom:16px;}
+.av-progress-track{width:100%;height:4px;background:rgba(255,255,255,.15);border-radius:2px;position:relative;margin-bottom:6px;}
+.av-progress-thumb{position:absolute;top:50%;transform:translateY(-50%);width:12px;height:12px;background:#fff;border-radius:50%;left:0%;transition:left .1s linear;}
+.av-progress-fill{height:100%;background:#fff;border-radius:2px;width:0%;transition:width .1s linear;}
+.av-time-row{display:flex;justify-content:space-between;width:100%;font-size:11px;color:rgba(255,255,255,.4);margin-bottom:20px;font-variant-numeric:tabular-nums;}
+.av-controls{display:flex;align-items:center;justify-content:center;gap:32px;margin-bottom:20px;width:100%;}
+.av-ctrl-btn{display:flex;flex-direction:column;align-items:center;gap:4px;color:rgba(255,255,255,.6);font-size:11px;}
+.av-ctrl-btn svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;}
+.av-play-btn{width:56px;height:56px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,0,0,.3);}
+.av-play-btn svg{width:24px;height:24px;fill:#1A0E33;stroke:none;margin-left:2px;}
+.av-bottom-btns{display:flex;gap:12px;width:100%;}
+.av-bottom-btns button{flex:1;padding:12px;border-radius:12px;font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:default;}
+.av-share-action{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);color:#fff;}
+.av-airdrop-action{background:#fff;border:none;color:#1A0E33;}
+/* Tab Bar */
+.av-tab-bar{height:50px;display:flex;align-items:center;justify-content:space-around;padding:0 20px;flex-shrink:0;border-top:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.2);}
+.av-tab-bar-icon{display:flex;flex-direction:column;align-items:center;gap:2px;color:rgba(255,255,255,.35);font-size:10px;}
+.av-tab-bar-icon svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;}
+.av-tab-bar-center{width:48px;height:48px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;margin-top:-18px;box-shadow:0 4px 16px rgba(0,0,0,.3);}
+.av-tab-bar-center svg{width:22px;height:22px;fill:#1A0E33;}
+/* Controls */
+.av-controls-panel{flex:1;min-width:280px;max-width:440px;}
+.av-field{margin-bottom:14px;}
+.av-field label{display:block;font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.8px;text-transform:uppercase;margin-bottom:6px;}
+.av-rec-btns{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;}
+/* no-anim for recording */
+.av-no-anim .av-waveform span{animation:none!important;}
+</style>
+
+<div class="page-title">📱 <em>In-App Video</em></div>
+<div class="page-sub">Record videos that look like the real TextTunes app in action.</div>
+
+<div class="av-wrap">
+  <!-- Phone -->
+  <div class="av-phone-col">
+    <div class="av-phone" id="avPhone">
+      <div class="av-screen" id="avScreen">
+        <div class="av-di"></div>
+        <div class="av-sbar">
+          <span class="av-sbar-time" id="avSbarTime">5:14</span>
+          <span class="av-sbar-icons">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="5" cy="12" r="2" fill="rgba(255,255,255,.7)"/><circle cx="10" cy="12" r="2" fill="rgba(255,255,255,.7)"/><circle cx="15" cy="12" r="2" fill="rgba(255,255,255,.7)"/><circle cx="20" cy="12" r="2" fill="rgba(255,255,255,.7)"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M2 16.5C5.5 10 10 7 12 5c2 2 6.5 5 10 11.5" stroke="rgba(255,255,255,.7)" stroke-width="2" fill="none"/></svg>
+            <svg width="22" height="12" viewBox="0 0 28 14"><rect x="0" y="1" width="23" height="12" rx="3" stroke="rgba(255,255,255,.5)" stroke-width="1.5" fill="none"/><rect x="24" y="4.5" width="2.5" height="5" rx="1" fill="rgba(255,255,255,.3)"/><rect x="1.5" y="2.5" width="20" height="9" rx="2" fill="rgba(255,255,255,.7)"/></svg>
+          </span>
+        </div>
+
+        <!-- Compose Screen -->
+        <div class="av-compose" id="avCompose">
+          <div class="av-share-btn"><svg viewBox="0 0 24 24"><path d="M4 12v7a2 2 0 002 2h12a2 2 0 002-2v-7M16 6l-4-4-4 4M12 2v13"/></svg></div>
+          <div class="av-music-notes"><span>♪</span><span>♫</span></div>
+          <div class="av-logo-ring">
+            <div class="av-logo-img">
+              <svg viewBox="0 0 80 80" fill="none"><rect width="80" height="80" rx="20" fill="url(#avlg)"/><path d="M24 52c0-4 4-6 8-6h4c2 0 4-1 4-4V28c0-2 2-3 3-2l10 6c1 1 1 2 0 3l-10 6c-1 1-3 0-3-2v-4c0-2-2-4-4-4h-4c-6 0-10 4-10 10" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/><circle cx="28" cy="52" r="5" fill="#fff"/><defs><linearGradient id="avlg" x1="0" y1="0" x2="80" y2="80"><stop stop-color="#7C3AED"/><stop offset="1" stop-color="#9B6FFF"/></linearGradient></defs></svg>
+            </div>
+          </div>
+          <div class="av-app-name">Text<em>Tunes</em></div>
+          <div class="av-tagline">Turn your message into a song</div>
+          <div class="av-msg-box">
+            <div class="av-msg-label">YOUR MESSAGE</div>
+            <div class="av-msg-text" id="avMsgText">Hey, thinking of you. Hope your day is amazing...</div>
+            <div class="av-msg-count"><span id="avMsgCount">0</span>/200</div>
+            <div class="av-style-btn">♫ <span id="avStyleText">Choose Style</span></div>
+          </div>
+          <div class="av-generate-btn">✦ Generate Song</div>
+        </div>
+
+        <!-- Player Screen -->
+        <div class="av-player" id="avPlayer">
+          <div class="av-player-back">← New Song</div>
+          <div class="av-player-close">✕</div>
+          <div class="av-album-art" id="avAlbumArt">
+            <div class="av-album-initials" id="avAlbumInitials">YY</div>
+          </div>
+          <div class="av-waveform" id="avWaveform"></div>
+          <div class="av-song-title" id="avSongTitle">Yoyoyo Yo</div>
+          <div class="av-song-artist">TextTunes</div>
+          <div class="av-progress-track">
+            <div class="av-progress-fill" id="avProgressFill"></div>
+            <div class="av-progress-thumb" id="avProgressThumb"></div>
+          </div>
+          <div class="av-time-row"><span id="avTimeNow">0:00</span><span id="avTimeDur">0:12</span></div>
+          <div class="av-controls">
+            <div class="av-ctrl-btn"><svg viewBox="0 0 24 24"><path d="M1 4v6h6M23 20v-6h-6" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.51 15a9 9 0 0014.13 3.36L23 14M1 10l5.36 4.36A9 9 0 0020.49 9" stroke-linecap="round" stroke-linejoin="round"/></svg>Restart</div>
+            <div class="av-play-btn"><svg viewBox="0 0 24 24"><polygon points="6,3 20,12 6,21"/></svg></div>
+            <div class="av-ctrl-btn"><svg viewBox="0 0 24 24"><polyline points="16 3 21 3 21 8" stroke-linecap="round" stroke-linejoin="round"/><line x1="4" y1="20" x2="21" y2="3" stroke-linecap="round"/><polyline points="21 16 21 21 16 21" stroke-linecap="round" stroke-linejoin="round"/><line x1="15" y1="15" x2="21" y2="21" stroke-linecap="round"/><line x1="4" y1="4" x2="9" y2="9" stroke-linecap="round"/></svg>Remix</div>
+          </div>
+          <div class="av-bottom-btns">
+            <button class="av-share-action">Share</button>
+            <button class="av-airdrop-action">AirDrop</button>
+          </div>
+        </div>
+
+        <!-- Tab Bar -->
+        <div class="av-tab-bar">
+          <div class="av-tab-bar-icon"><svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
+          <div class="av-tab-bar-center"><svg viewBox="0 0 24 24"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" fill="#1A0E33"/></svg></div>
+          <div class="av-tab-bar-icon"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;" id="avRecBtns">
+      <button class="btn-ai" onclick="avRecord()" id="avRecordBtn">⏺ Record Video</button>
+      <button class="btn-outline" onclick="avDownload()" id="avDownloadBtn" style="display:none;">⬇ Download MP4</button>
+    </div>
+    <div class="status-msg" id="avStatus"></div>
+  </div>
+
+  <!-- Controls -->
+  <div class="av-controls-panel">
+    <div class="card">
+      <div class="card-title"><span class="ct-icon">✍️</span> Customize</div>
+      <div class="av-field">
+        <label>Message Text</label>
+        <textarea class="input" id="avInputMsg" rows="3" placeholder="Hey, thinking of you. Hope your day is amazing...">Hey, thinking of you. Hope your day is amazing...</textarea>
+      </div>
+      <div class="av-field">
+        <label>Music Style</label>
+        <select class="input" id="avInputStyle">
+          <option value="">Choose Style</option>
+          <option value="Pop">Pop</option>
+          <option value="Hip-Hop">Hip-Hop</option>
+          <option value="R&B">R&B</option>
+          <option value="Country">Country</option>
+          <option value="Rock">Rock</option>
+          <option value="Reggae">Reggae</option>
+          <option value="Lo-Fi">Lo-Fi</option>
+          <option value="Jazz">Jazz</option>
+          <option value="EDM">EDM</option>
+        </select>
+      </div>
+      <div class="av-field">
+        <label>Song Title</label>
+        <input class="input" id="avInputTitle" value="Yoyoyo Yo" placeholder="Song title"/>
+      </div>
+      <div class="av-field">
+        <label>Album Initials</label>
+        <input class="input" id="avInputInitials" value="YY" placeholder="2 letters" maxlength="4"/>
+      </div>
+      <div class="av-field">
+        <label>Song Duration (sec)</label>
+        <input class="input" id="avInputDur" type="number" value="12" min="5" max="60"/>
+      </div>
+      <button class="btn-ai" onclick="avApply()" style="width:100%;">✦ Apply Changes</button>
+    </div>
+
+    <div class="card" style="margin-top:16px;">
+      <div class="card-title"><span class="ct-icon">🎬</span> Animation Flow</div>
+      <p style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:12px;">
+        When recording, the video will show:<br>
+        1. Compose screen with your message typing in<br>
+        2. Style selection + "Generate Song" glow<br>
+        3. Transition to player screen<br>
+        4. Song "plays" with progress bar + waveform animation
+      </p>
+      <div class="av-field">
+        <label>Typing Speed (ms per char)</label>
+        <input class="input" id="avTypingSpeed" type="number" value="50" min="20" max="200"/>
+      </div>
+      <div class="av-field">
+        <label>Player Play Duration (sec)</label>
+        <input class="input" id="avPlayDur" type="number" value="5" min="2" max="15"/>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+/* ── Waveform bars ── */
+const wf=document.getElementById('avWaveform');
+for(let i=0;i<20;i++){const s=document.createElement('span');s.style.height=(4+Math.random()*14)+'px';wf.appendChild(s);}
+
+/* ── Apply custom text to phone ── */
+window.avApply=function(){
+  const msg=document.getElementById('avInputMsg').value||'Hey, thinking of you. Hope your day is amazing...';
+  const style=document.getElementById('avInputStyle').value;
+  const title=document.getElementById('avInputTitle').value||'Untitled';
+  const initials=document.getElementById('avInputInitials').value||'TT';
+  const dur=parseInt(document.getElementById('avInputDur').value)||12;
+  document.getElementById('avMsgText').textContent=msg;
+  document.getElementById('avMsgCount').textContent='0';
+  document.getElementById('avStyleText').textContent=style||'Choose Style';
+  document.getElementById('avSongTitle').textContent=title;
+  document.getElementById('avAlbumInitials').textContent=initials;
+  const m=Math.floor(dur/60),s=dur%60;
+  document.getElementById('avTimeDur').textContent=m+':'+(s<10?'0':'')+s;
+  document.getElementById('avTimeNow').textContent='0:00';
+  document.getElementById('avProgressFill').style.width='0%';
+  document.getElementById('avProgressThumb').style.left='0%';
+  // Reset to compose
+  document.getElementById('avCompose').style.display='flex';
+  document.getElementById('avPlayer').style.display='none';
+  document.getElementById('avStatus').textContent='✅ Changes applied!';
+  setTimeout(()=>document.getElementById('avStatus').textContent='',2000);
+};
+
+/* ── Animate typing ── */
+function animateTyping(text,el,speed){
+  return new Promise(r=>{
+    el.textContent='';
+    let i=0;
+    const countEl=document.getElementById('avMsgCount');
+    function tick(){
+      if(i<text.length){el.textContent+=text[i];i++;countEl.textContent=i;setTimeout(tick,speed);}
+      else r();
+    }
+    tick();
+  });
+}
+
+/* ── Animate waveform ── */
+let wfInterval=null;
+function startWaveform(){
+  const bars=document.querySelectorAll('#avWaveform span');
+  wfInterval=setInterval(()=>{bars.forEach(b=>{b.style.height=(4+Math.random()*16)+'px';});},150);
+}
+function stopWaveform(){if(wfInterval){clearInterval(wfInterval);wfInterval=null;}}
+
+/* ── Animate progress bar ── */
+function animateProgress(durSec){
+  return new Promise(r=>{
+    const fill=document.getElementById('avProgressFill');
+    const thumb=document.getElementById('avProgressThumb');
+    const timeNow=document.getElementById('avTimeNow');
+    const totalMs=durSec*1000;
+    const start=Date.now();
+    function tick(){
+      const elapsed=Date.now()-start;
+      const pct=Math.min(elapsed/totalMs*100,100);
+      fill.style.width=pct+'%';
+      thumb.style.left=pct+'%';
+      const sec=Math.floor(elapsed/1000);
+      const m=Math.floor(sec/60),s=sec%60;
+      timeNow.textContent=m+':'+(s<10?'0':'')+s;
+      if(elapsed<totalMs) requestAnimationFrame(tick); else r();
+    }
+    tick();
+  });
+}
+
+/* ── Record video ── */
+let avRecorder=null,avChunks=[];
+window.avRecord=async function(){
+  const btn=document.getElementById('avRecordBtn');
+  const dlBtn=document.getElementById('avDownloadBtn');
+  const status=document.getElementById('avStatus');
+  const screen=document.getElementById('avScreen');
+  const compose=document.getElementById('avCompose');
+  const player=document.getElementById('avPlayer');
+  btn.disabled=true;btn.textContent='⏺ Recording...';
+  dlBtn.style.display='none';
+  status.textContent='🎬 Starting recording...';
+
+  // Reset to compose
+  compose.style.display='flex';player.style.display='none';
+  document.getElementById('avProgressFill').style.width='0%';
+  document.getElementById('avProgressThumb').style.left='0%';
+  document.getElementById('avTimeNow').textContent='0:00';
+  document.getElementById('avMsgText').textContent='';
+  document.getElementById('avMsgCount').textContent='0';
+  document.getElementById('avStyleText').textContent='Choose Style';
+
+  // Settings
+  const msg=document.getElementById('avInputMsg').value||'Hey, thinking of you. Hope your day is amazing...';
+  const style=document.getElementById('avInputStyle').value||'Pop';
+  const title=document.getElementById('avInputTitle').value||'Untitled';
+  const playDur=parseInt(document.getElementById('avPlayDur').value)||5;
+  const typingSpeed=parseInt(document.getElementById('avTypingSpeed').value)||50;
+
+  // html2canvas setup
+  const scale=2;
+  const canvas=document.createElement('canvas');
+  canvas.width=screen.offsetWidth*scale;
+  canvas.height=screen.offsetHeight*scale;
+  const ctx=canvas.getContext('2d',{alpha:false});
+  const h2cOpts={backgroundColor:null,scale,logging:false,useCORS:true,allowTaint:true,imageTimeout:0,removeContainer:true};
+
+  // Pre-warm
+  const warm=await html2canvas(screen,h2cOpts);
+  ctx.drawImage(warm,0,0,canvas.width,canvas.height);
+
+  // Start recording
+  const FPS=12;
+  const videoStream=canvas.captureStream(FPS);
+  const combinedStream=new MediaStream();
+  videoStream.getVideoTracks().forEach(t=>combinedStream.addTrack(t));
+  const mimeType=MediaRecorder.isTypeSupported('video/webm;codecs=vp9')?'video/webm;codecs=vp9':'video/webm';
+  avRecorder=new MediaRecorder(combinedStream,{mimeType,videoBitsPerSecond:8000000});
+  avChunks=[];
+  avRecorder.ondataavailable=e=>{if(e.data.size>0)avChunks.push(e.data);};
+
+  avRecorder.start(100);
+
+  // Render loop
+  let recording=true;
+  (async function renderLoop(){
+    while(recording){
+      try{const frame=await html2canvas(screen,h2cOpts);ctx.drawImage(frame,0,0,canvas.width,canvas.height);}catch(e){}
+      await new Promise(r=>setTimeout(r,30));
+    }
+  })();
+
+  status.textContent='🎬 Typing message...';
+  // 1. Hold compose for 0.5s
+  await new Promise(r=>setTimeout(r,500));
+  // 2. Type message
+  await animateTyping(msg,document.getElementById('avMsgText'),typingSpeed);
+  await new Promise(r=>setTimeout(r,300));
+  // 3. Select style
+  document.getElementById('avStyleText').textContent=style;
+  status.textContent='🎬 Selecting style...';
+  await new Promise(r=>setTimeout(r,600));
+  // 4. "Generate Song" glow
+  status.textContent='🎬 Generating...';
+  const genBtn=screen.querySelector('.av-generate-btn');
+  genBtn.style.background='linear-gradient(135deg,#9B6FFF,#FF6FFF)';
+  genBtn.style.boxShadow='0 0 30px rgba(155,111,255,.5)';
+  await new Promise(r=>setTimeout(r,1200));
+  genBtn.style.background='';genBtn.style.boxShadow='';
+  // 5. Switch to player
+  compose.style.display='none';player.style.display='flex';
+  status.textContent='🎬 Playing song...';
+  await new Promise(r=>setTimeout(r,400));
+  // 6. Play animation
+  startWaveform();
+  await animateProgress(playDur);
+  stopWaveform();
+  await new Promise(r=>setTimeout(r,800));
+
+  // Stop
+  recording=false;
+  status.textContent='⏳ Processing...';
+  avRecorder.stop();
+  await new Promise(r=>{avRecorder.onstop=r;});
+
+  // Convert via server
+  const blob=new Blob(avChunks,{type:mimeType});
+  const reader=new FileReader();
+  reader.readAsDataURL(blob);
+  reader.onloadend=async()=>{
+    const b64=reader.result.split(',')[1];
+    try{
+      const resp=await fetch('/api/convert-mp4',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({video:b64})});
+      if(!resp.ok)throw new Error('Conversion failed');
+      const mp4Blob=await resp.blob();
+      window._avMp4Url=URL.createObjectURL(mp4Blob);
+      dlBtn.style.display='inline-flex';
+      status.textContent='✅ Video ready! Click Download.';
+    }catch(e){
+      window._avMp4Url=URL.createObjectURL(blob);
+      dlBtn.style.display='inline-flex';
+      status.textContent='⚠️ MP4 conversion failed, WebM available.';
+    }
+    btn.disabled=false;btn.textContent='⏺ Record Video';
+  };
+};
+
+window.avDownload=function(){
+  if(!window._avMp4Url)return;
+  const a=document.createElement('a');
+  a.href=window._avMp4Url;
+  a.download='TextTunes_InApp_Ad.mp4';
+  a.click();
+};
+})();
+</script>
     </div>
 
     <!-- Game Plan -->
@@ -1491,5 +1906,6 @@ renderKPIs();
 kanbanRender();
 teamRender();
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </body>
 </html>
