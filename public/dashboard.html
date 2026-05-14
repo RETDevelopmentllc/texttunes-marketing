@@ -472,9 +472,7 @@ select.input{cursor:pointer;appearance:none;background-image:url("data:image/svg
           </div>
           <div class="av-time-row"><span id="avTimeNow">0:00</span><span id="avTimeDur">0:12</span></div>
           <div class="av-controls">
-            <div class="av-ctrl-btn"><svg viewBox="0 0 24 24"><path d="M2 12a10 10 0 0118-6" stroke-linecap="round" stroke-linejoin="round"/><polyline points="22 2 22 8 16 8" stroke-linecap="round" stroke-linejoin="round"/></svg>Restart</div>
             <div class="av-play-btn"><svg viewBox="0 0 24 24"><polygon points="7,4 20,12 7,20"/></svg></div>
-            <div class="av-ctrl-btn"><svg viewBox="0 0 24 24"><polyline points="16 3 21 3 21 8" stroke-linecap="round" stroke-linejoin="round"/><line x1="4" y1="20" x2="21" y2="3" stroke-linecap="round"/><polyline points="8 21 3 21 3 16" stroke-linecap="round" stroke-linejoin="round"/><line x1="20" y1="4" x2="3" y2="21" stroke-linecap="round"/></svg>Remix</div>
           </div>
           <div class="av-bottom-btns">
             <button class="av-share-action">Share</button>
@@ -832,11 +830,11 @@ function drawRoundRect(ctx,x,y,w,h,r){
   ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();
 }
 
-function drawCanvasFrame(ctx,W,H,state){
-  // Background gradient
-  const bg=ctx.createLinearGradient(0,0,0,H);
+function drawCanvasFrame(ctx,W,H,state,yOff){
+  // Background gradient — extend beyond H to cover any vertical padding
+  const bg=ctx.createLinearGradient(0,-yOff,0,H+yOff);
   bg.addColorStop(0,'#6B3FA0');bg.addColorStop(0.3,'#3A1D6E');bg.addColorStop(0.65,'#1A0E3A');bg.addColorStop(1,'#0D0720');
-  ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+  ctx.fillStyle=bg;ctx.fillRect(0,-yOff,W,H+yOff*2);
 
   // Dynamic Island
   drawRoundRect(ctx,W/2-38,10,76,20,11);ctx.fillStyle='#000';ctx.fill();
@@ -950,30 +948,10 @@ function drawCanvasFrame(ctx,W,H,state){
     ctx.fillText(Math.floor(durSec/60)+':'+(durSec%60<10?'0':'')+(durSec%60),px+pw,py+18);
     // Controls
     const cy2=py+46;ctx.textAlign='center';
-    // Restart icon — counterclockwise arrow
-    ctx.save();ctx.strokeStyle='rgba(255,255,255,.5)';ctx.lineWidth=1.8;ctx.lineCap='round';
-    ctx.beginPath();ctx.arc(cx-60,cy2-2,9,Math.PI*1.7,Math.PI*0.8,false);ctx.stroke();
-    // Arrowhead
-    const aAng=Math.PI*1.7;const aRx=cx-60+9*Math.cos(aAng);const aRy=cy2-2+9*Math.sin(aAng);
-    ctx.beginPath();ctx.moveTo(aRx-4,aRy-2);ctx.lineTo(aRx,aRy+4);ctx.lineTo(aRx+4,aRy);ctx.stroke();
-    ctx.restore();
-    ctx.font='500 10px DM Sans,sans-serif';ctx.fillStyle='rgba(255,255,255,.5)';ctx.fillText('Restart',cx-60,cy2+18);
-    // Play button
+    // Play button only — no Restart/Remix
     ctx.beginPath();ctx.arc(cx,cy2,28,0,Math.PI*2);ctx.fillStyle='#fff';
     ctx.shadowColor='rgba(0,0,0,.3)';ctx.shadowBlur=12;ctx.fill();ctx.shadowBlur=0;
     ctx.beginPath();ctx.moveTo(cx-8,cy2-12);ctx.lineTo(cx-8,cy2+12);ctx.lineTo(cx+12,cy2);ctx.closePath();ctx.fillStyle='#1A0E33';ctx.fill();
-    // Remix icon — shuffle arrows (two crossing arrows with arrowheads)
-    ctx.save();ctx.strokeStyle='rgba(255,255,255,.5)';ctx.lineWidth=1.8;ctx.lineCap='round';
-    const rx=cx+60,ry=cy2-2;
-    // Arrow 1: bottom-left to top-right
-    ctx.beginPath();ctx.moveTo(rx-12,ry+6);ctx.lineTo(rx+12,ry-6);ctx.stroke();
-    ctx.beginPath();ctx.moveTo(rx+6,ry-6);ctx.lineTo(rx+12,ry-6);ctx.lineTo(rx+12,ry);ctx.stroke();
-    // Arrow 2: top-left to bottom-right
-    ctx.beginPath();ctx.moveTo(rx-12,ry-6);ctx.lineTo(rx-4,ry+2);ctx.stroke();
-    ctx.beginPath();ctx.moveTo(rx+4,ry-2);ctx.lineTo(rx+12,ry+6);ctx.stroke();
-    ctx.beginPath();ctx.moveTo(rx+6,ry+6);ctx.lineTo(rx+12,ry+6);ctx.lineTo(rx+12,ry);ctx.stroke();
-    ctx.restore();
-    ctx.font='500 10px DM Sans,sans-serif';ctx.fillStyle='rgba(255,255,255,.5)';ctx.fillText('Remix',cx+60,cy2+18);
     // Share / AirDrop buttons
     const by3=cy2+30;
     drawRoundRect(ctx,18,by3,W/2-24,36,12);ctx.fillStyle='rgba(255,255,255,.08)';ctx.fill();
@@ -1049,11 +1027,15 @@ window.avRecord=async function(){
     await new Promise(r=>setTimeout(r,1500));
   }
 
-  // Canvas setup — phone screen dimensions at 3x for crisp text
-  const W=286,H=606,scale=3;
-  const canvas=document.createElement('canvas');canvas.width=W*scale;canvas.height=H*scale;
+  // Canvas setup — iPhone 17 Pro Max resolution (1320×2868)
+  const W=286,H=606;
+  const outW=1320,outH=2868;
+  const scale=outW/W; // ~4.615
+  const yOff=(outH/scale-H)/2; // center phone vertically
+  const canvas=document.createElement('canvas');canvas.width=outW;canvas.height=outH;
   const ctx=canvas.getContext('2d',{alpha:false,willReadFrequently:false});
   ctx.scale(scale,scale);
+  ctx.translate(0,yOff);
   ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
 
   // Animation state
@@ -1062,7 +1044,7 @@ window.avRecord=async function(){
     wfBars:barHeights.slice()};
 
   // Draw initial frame
-  drawCanvasFrame(ctx,W,H,S);
+  drawCanvasFrame(ctx,W,H,S,yOff||0);
 
   // Start recording at 30fps
   const FPS=30;
@@ -1083,7 +1065,7 @@ window.avRecord=async function(){
   function renderLoop(){
     if(!recording)return;
     ctx.save();ctx.setTransform(scale,0,0,scale,0,0);
-    drawCanvasFrame(ctx,W,H,S);
+    drawCanvasFrame(ctx,W,H,S,yOff||0);
     ctx.restore();
     requestAnimationFrame(renderLoop);
   }
