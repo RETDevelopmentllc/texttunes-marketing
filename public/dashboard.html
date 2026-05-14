@@ -1004,7 +1004,9 @@ window.avRecord=async function(){
   dlBtn.style.display='none';demoRunning=false;
   status.textContent='Starting recording...';
 
+  // Fresh audio destination so audio starts in sync with recording
   avGetAC();
+  avRecDest=avAC.createMediaStreamDestination();
 
   // Also update the HTML phone preview
   compose.style.display='flex';player.style.display='none';

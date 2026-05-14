@@ -109,14 +109,16 @@ app.post('/api/convert-mp4', (req, res) => {
   const buffer = Buffer.from(video, 'base64');
   fs.writeFileSync(webmPath, buffer);
 
-  // Convert with ffmpeg
+  // Convert with ffmpeg — sync audio/video
   execFile('ffmpeg', [
     '-i', webmPath,
-    '-c:v', 'libx264', '-preset', 'fast', '-crf', '23',
-    '-c:a', 'aac', '-b:a', '128k',
+    '-c:v', 'libx264', '-preset', 'fast', '-crf', '22',
+    '-c:a', 'aac', '-b:a', '192k',
+    '-af', 'aresample=async=1',
+    '-vsync', 'cfr',
     '-movflags', '+faststart',
     '-y', mp4Path
-  ], { timeout: 60000 }, (err) => {
+  ], { timeout: 120000 }, (err) => {
     // Clean up webm
     try { fs.unlinkSync(webmPath); } catch(e) {}
 
