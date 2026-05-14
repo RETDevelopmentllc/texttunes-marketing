@@ -850,25 +850,38 @@ function drawCanvasFrame(ctx,W,H,state){
     // Music notes
     ctx.globalAlpha=0.25;ctx.fillStyle='#fff';ctx.font='16px serif';
     ctx.fillText('♪',cx-25,68);ctx.fillText('♫',cx+5,62);ctx.globalAlpha=1;
-    // Logo ring
-    ctx.beginPath();ctx.arc(cx,120,50,0,Math.PI*2);ctx.strokeStyle='rgba(255,255,255,.12)';ctx.lineWidth=2;ctx.stroke();
-    // Logo image
+    // Logo ring — outer glow
+    ctx.beginPath();ctx.arc(cx,118,52,0,Math.PI*2);ctx.strokeStyle='rgba(255,255,255,.06)';ctx.lineWidth=1;ctx.stroke();
+    // Logo ring — main
+    ctx.beginPath();ctx.arc(cx,118,46,0,Math.PI*2);ctx.strokeStyle='rgba(255,255,255,.12)';ctx.lineWidth=2;ctx.stroke();
+    // Logo image with glow
+    const logoSize=62,logoR=17,logoX=cx-logoSize/2,logoY=118-logoSize/2;
+    ctx.save();
+    ctx.shadowColor='rgba(124,58,237,.5)';ctx.shadowBlur=20;
+    drawRoundRect(ctx,logoX,logoY,logoSize,logoSize,logoR);
     if(logoImg&&logoImg.complete){
-      drawRoundRect(ctx,cx-34,86,68,68,18);ctx.save();ctx.clip();
-      ctx.drawImage(logoImg,cx-34,86,68,68);ctx.restore();
+      ctx.clip();ctx.drawImage(logoImg,logoX,logoY,logoSize,logoSize);
     } else {
-      drawRoundRect(ctx,cx-34,86,68,68,18);
-      const lg=ctx.createLinearGradient(cx-34,86,cx+34,154);lg.addColorStop(0,'#7C3AED');lg.addColorStop(1,'#9B6FFF');
+      const lg=ctx.createLinearGradient(logoX,logoY,logoX+logoSize,logoY+logoSize);lg.addColorStop(0,'#7C3AED');lg.addColorStop(1,'#9B6FFF');
       ctx.fillStyle=lg;ctx.fill();
     }
-    // App name
-    ctx.font='800 22px Inter,sans-serif';ctx.fillStyle='#fff';ctx.textAlign='center';
-    ctx.fillText('Text',cx-22,186);ctx.fillStyle='#d4b8ff';ctx.fillText('Tunes',cx+28,186);
+    ctx.restore();
+    // App name — measure for perfect centering
+    ctx.textAlign='center';
+    ctx.font='800 21px Inter,system-ui,sans-serif';
+    const tw1=ctx.measureText('Text').width;
+    const tw2=ctx.measureText('Tunes').width;
+    const totalW=(tw1+tw2);
+    const startX=cx-totalW/2;
+    ctx.textAlign='left';
+    ctx.fillStyle='#fff';ctx.fillText('Text',startX,178);
+    ctx.fillStyle='#d4b8ff';ctx.fillText('Tunes',startX+tw1,178);
     // Tagline
-    ctx.font='500 11px DM Sans,sans-serif';ctx.fillStyle='rgba(255,255,255,.45)';
-    ctx.fillText('Turn your message into a song',cx,202);
+    ctx.textAlign='center';
+    ctx.font='500 11px DM Sans,system-ui,sans-serif';ctx.fillStyle='rgba(255,255,255,.45)';
+    ctx.fillText('Turn your message into a song',cx,194);
     // Message box
-    const bx=18,by=218,bw=W-36,bh=140;
+    const bx=18,by=210,bw=W-36,bh=140;
     drawRoundRect(ctx,bx,by,bw,bh,16);ctx.fillStyle='rgba(255,255,255,.07)';ctx.fill();
     ctx.strokeStyle='rgba(255,255,255,.10)';ctx.lineWidth=1;ctx.stroke();
     // YOUR MESSAGE label
@@ -1038,11 +1051,12 @@ window.avRecord=async function(){
     await new Promise(r=>setTimeout(r,1500));
   }
 
-  // Canvas setup — phone screen dimensions
-  const W=286,H=606,scale=2;
+  // Canvas setup — phone screen dimensions at 3x for crisp text
+  const W=286,H=606,scale=3;
   const canvas=document.createElement('canvas');canvas.width=W*scale;canvas.height=H*scale;
   const ctx=canvas.getContext('2d',{alpha:false,willReadFrequently:false});
   ctx.scale(scale,scale);
+  ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
 
   // Animation state
   const S={screen:'compose',typedText:'',styleText:'Choose Style',genGlow:false,
@@ -1061,7 +1075,7 @@ window.avRecord=async function(){
     avRecDest.stream.getAudioTracks().forEach(t=>combinedStream.addTrack(t));
   }
   const mimeType=MediaRecorder.isTypeSupported('video/webm;codecs=vp9')?'video/webm;codecs=vp9':'video/webm';
-  avRecorder=new MediaRecorder(combinedStream,{mimeType,videoBitsPerSecond:10000000});
+  avRecorder=new MediaRecorder(combinedStream,{mimeType,videoBitsPerSecond:15000000});
   avChunks=[];
   avRecorder.ondataavailable=e=>{if(e.data.size>0)avChunks.push(e.data);};
   avRecorder.start(100);
