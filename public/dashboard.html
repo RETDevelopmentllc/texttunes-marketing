@@ -444,11 +444,8 @@ select.input{cursor:pointer;appearance:none;background-image:url("data:image/svg
 
         <!-- Compose Screen -->
         <div class="av-compose" id="avCompose">
-          <div class="av-music-notes"><span>&#9834;</span><span>&#9835;</span></div>
-          <div class="av-logo-ring">
-            <div class="av-logo-img">
-              <img src="/TextTunes%20Marketing.png" alt="TextTunes" crossorigin="anonymous"/>
-            </div>
+          <div class="av-logo-img">
+            <img src="/TextTunes%20Marketing.png" alt="TextTunes" crossorigin="anonymous"/>
           </div>
           <div class="av-app-name">Text<em>Tunes</em></div>
           <div class="av-tagline">Turn your message into a song</div>
@@ -596,20 +593,19 @@ function avAudioDest(){
   return g;
 }
 
-/* Typing click sound — iOS keyboard tick */
+/* Typing click sound — soft phone tap */
 function avTypeClick(){
   try{
     const ac=avGetAC(),now=ac.currentTime,dest=avAudioDest();
-    // Short sine pop — mimics iPhone keyboard tick
     const o=ac.createOscillator();
     const g=ac.createGain();
     o.type='sine';
-    o.frequency.setValueAtTime(1200+Math.random()*200,now);
-    o.frequency.exponentialRampToValueAtTime(800,now+0.008);
-    g.gain.setValueAtTime(0.08,now);
-    g.gain.exponentialRampToValueAtTime(0.001,now+0.015);
+    o.frequency.setValueAtTime(900+Math.random()*100,now);
+    o.frequency.exponentialRampToValueAtTime(600,now+0.012);
+    g.gain.setValueAtTime(0.03,now);
+    g.gain.exponentialRampToValueAtTime(0.001,now+0.025);
     o.connect(g);g.connect(dest);
-    o.start(now);o.stop(now+0.02);
+    o.start(now);o.stop(now+0.03);
   }catch(e){}
 }
 
@@ -847,17 +843,9 @@ function drawCanvasFrame(ctx,W,H,state){
 
   if(state.screen==='compose'){
     const cx=W/2;
-    // Music notes
-    ctx.globalAlpha=0.25;ctx.fillStyle='#fff';ctx.font='16px serif';
-    ctx.fillText('♪',cx-25,68);ctx.fillText('♫',cx+5,62);ctx.globalAlpha=1;
-    // Logo ring — outer glow
-    ctx.beginPath();ctx.arc(cx,118,52,0,Math.PI*2);ctx.strokeStyle='rgba(255,255,255,.06)';ctx.lineWidth=1;ctx.stroke();
-    // Logo ring — main
-    ctx.beginPath();ctx.arc(cx,118,46,0,Math.PI*2);ctx.strokeStyle='rgba(255,255,255,.12)';ctx.lineWidth=2;ctx.stroke();
-    // Logo image with glow
+    // Logo image — clean, no glow or rings
     const logoSize=62,logoR=17,logoX=cx-logoSize/2,logoY=118-logoSize/2;
     ctx.save();
-    ctx.shadowColor='rgba(124,58,237,.5)';ctx.shadowBlur=20;
     drawRoundRect(ctx,logoX,logoY,logoSize,logoSize,logoR);
     if(logoImg&&logoImg.complete){
       ctx.clip();ctx.drawImage(logoImg,logoX,logoY,logoSize,logoSize);
@@ -1046,7 +1034,7 @@ window.avRecord=async function(){
   const initials=document.getElementById('avInputInitials').value||'TT';
   const dur=parseInt(document.getElementById('avInputDur').value)||12;
   const playDur=parseInt(document.getElementById('avPlayDur').value)||5;
-  const typingSpeed=parseInt(document.getElementById('avTypingSpeed').value)||50;
+  const typingSpeed=parseInt(document.getElementById('avTypingSpeed').value)||80;
   const voice=document.getElementById('avInputVoice')?document.getElementById('avInputVoice').value:'female';
 
   // Generate song if needed
