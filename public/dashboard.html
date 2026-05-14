@@ -606,40 +606,62 @@ function avTypeClick(){
 /* Generate song via ElevenLabs */
 async function avGenerateSong(lyrics,title,style,voice){
   const elevenKey=localStorage.getItem('tt_eleven')||'';
-  if(!elevenKey) return null;
+  if(!elevenKey){console.log('No ElevenLabs key');return null;}
   try{
     const genreMap={'Pop':'pop','Hip-Hop':'hip-hop','R&B':'r&b','Country':'country','Rock':'rock','Reggae':'reggae','Lo-Fi':'lo-fi','Jazz':'jazz','EDM':'edm'};
     const genre=genreMap[style]||'pop';
+    console.log('Calling /api/elevenlabs with genre:',genre,'title:',title);
     const r=await fetch('/api/elevenlabs',{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({lyrics,elevenKey,songTitle:title,voice:voice||'female',genre})
     });
-    if(!r.ok) return null;
+    if(!r.ok){const err=await r.json().catch(()=>({}));console.log('ElevenLabs error:',r.status,err);return null;}
     const blob=await r.blob();
+    console.log('Song blob received, size:',blob.size,'type:',blob.type);
+    if(blob.size<1000){console.log('Song blob too small, likely error');return null;}
     return URL.createObjectURL(blob);
-  }catch(e){return null;}
+  }catch(e){console.log('Song generation error:',e);return null;}
 }
 
 /* Play song audio routed to speakers + recording stream */
 function avPlaySong(url){
   return new Promise(res=>{
     const audio=new Audio(url);
-    audio.crossOrigin='anonymous';
+    audio.volume=1;
+    const fill=document.getElementById('avProgressFill');
+    const thumb=document.getElementById('avProgressThumb');
+    const timeNow=document.getElementById('avTimeNow');
+    const timeDur=document.getElementById('avTimeDur');
+
+    // Route through AudioContext for recording capture
+    let routed=false;
     try{
       const ac=avGetAC();
       const source=ac.createMediaElementSource(audio);
       const dest=avAudioDest();
       source.connect(dest);
-    }catch(e){}
-    const fill=document.getElementById('avProgressFill');
-    const thumb=document.getElementById('avProgressThumb');
-    const timeNow=document.getElementById('avTimeNow');
-    const timeDur=document.getElementById('avTimeDur');
+      routed=true;
+    }catch(e){
+      console.log('AudioContext routing failed, playing direct:',e);
+    }
+
     audio.addEventListener('loadedmetadata',()=>{
       const t=Math.floor(audio.duration);
       timeDur.textContent=Math.floor(t/60)+':'+(t%60<10?'0':'')+(t%60);
+      console.log('Song loaded, duration:',audio.duration);
     });
-    audio.play().catch(()=>res());
+
+    audio.addEventListener('canplaythrough',()=>{
+      console.log('Song can play through');
+    });
+
+    audio.play().then(()=>{
+      console.log('Song playing, routed:',routed);
+    }).catch(e=>{
+      console.log('Song play failed:',e);
+      res();
+    });
+
     const progInt=setInterval(()=>{
       if(!audio.duration)return;
       const pct=(audio.currentTime/audio.duration)*100;
@@ -647,9 +669,8 @@ function avPlaySong(url){
       const s=Math.floor(audio.currentTime);
       timeNow.textContent=Math.floor(s/60)+':'+(s%60<10?'0':'')+(s%60);
     },100);
-    audio.addEventListener('ended',()=>{clearInterval(progInt);res();});
-    audio.addEventListener('error',()=>{clearInterval(progInt);res();});
-    // Safety timeout
+    audio.addEventListener('ended',()=>{clearInterval(progInt);console.log('Song ended');res();});
+    audio.addEventListener('error',(e)=>{clearInterval(progInt);console.log('Song error:',e);res();});
     setTimeout(()=>{try{audio.pause();}catch(e){}clearInterval(progInt);res();},60000);
   });
 }
@@ -797,10 +818,15 @@ window.avRecord=async function(){
   // Generate song if ElevenLabs key is set and no cached song
   const elevenKey=localStorage.getItem('tt_eleven')||'';
   if(elevenKey && !avSongUrl){
-    status.textContent='Generating song with ElevenLabs...';
+    status.textContent='Generating song with ElevenLabs... (this takes ~30s)';
+    console.log('ElevenLabs key found, generating song...');
     avSongUrl=await avGenerateSong(msg,title,style,'female');
-    if(avSongUrl) status.textContent='Song ready! Recording...';
-    else status.textContent='Song generation failed, recording without audio...';
+    if(avSongUrl){status.textContent='Song ready! Recording...';console.log('Song URL:',avSongUrl);}
+    else{status.textContent='No ElevenLabs song — recording with typing sounds only';console.log('Song generation returned null');}
+  } else if(!elevenKey){
+    status.textContent='No ElevenLabs key — add one in Settings for song audio';
+    console.log('No ElevenLabs key in localStorage');
+    await new Promise(r=>setTimeout(r,1500));
   }
 
   // html2canvas setup
