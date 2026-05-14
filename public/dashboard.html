@@ -562,10 +562,99 @@ select.input{cursor:pointer;appearance:none;background-image:url("data:image/svg
 
 <script>
 (function(){
-/* ── Waveform bars (match real app: ~20 bars, varying heights) ── */
+/* ── Waveform bars ── */
 const wf=document.getElementById('avWaveform');
 const barHeights=[6,10,14,8,16,10,14,18,8,12,16,10,14,8,18,14,10,16,8,12];
 barHeights.forEach(h=>{const s=document.createElement('span');s.style.height=h+'px';wf.appendChild(s);});
+
+/* ══════════════════════════
+   AUDIO ENGINE
+══════════════════════════ */
+let avAC=null, avRecDest=null, avSongUrl=null;
+
+function avGetAC(){
+  if(!avAC) avAC=new(window.AudioContext||window.webkitAudioContext)();
+  if(avAC.state==='suspended') avAC.resume();
+  if(!avRecDest) avRecDest=avAC.createMediaStreamDestination();
+  return avAC;
+}
+function avAudioDest(){
+  const ac=avGetAC();
+  const g=ac.createGain();g.gain.value=1;
+  g.connect(ac.destination);
+  g.connect(avRecDest);
+  return g;
+}
+
+/* Typing click sound */
+function avTypeClick(){
+  try{
+    const ac=avGetAC(),now=ac.currentTime,dest=avAudioDest();
+    // Short noise burst — sounds like a keyboard tap
+    const buf=ac.createBuffer(1,ac.sampleRate*0.012,ac.sampleRate);
+    const data=buf.getChannelData(0);
+    for(let i=0;i<data.length;i++) data[i]=(Math.random()*2-1)*0.3;
+    const src=ac.createBufferSource();src.buffer=buf;
+    const g=ac.createGain();
+    g.gain.setValueAtTime(0.15,now);
+    g.gain.exponentialRampToValueAtTime(0.001,now+0.025);
+    // Bandpass to make it sound like a phone keyboard
+    const flt=ac.createBiquadFilter();flt.type='bandpass';flt.frequency.value=3500;flt.Q.value=1.5;
+    src.connect(flt);flt.connect(g);g.connect(dest);
+    src.start(now);src.stop(now+0.03);
+  }catch(e){}
+}
+
+/* Generate song via ElevenLabs */
+async function avGenerateSong(lyrics,title,style,voice){
+  const elevenKey=localStorage.getItem('tt_eleven')||'';
+  if(!elevenKey) return null;
+  try{
+    const genreMap={'Pop':'pop','Hip-Hop':'hip-hop','R&B':'r&b','Country':'country','Rock':'rock','Reggae':'reggae','Lo-Fi':'lo-fi','Jazz':'jazz','EDM':'edm'};
+    const genre=genreMap[style]||'pop';
+    const r=await fetch('/api/elevenlabs',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({lyrics,elevenKey,songTitle:title,voice:voice||'female',genre})
+    });
+    if(!r.ok) return null;
+    const blob=await r.blob();
+    return URL.createObjectURL(blob);
+  }catch(e){return null;}
+}
+
+/* Play song audio routed to speakers + recording stream */
+function avPlaySong(url){
+  return new Promise(res=>{
+    const audio=new Audio(url);
+    audio.crossOrigin='anonymous';
+    try{
+      const ac=avGetAC();
+      const source=ac.createMediaElementSource(audio);
+      const dest=avAudioDest();
+      source.connect(dest);
+    }catch(e){}
+    const fill=document.getElementById('avProgressFill');
+    const thumb=document.getElementById('avProgressThumb');
+    const timeNow=document.getElementById('avTimeNow');
+    const timeDur=document.getElementById('avTimeDur');
+    audio.addEventListener('loadedmetadata',()=>{
+      const t=Math.floor(audio.duration);
+      timeDur.textContent=Math.floor(t/60)+':'+(t%60<10?'0':'')+(t%60);
+    });
+    audio.play().catch(()=>res());
+    const progInt=setInterval(()=>{
+      if(!audio.duration)return;
+      const pct=(audio.currentTime/audio.duration)*100;
+      fill.style.width=pct+'%';thumb.style.left=pct+'%';
+      const s=Math.floor(audio.currentTime);
+      timeNow.textContent=Math.floor(s/60)+':'+(s%60<10?'0':'')+(s%60);
+    },100);
+    audio.addEventListener('ended',()=>{clearInterval(progInt);res();});
+    audio.addEventListener('error',()=>{clearInterval(progInt);res();});
+    // Safety timeout
+    setTimeout(()=>{try{audio.pause();}catch(e){}clearInterval(progInt);res();},60000);
+  });
+}
 
 /* ── Preview Player button ── */
 window.avShowPlayer=function(){
@@ -577,7 +666,6 @@ window.avShowPlayer=function(){
   } else {
     compose.style.display='none';player.style.display='flex';
     document.getElementById('avPreviewBtn').innerHTML='&#9654; Preview Compose';
-    // Run a quick waveform + progress demo
     avDemoPlay();
   }
 };
@@ -592,30 +680,23 @@ async function avDemoPlay(){
   const timeNow=document.getElementById('avTimeNow');
   const dur=parseInt(document.getElementById('avInputDur').value)||12;
   fill.style.width='0%';thumb.style.left='0%';timeNow.textContent='0:00';
-  // Waveform
   const bars=document.querySelectorAll('#avWaveform span');
   const wfInt=setInterval(()=>{bars.forEach(b=>{b.style.height=(4+Math.random()*16)+'px';});},150);
-  // Progress
-  const totalMs=dur*1000;
-  const start=Date.now();
+  const totalMs=dur*1000;const start=Date.now();
   await new Promise(resolve=>{
     function tick(){
-      const elapsed=Date.now()-start;
-      const pct=Math.min(elapsed/totalMs*100,100);
-      fill.style.width=pct+'%';
-      thumb.style.left=pct+'%';
-      const sec=Math.floor(elapsed/1000);
-      const m=Math.floor(sec/60),s=sec%60;
+      const elapsed=Date.now()-start;const pct=Math.min(elapsed/totalMs*100,100);
+      fill.style.width=pct+'%';thumb.style.left=pct+'%';
+      const sec=Math.floor(elapsed/1000);const m=Math.floor(sec/60),s=sec%60;
       timeNow.textContent=m+':'+(s<10?'0':'')+s;
       if(elapsed<totalMs&&demoRunning) requestAnimationFrame(tick); else resolve();
     }
     tick();
   });
-  clearInterval(wfInt);
-  demoRunning=false;
+  clearInterval(wfInt);demoRunning=false;
 }
 
-/* ── Apply custom text to phone ── */
+/* ── Apply ── */
 window.avApply=function(){
   const msg=document.getElementById('avInputMsg').value||'Hey, thinking of you. Hope your day is amazing...';
   const style=document.getElementById('avInputStyle').value;
@@ -635,18 +716,22 @@ window.avApply=function(){
   document.getElementById('avCompose').style.display='flex';
   document.getElementById('avPlayer').style.display='none';
   document.getElementById('avPreviewBtn').innerHTML='&#9654; Preview Player';
+  avSongUrl=null; // clear cached song
   document.getElementById('avStatus').textContent='Applied!';
   setTimeout(()=>document.getElementById('avStatus').textContent='',1500);
 };
 
-/* ── Animate typing ── */
+/* ── Animate typing WITH click sounds ── */
 function animateTyping(text,el,speed){
   return new Promise(r=>{
     el.textContent='';let i=0;
     const countEl=document.getElementById('avMsgCount');
     function tick(){
-      if(i<text.length){el.textContent+=text[i];i++;countEl.textContent=i;setTimeout(tick,speed);}
-      else r();
+      if(i<text.length){
+        el.textContent+=text[i];i++;countEl.textContent=i;
+        if(text[i-1]!==' ') avTypeClick();
+        setTimeout(tick,speed);
+      } else r();
     }
     tick();
   });
@@ -660,7 +745,7 @@ function startWaveform(){
 }
 function stopWaveform(){if(wfInterval){clearInterval(wfInterval);wfInterval=null;}}
 
-/* ── Animate progress bar ── */
+/* ── Animate progress bar (fallback when no song) ── */
 function animateProgress(durSec){
   return new Promise(r=>{
     const fill=document.getElementById('avProgressFill');
@@ -668,11 +753,9 @@ function animateProgress(durSec){
     const timeNow=document.getElementById('avTimeNow');
     const totalMs=durSec*1000;const start=Date.now();
     function tick(){
-      const elapsed=Date.now()-start;
-      const pct=Math.min(elapsed/totalMs*100,100);
+      const elapsed=Date.now()-start;const pct=Math.min(elapsed/totalMs*100,100);
       fill.style.width=pct+'%';thumb.style.left=pct+'%';
-      const sec=Math.floor(elapsed/1000);
-      const m=Math.floor(sec/60),s=sec%60;
+      const sec=Math.floor(elapsed/1000);const m=Math.floor(sec/60),s=sec%60;
       timeNow.textContent=m+':'+(s<10?'0':'')+s;
       if(elapsed<totalMs) requestAnimationFrame(tick); else r();
     }
@@ -680,7 +763,9 @@ function animateProgress(durSec){
   });
 }
 
-/* ── Record video ── */
+/* ══════════════════════════
+   RECORD VIDEO
+══════════════════════════ */
 let avRecorder=null,avChunks=[];
 window.avRecord=async function(){
   const btn=document.getElementById('avRecordBtn');
@@ -693,6 +778,9 @@ window.avRecord=async function(){
   dlBtn.style.display='none';demoRunning=false;
   status.textContent='Starting recording...';
 
+  // Init audio context (needs user gesture)
+  avGetAC();
+
   // Reset to compose
   compose.style.display='flex';player.style.display='none';
   document.getElementById('avProgressFill').style.width='0%';
@@ -704,8 +792,18 @@ window.avRecord=async function(){
 
   const msg=document.getElementById('avInputMsg').value||'Hey, thinking of you. Hope your day is amazing...';
   const style=document.getElementById('avInputStyle').value||'Pop';
+  const title=document.getElementById('avInputTitle').value||'Untitled';
   const playDur=parseInt(document.getElementById('avPlayDur').value)||5;
   const typingSpeed=parseInt(document.getElementById('avTypingSpeed').value)||50;
+
+  // Generate song if ElevenLabs key is set and no cached song
+  const elevenKey=localStorage.getItem('tt_eleven')||'';
+  if(elevenKey && !avSongUrl){
+    status.textContent='Generating song with ElevenLabs...';
+    avSongUrl=await avGenerateSong(msg,title,style,'female');
+    if(avSongUrl) status.textContent='Song ready! Recording...';
+    else status.textContent='Song generation failed, recording without audio...';
+  }
 
   // html2canvas setup
   const scale=2;
@@ -721,6 +819,10 @@ window.avRecord=async function(){
   const videoStream=canvas.captureStream(FPS);
   const combinedStream=new MediaStream();
   videoStream.getVideoTracks().forEach(t=>combinedStream.addTrack(t));
+  // Add audio track from recording destination
+  if(avRecDest&&avRecDest.stream.getAudioTracks().length>0){
+    avRecDest.stream.getAudioTracks().forEach(t=>combinedStream.addTrack(t));
+  }
   const mimeType=MediaRecorder.isTypeSupported('video/webm;codecs=vp9')?'video/webm;codecs=vp9':'video/webm';
   avRecorder=new MediaRecorder(combinedStream,{mimeType,videoBitsPerSecond:8000000});
   avChunks=[];
@@ -752,7 +854,13 @@ window.avRecord=async function(){
   status.textContent='Playing song...';
   await new Promise(r=>setTimeout(r,400));
   startWaveform();
-  await animateProgress(playDur);
+
+  // Play real song or fallback to silent progress animation
+  if(avSongUrl){
+    await avPlaySong(avSongUrl);
+  } else {
+    await animateProgress(playDur);
+  }
   stopWaveform();
   await new Promise(r=>setTimeout(r,800));
 
@@ -761,6 +869,7 @@ window.avRecord=async function(){
   avRecorder.stop();
   await new Promise(r=>{avRecorder.onstop=r;});
 
+  // Convert to MP4 via server (mux audio+video)
   const blob=new Blob(avChunks,{type:mimeType});
   const reader=new FileReader();
   reader.readAsDataURL(blob);
