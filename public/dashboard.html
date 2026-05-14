@@ -371,7 +371,7 @@ select.input{cursor:pointer;appearance:none;background-image:url("data:image/svg
 .av-phone{width:300px;height:620px;border-radius:48px;background:linear-gradient(160deg,#1a1a1a,#0a0a0a);box-shadow:0 0 0 1px #444,0 0 0 2px #111,0 40px 80px rgba(0,0,0,.85),0 0 50px rgba(124,58,237,.15);position:relative;overflow:hidden;}
 .av-phone::before{content:'';position:absolute;left:-3px;top:120px;width:3px;height:28px;background:#1a1a1a;border-radius:2px 0 0 2px;box-shadow:0 44px 0 #1a1a1a,0 88px 0 #1a1a1a;}
 .av-phone::after{content:'';position:absolute;right:-3px;top:160px;width:3px;height:56px;background:#1a1a1a;border-radius:0 2px 2px 0;}
-.av-screen{position:absolute;inset:7px;border-radius:42px;overflow:hidden;display:flex;flex-direction:column;background:linear-gradient(180deg,#7B4BAE 0%,#4A2578 35%,#1E0F3D 70%,#130A28 100%);}
+.av-screen{position:absolute;inset:7px;border-radius:42px;overflow:hidden;display:flex;flex-direction:column;background:linear-gradient(180deg,#6B3FA0 0%,#3A1D6E 30%,#1A0E3A 65%,#0D0720 100%);}
 .av-di{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:76px;height:20px;background:#000;border-radius:11px;z-index:20;}
 .av-sbar{position:absolute;top:0;left:0;right:0;height:40px;display:flex;align-items:center;justify-content:space-between;padding:13px 20px 0;z-index:15;pointer-events:none;}
 .av-sbar-time{font-size:12px;font-weight:600;color:#fff;font-family:-apple-system,'SF Pro Text',system-ui,sans-serif;}
@@ -537,6 +537,16 @@ select.input{cursor:pointer;appearance:none;background-image:url("data:image/svg
         <input class="input" id="avInputDur" type="number" value="12" min="5" max="60"/>
       </div>
       <button class="btn-ai" onclick="avApply()" style="width:100%;">&#10022; Apply Changes</button>
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">
+        <label style="display:block;font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.8px;text-transform:uppercase;margin-bottom:6px;">Voice</label>
+        <select class="input" id="avInputVoice" style="margin-bottom:10px;">
+          <option value="female">Female</option>
+          <option value="male">Male</option>
+        </select>
+        <button class="btn-outline" onclick="avPreviewSong()" id="avGenSongBtn" style="width:100%;text-align:center;">&#9835; Generate &amp; Preview Song</button>
+        <div id="avSongStatus" class="status-msg" style="margin-top:6px;"></div>
+        <audio id="avSongPreview" controls style="display:none;width:100%;margin-top:8px;height:36px;"></audio>
+      </div>
     </div>
 
     <div class="card" style="margin-top:16px;">
@@ -674,6 +684,34 @@ function avPlaySong(url){
     setTimeout(()=>{try{audio.pause();}catch(e){}clearInterval(progInt);res();},60000);
   });
 }
+
+/* ── Generate & Preview Song ── */
+window.avPreviewSong=async function(){
+  const btn=document.getElementById('avGenSongBtn');
+  const status=document.getElementById('avSongStatus');
+  const audioEl=document.getElementById('avSongPreview');
+  const msg=document.getElementById('avInputMsg').value||'Hey, thinking of you.';
+  const title=document.getElementById('avInputTitle').value||'Untitled';
+  const style=document.getElementById('avInputStyle').value||'Pop';
+  const voice=document.getElementById('avInputVoice').value||'female';
+  const elevenKey=localStorage.getItem('tt_eleven')||'';
+  if(!elevenKey){status.textContent='Add your ElevenLabs key in Settings first';status.style.color='#ff453a';return;}
+  btn.disabled=true;btn.textContent='Generating... (~30s)';
+  status.textContent='Sending to ElevenLabs...';status.style.color='var(--accent)';
+  audioEl.style.display='none';
+  const url=await avGenerateSong(msg,title,style,voice);
+  if(url){
+    avSongUrl=url;
+    audioEl.src=url;
+    audioEl.style.display='block';
+    status.textContent='Song ready! Press play to preview, then Record Video to use it.';
+    status.style.color='var(--green)';
+  } else {
+    status.textContent='Generation failed — check your ElevenLabs key and try again.';
+    status.style.color='#ff453a';
+  }
+  btn.disabled=false;btn.innerHTML='&#9835; Generate &amp; Preview Song';
+};
 
 /* ── Preview Player button ── */
 window.avShowPlayer=function(){
