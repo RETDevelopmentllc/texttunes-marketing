@@ -491,7 +491,7 @@ select.input{cursor:pointer;appearance:none;background-image:url("data:image/svg
     <div style="display:flex;gap:8px;flex-wrap:wrap;" id="avRecBtns">
       <button class="btn-ai" onclick="avRecord()" id="avRecordBtn">&#9210; Record Video</button>
       <button class="btn-outline" onclick="avShowPlayer()" id="avPreviewBtn">&#9654; Preview Player</button>
-      <button class="btn-outline" onclick="avDownload()" id="avDownloadBtn" style="display:none;">&#11015; Download MP4</button>
+      <button class="btn-outline" onclick="avDownload()" id="avDownloadBtn" style="display:none;">&#11015; Download ZIP (MP4 + MP3)</button>
     </div>
     <div class="status-msg" id="avStatus"></div>
   </div>
@@ -575,7 +575,7 @@ barHeights.forEach(h=>{const s=document.createElement('span');s.style.height=h+'
 /* ══════════════════════════
    AUDIO ENGINE
 ══════════════════════════ */
-let avAC=null, avRecDest=null, avSongUrl=null;
+let avAC=null, avRecDest=null, avSongUrl=null, avSongBlob=null;
 
 function avGetAC(){
   if(!avAC) avAC=new(window.AudioContext||window.webkitAudioContext)();
@@ -623,6 +623,7 @@ async function avGenerateSong(lyrics,title,style,voice){
     const blob=await r.blob();
     console.log('Song blob received, size:',blob.size,'type:',blob.type);
     if(blob.size<1000){console.log('Song blob too small, likely error');return null;}
+    avSongBlob=blob;
     return URL.createObjectURL(blob);
   }catch(e){console.log('Song generation error:',e);return null;}
 }
@@ -767,7 +768,7 @@ window.avApply=function(){
   document.getElementById('avCompose').style.display='flex';
   document.getElementById('avPlayer').style.display='none';
   document.getElementById('avPreviewBtn').innerHTML='&#9654; Preview Player';
-  avSongUrl=null; // clear cached song
+  avSongUrl=null;avSongBlob=null; // clear cached song
   document.getElementById('avStatus').textContent='Applied!';
   setTimeout(()=>document.getElementById('avStatus').textContent='',1500);
 };
@@ -1169,22 +1170,44 @@ window.avRecord=async function(){
     try{
       const resp=await fetch('/api/convert-mp4',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({video:b64})});
       if(!resp.ok)throw new Error('fail');
-      const mp4Blob=await resp.blob();
-      window._avMp4Url=URL.createObjectURL(mp4Blob);
+      window._avMp4Blob=await resp.blob();
+      window._avMp3Blob=avSongBlob||null;
       dlBtn.style.display='inline-flex';
-      status.textContent='Video ready! Click Download.';
+      status.textContent='Ready! Click Download for ZIP (MP4'+(window._avMp3Blob?' + MP3':'')+').';
     }catch(e){
-      window._avMp4Url=URL.createObjectURL(blob);
+      window._avMp4Blob=blob;
+      window._avMp3Blob=avSongBlob||null;
       dlBtn.style.display='inline-flex';
-      status.textContent='MP4 conversion failed, WebM available.';
+      status.textContent='MP4 conversion failed, WebM available in ZIP.';
     }
     btn.disabled=false;btn.textContent='Record Video';
   };
 };
 
-window.avDownload=function(){
-  if(!window._avMp4Url)return;
-  const a=document.createElement('a');a.href=window._avMp4Url;a.download='TextTunes_InApp_Ad.mp4';a.click();
+window.avDownload=async function(){
+  if(!window._avMp4Blob)return;
+  const dlBtn=document.getElementById('avDownloadBtn');
+  dlBtn.disabled=true;dlBtn.textContent='Zipping...';
+  try{
+    const zip=new JSZip();
+    const ext=window._avMp4Blob.type.includes('mp4')?'mp4':'webm';
+    zip.file('TextTunes_InApp_Ad.'+ext,window._avMp4Blob);
+    if(window._avMp3Blob){
+      zip.file('TextTunes_Song.mp3',window._avMp3Blob);
+    }
+    const content=await zip.generateAsync({type:'blob'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(content);
+    a.download='TextTunes_InApp_Ad.zip';
+    a.click();
+  }catch(e){
+    // Fallback: just download MP4
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(window._avMp4Blob);
+    a.download='TextTunes_InApp_Ad.mp4';
+    a.click();
+  }
+  dlBtn.disabled=false;dlBtn.textContent='⬇ Download ZIP (MP4 + MP3)';
 };
 })();
 </script>
@@ -2322,5 +2345,6 @@ kanbanRender();
 teamRender();
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </body>
 </html>
