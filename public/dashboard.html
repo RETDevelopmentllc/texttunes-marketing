@@ -423,7 +423,7 @@ select.input{cursor:pointer;appearance:none;background-image:url("data:image/svg
 /* Tab Bar */
 .av-tab-bar{height:48px;display:flex;align-items:center;justify-content:space-around;padding:0 24px;flex-shrink:0;border-top:1px solid rgba(255,255,255,.06);background:rgba(0,0,0,.25);}
 .av-tab-bar-icon{display:flex;flex-direction:column;align-items:center;gap:2px;color:#fff;}
-.av-tab-bar-icon svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;}
+.av-tab-bar-icon svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;}
 .av-tab-bar-center{width:46px;height:46px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;margin-top:-16px;box-shadow:0 4px 20px rgba(0,0,0,.35);}
 .av-tab-bar-center svg{width:20px;height:20px;fill:#1A0E33;}
 /* Controls */
@@ -463,8 +463,6 @@ select.input{cursor:pointer;appearance:none;background-image:url("data:image/svg
 
         <!-- Player Screen -->
         <div class="av-player" id="avPlayer">
-          <div class="av-player-back">&#8592; New Song</div>
-          <div class="av-player-close">&#10005;</div>
           <div class="av-album-art" id="avAlbumArt">
             <div class="av-album-initials" id="avAlbumInitials">YY</div>
           </div>
@@ -477,9 +475,9 @@ select.input{cursor:pointer;appearance:none;background-image:url("data:image/svg
           </div>
           <div class="av-time-row"><span id="avTimeNow">0:00</span><span id="avTimeDur">0:12</span></div>
           <div class="av-controls">
-            <div class="av-ctrl-btn"><svg viewBox="0 0 24 24"><path d="M1 4v6h6" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.51 15a9 9 0 1014.85-10.36L1 10" stroke-linecap="round" stroke-linejoin="round"/></svg>Restart</div>
+            <div class="av-ctrl-btn"><svg viewBox="0 0 24 24"><path d="M2 12a10 10 0 0118-6" stroke-linecap="round" stroke-linejoin="round"/><polyline points="22 2 22 8 16 8" stroke-linecap="round" stroke-linejoin="round"/></svg>Restart</div>
             <div class="av-play-btn"><svg viewBox="0 0 24 24"><polygon points="7,4 20,12 7,20"/></svg></div>
-            <div class="av-ctrl-btn"><svg viewBox="0 0 24 24"><polyline points="16 3 21 3 21 8" stroke-linecap="round" stroke-linejoin="round"/><line x1="4" y1="20" x2="21" y2="3" stroke-linecap="round"/><polyline points="21 16 21 21 16 21" stroke-linecap="round" stroke-linejoin="round"/><line x1="15" y1="15" x2="21" y2="21" stroke-linecap="round"/><line x1="4" y1="4" x2="9" y2="9" stroke-linecap="round"/></svg>Remix</div>
+            <div class="av-ctrl-btn"><svg viewBox="0 0 24 24"><polyline points="16 3 21 3 21 8" stroke-linecap="round" stroke-linejoin="round"/><line x1="4" y1="20" x2="21" y2="3" stroke-linecap="round"/><polyline points="8 21 3 21 3 16" stroke-linecap="round" stroke-linejoin="round"/><line x1="20" y1="4" x2="3" y2="21" stroke-linecap="round"/></svg>Remix</div>
           </div>
           <div class="av-bottom-btns">
             <button class="av-share-action">Share</button>
