@@ -555,7 +555,7 @@ select.input{cursor:pointer;appearance:none;background-image:url("data:image/svg
       </p>
       <div class="av-field">
         <label>Typing Speed (ms per char)</label>
-        <input class="input" id="avTypingSpeed" type="number" value="50" min="20" max="200"/>
+        <input class="input" id="avTypingSpeed" type="number" value="120" min="20" max="300"/>
       </div>
       <div class="av-field">
         <label>Player Play Duration (sec)</label>
@@ -1013,7 +1013,7 @@ window.avRecord=async function(){
   const initials=document.getElementById('avInputInitials').value||'TT';
   const dur=parseInt(document.getElementById('avInputDur').value)||12;
   const playDur=parseInt(document.getElementById('avPlayDur').value)||5;
-  const typingSpeed=parseInt(document.getElementById('avTypingSpeed').value)||80;
+  const typingSpeed=parseInt(document.getElementById('avTypingSpeed').value)||120;
   const voice=document.getElementById('avInputVoice')?document.getElementById('avInputVoice').value:'female';
 
   // Generate song if needed
@@ -1079,13 +1079,13 @@ window.avRecord=async function(){
   // Type message char by char
   for(let i=0;i<msg.length;i++){
     S.typedText=msg.slice(0,i+1);
-    // Update HTML phone too
     document.getElementById('avMsgText').textContent=S.typedText;
     document.getElementById('avMsgCount').textContent=S.typedText.length;
-    if(msg[i]!==' ') avTypeClick();
+    // No click on spaces or the very last char (avoids bleed into generate)
+    if(msg[i]!==' ' && i<msg.length-1) avTypeClick();
     await new Promise(r=>setTimeout(r,typingSpeed));
   }
-  await new Promise(r=>setTimeout(r,300));
+  await new Promise(r=>setTimeout(r,400));
 
   // Select style
   S.styleText=style;
