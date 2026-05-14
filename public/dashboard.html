@@ -821,24 +821,192 @@ function animateProgress(durSec){
 }
 
 /* ══════════════════════════
-   RECORD VIDEO
+   DIRECT CANVAS RENDERER
+   (no html2canvas — smooth 30fps)
+══════════════════════════ */
+let logoImg=null;
+(function preloadLogo(){
+  logoImg=new Image();logoImg.crossOrigin='anonymous';
+  logoImg.src='/TextTunes%20Marketing.png';
+})();
+
+function drawRoundRect(ctx,x,y,w,h,r){
+  ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);
+  ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();
+}
+
+function drawCanvasFrame(ctx,W,H,state){
+  // Background gradient
+  const bg=ctx.createLinearGradient(0,0,0,H);
+  bg.addColorStop(0,'#6B3FA0');bg.addColorStop(0.3,'#3A1D6E');bg.addColorStop(0.65,'#1A0E3A');bg.addColorStop(1,'#0D0720');
+  ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+
+  // Dynamic Island
+  drawRoundRect(ctx,W/2-38,10,76,20,11);ctx.fillStyle='#000';ctx.fill();
+
+  if(state.screen==='compose'){
+    const cx=W/2;
+    // Music notes
+    ctx.globalAlpha=0.25;ctx.fillStyle='#fff';ctx.font='16px serif';
+    ctx.fillText('♪',cx-25,68);ctx.fillText('♫',cx+5,62);ctx.globalAlpha=1;
+    // Logo ring
+    ctx.beginPath();ctx.arc(cx,120,50,0,Math.PI*2);ctx.strokeStyle='rgba(255,255,255,.12)';ctx.lineWidth=2;ctx.stroke();
+    // Logo image
+    if(logoImg&&logoImg.complete){
+      drawRoundRect(ctx,cx-34,86,68,68,18);ctx.save();ctx.clip();
+      ctx.drawImage(logoImg,cx-34,86,68,68);ctx.restore();
+    } else {
+      drawRoundRect(ctx,cx-34,86,68,68,18);
+      const lg=ctx.createLinearGradient(cx-34,86,cx+34,154);lg.addColorStop(0,'#7C3AED');lg.addColorStop(1,'#9B6FFF');
+      ctx.fillStyle=lg;ctx.fill();
+    }
+    // App name
+    ctx.font='800 22px Inter,sans-serif';ctx.fillStyle='#fff';ctx.textAlign='center';
+    ctx.fillText('Text',cx-22,186);ctx.fillStyle='#d4b8ff';ctx.fillText('Tunes',cx+28,186);
+    // Tagline
+    ctx.font='500 11px DM Sans,sans-serif';ctx.fillStyle='rgba(255,255,255,.45)';
+    ctx.fillText('Turn your message into a song',cx,202);
+    // Message box
+    const bx=18,by=218,bw=W-36,bh=140;
+    drawRoundRect(ctx,bx,by,bw,bh,16);ctx.fillStyle='rgba(255,255,255,.07)';ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,.10)';ctx.lineWidth=1;ctx.stroke();
+    // YOUR MESSAGE label
+    ctx.textAlign='left';ctx.font='800 10px DM Sans,sans-serif';ctx.fillStyle='rgba(255,255,255,.65)';
+    ctx.fillText('YOUR MESSAGE',bx+14,by+20);
+    // Message text with wrapping
+    ctx.font='400 14px DM Sans,sans-serif';ctx.fillStyle='rgba(255,255,255,.55)';
+    const words=(state.typedText||'').split(' ');let line='',ly=by+40;
+    words.forEach(w=>{
+      const test=line+(line?' ':'')+w;
+      if(ctx.measureText(test).width>bw-28){ctx.fillText(line,bx+14,ly);ly+=20;line=w;}else line=test;
+    });
+    if(line)ctx.fillText(line,bx+14,ly);
+    // Count
+    ctx.textAlign='right';ctx.font='400 11px DM Sans,sans-serif';ctx.fillStyle='rgba(255,255,255,.25)';
+    ctx.fillText((state.typedText||'').length+'/200',bx+bw-14,by+bh-42);
+    // Style button
+    const sy=by+bh-30;
+    drawRoundRect(ctx,bx+10,sy,bw-20,28,10);ctx.fillStyle='rgba(255,255,255,.05)';ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,.08)';ctx.lineWidth=1;ctx.stroke();
+    ctx.textAlign='left';ctx.font='500 12px DM Sans,sans-serif';ctx.fillStyle='rgba(255,255,255,.45)';
+    ctx.fillText('♫  '+(state.styleText||'Choose Style'),bx+22,sy+18);
+    // Generate Song button
+    const gy=by+bh+12,gh=46;
+    drawRoundRect(ctx,bx,gy,bw,gh,16);
+    if(state.genGlow){
+      const gg=ctx.createLinearGradient(bx,gy,bx+bw,gy+gh);gg.addColorStop(0,'#9B6FFF');gg.addColorStop(1,'#c77dff');
+      ctx.fillStyle=gg;ctx.fill();
+      ctx.shadowColor='rgba(155,111,255,.6)';ctx.shadowBlur=40;ctx.fill();ctx.shadowBlur=0;
+    } else {
+      ctx.fillStyle='#fff';ctx.fill();
+    }
+    ctx.textAlign='center';ctx.font='700 16px Inter,sans-serif';
+    ctx.fillStyle=state.genGlow?'#fff':'#1A0E33';
+    ctx.fillText('✦ Generate Song',cx,gy+29);
+  } else {
+    // PLAYER SCREEN
+    const cx=W/2;
+    // Album art
+    const aw=140,ah=140,ax=cx-aw/2,ay=72;
+    drawRoundRect(ctx,ax,ay,aw,ah,18);
+    const ag=ctx.createLinearGradient(ax,ay,ax+aw,ay+ah);
+    ag.addColorStop(0,'#c9a0dc');ag.addColorStop(0.4,'#e8c8e8');ag.addColorStop(1,'#d4a0d4');
+    ctx.fillStyle=ag;ctx.fill();
+    ctx.shadowColor='rgba(0,0,0,.3)';ctx.shadowBlur=30;ctx.shadowOffsetY=10;ctx.fill();
+    ctx.shadowBlur=0;ctx.shadowOffsetY=0;
+    // Initials
+    ctx.textAlign='center';ctx.font='800 38px Inter,sans-serif';ctx.fillStyle='rgba(255,255,255,.6)';
+    ctx.fillText(state.initials||'TT',cx,ay+ah/2+14);
+    // Waveform
+    const wy=ay+ah+16;
+    ctx.fillStyle='rgba(255,255,255,.45)';
+    const wfBars=state.wfBars||[];
+    const totalW=wfBars.length*5;const wsx=cx-totalW/2;
+    wfBars.forEach((h,i)=>{
+      const bh=h;const bx2=wsx+i*5;const by2=wy+12-bh/2;
+      drawRoundRect(ctx,bx2,by2,3,bh,1.5);ctx.fill();
+    });
+    // Song title
+    ctx.font='800 20px Inter,sans-serif';ctx.fillStyle='#fff';
+    ctx.fillText(state.songTitle||'Untitled',cx,wy+38);
+    ctx.font='500 12px DM Sans,sans-serif';ctx.fillStyle='rgba(255,255,255,.4)';
+    ctx.fillText('TextTunes',cx,wy+54);
+    // Progress bar
+    const py=wy+68,pw=W-36,px=18;
+    drawRoundRect(ctx,px,py,pw,3,2);ctx.fillStyle='rgba(255,255,255,.12)';ctx.fill();
+    const prog=state.progress||0;
+    if(prog>0){drawRoundRect(ctx,px,py,pw*prog,3,2);ctx.fillStyle='#fff';ctx.fill();}
+    // Thumb
+    const tx=px+pw*prog;
+    ctx.beginPath();ctx.arc(tx,py+1.5,6,0,Math.PI*2);ctx.fillStyle='#fff';
+    ctx.shadowColor='rgba(0,0,0,.3)';ctx.shadowBlur=4;ctx.fill();ctx.shadowBlur=0;
+    // Time
+    const curSec=Math.floor((state.curTime||0));const durSec=state.duration||12;
+    ctx.font='400 11px DM Sans,sans-serif';ctx.textAlign='left';ctx.fillStyle='rgba(255,255,255,.35)';
+    ctx.fillText(Math.floor(curSec/60)+':'+(curSec%60<10?'0':'')+(curSec%60),px,py+18);
+    ctx.textAlign='right';
+    ctx.fillText(Math.floor(durSec/60)+':'+(durSec%60<10?'0':'')+(durSec%60),px+pw,py+18);
+    // Controls
+    const cy2=py+46;ctx.textAlign='center';
+    // Restart icon (simple arrow)
+    ctx.strokeStyle='rgba(255,255,255,.5)';ctx.lineWidth=1.8;ctx.beginPath();
+    ctx.arc(cx-60,cy2-4,8,Math.PI*1.3,Math.PI*0.1);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(cx-54,cy2-14);ctx.lineTo(cx-52,cy2-8);ctx.lineTo(cx-58,cy2-8);ctx.closePath();ctx.fillStyle='rgba(255,255,255,.5)';ctx.fill();
+    ctx.font='500 10px DM Sans,sans-serif';ctx.fillStyle='rgba(255,255,255,.5)';ctx.fillText('Restart',cx-60,cy2+16);
+    // Play button
+    ctx.beginPath();ctx.arc(cx,cy2,28,0,Math.PI*2);ctx.fillStyle='#fff';
+    ctx.shadowColor='rgba(0,0,0,.3)';ctx.shadowBlur=12;ctx.fill();ctx.shadowBlur=0;
+    ctx.beginPath();ctx.moveTo(cx-8,cy2-12);ctx.lineTo(cx-8,cy2+12);ctx.lineTo(cx+12,cy2);ctx.closePath();ctx.fillStyle='#1A0E33';ctx.fill();
+    // Remix icon (shuffle)
+    ctx.strokeStyle='rgba(255,255,255,.5)';ctx.lineWidth=1.8;
+    ctx.beginPath();ctx.moveTo(cx+48,cy2-10);ctx.lineTo(cx+72,cy2-10);ctx.lineTo(cx+72,cy2-4);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(cx+48,cy2+2);ctx.lineTo(cx+72,cy2+2);ctx.lineTo(cx+72,cy2-4);ctx.stroke();
+    ctx.font='500 10px DM Sans,sans-serif';ctx.fillStyle='rgba(255,255,255,.5)';ctx.fillText('Remix',cx+60,cy2+16);
+    // Share / AirDrop buttons
+    const by3=cy2+30;
+    drawRoundRect(ctx,18,by3,W/2-24,36,12);ctx.fillStyle='rgba(255,255,255,.08)';ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,.12)';ctx.lineWidth=1;ctx.stroke();
+    ctx.font='600 14px DM Sans,sans-serif';ctx.fillStyle='rgba(255,255,255,.8)';ctx.textAlign='center';
+    ctx.fillText('Share',W/4+3,by3+23);
+    drawRoundRect(ctx,W/2+6,by3,W/2-24,36,12);ctx.fillStyle='#fff';ctx.fill();
+    ctx.fillStyle='#1A0E33';ctx.font='700 14px DM Sans,sans-serif';ctx.fillText('AirDrop',W*3/4-3,by3+23);
+  }
+  // Tab bar
+  const tby=H-48;
+  ctx.fillStyle='rgba(0,0,0,.25)';ctx.fillRect(0,tby,W,48);
+  ctx.strokeStyle='rgba(255,255,255,.06)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(0,tby);ctx.lineTo(W,tby);ctx.stroke();
+  // Music note icon (left)
+  ctx.strokeStyle='#fff';ctx.lineWidth=1.6;ctx.beginPath();ctx.moveTo(W*0.22,tby+28);ctx.lineTo(W*0.22,tby+12);ctx.lineTo(W*0.22+10,tby+10);ctx.lineTo(W*0.22+10,tby+24);ctx.stroke();
+  ctx.beginPath();ctx.arc(W*0.22-3,tby+28,3,0,Math.PI*2);ctx.stroke();
+  ctx.beginPath();ctx.arc(W*0.22+7,tby+24,3,0,Math.PI*2);ctx.stroke();
+  // Center button (sparkle)
+  ctx.beginPath();ctx.arc(W/2,tby-2,23,0,Math.PI*2);ctx.fillStyle='#fff';
+  ctx.shadowColor='rgba(0,0,0,.3)';ctx.shadowBlur=10;ctx.fill();ctx.shadowBlur=0;
+  ctx.fillStyle='#1A0E33';ctx.font='bold 16px sans-serif';ctx.textAlign='center';ctx.fillText('✦',W/2,tby+4);
+  // Hamburger (right)
+  ctx.strokeStyle='#fff';ctx.lineWidth=1.6;
+  [tby+16,tby+22,tby+28].forEach(y=>{ctx.beginPath();ctx.moveTo(W*0.75,y);ctx.lineTo(W*0.75+16,y);ctx.stroke();});
+  ctx.textAlign='left';
+}
+
+/* ══════════════════════════
+   RECORD VIDEO (canvas renderer)
 ══════════════════════════ */
 let avRecorder=null,avChunks=[];
 window.avRecord=async function(){
   const btn=document.getElementById('avRecordBtn');
   const dlBtn=document.getElementById('avDownloadBtn');
   const status=document.getElementById('avStatus');
-  const screen=document.getElementById('avScreen');
   const compose=document.getElementById('avCompose');
   const player=document.getElementById('avPlayer');
   btn.disabled=true;btn.textContent='Recording...';
   dlBtn.style.display='none';demoRunning=false;
   status.textContent='Starting recording...';
 
-  // Init audio context (needs user gesture)
   avGetAC();
 
-  // Reset to compose
+  // Also update the HTML phone preview
   compose.style.display='flex';player.style.display='none';
   document.getElementById('avProgressFill').style.width='0%';
   document.getElementById('avProgressThumb').style.left='0%';
@@ -850,80 +1018,145 @@ window.avRecord=async function(){
   const msg=document.getElementById('avInputMsg').value||'Hey, thinking of you. Hope your day is amazing...';
   const style=document.getElementById('avInputStyle').value||'Pop';
   const title=document.getElementById('avInputTitle').value||'Untitled';
+  const initials=document.getElementById('avInputInitials').value||'TT';
+  const dur=parseInt(document.getElementById('avInputDur').value)||12;
   const playDur=parseInt(document.getElementById('avPlayDur').value)||5;
   const typingSpeed=parseInt(document.getElementById('avTypingSpeed').value)||50;
+  const voice=document.getElementById('avInputVoice')?document.getElementById('avInputVoice').value:'female';
 
-  // Generate song if ElevenLabs key is set and no cached song
+  // Generate song if needed
   const elevenKey=localStorage.getItem('tt_eleven')||'';
   if(elevenKey && !avSongUrl){
-    status.textContent='Generating song with ElevenLabs... (this takes ~30s)';
-    console.log('ElevenLabs key found, generating song...');
-    avSongUrl=await avGenerateSong(msg,title,style,'female');
-    if(avSongUrl){status.textContent='Song ready! Recording...';console.log('Song URL:',avSongUrl);}
-    else{status.textContent='No ElevenLabs song — recording with typing sounds only';console.log('Song generation returned null');}
+    status.textContent='Generating song... (~30s)';
+    avSongUrl=await avGenerateSong(msg,title,style,voice);
+    if(avSongUrl) status.textContent='Song ready! Recording...';
+    else status.textContent='Song failed — recording without audio';
   } else if(!elevenKey){
-    status.textContent='No ElevenLabs key — add one in Settings for song audio';
-    console.log('No ElevenLabs key in localStorage');
+    status.textContent='No ElevenLabs key — add in Settings for song audio';
     await new Promise(r=>setTimeout(r,1500));
   }
 
-  // html2canvas setup
-  const scale=2;
-  const canvas=document.createElement('canvas');
-  canvas.width=screen.offsetWidth*scale;canvas.height=screen.offsetHeight*scale;
-  const ctx=canvas.getContext('2d',{alpha:false});
-  const h2cOpts={backgroundColor:null,scale,logging:false,useCORS:true,allowTaint:true,imageTimeout:0,removeContainer:true};
+  // Canvas setup — phone screen dimensions
+  const W=286,H=606,scale=2;
+  const canvas=document.createElement('canvas');canvas.width=W*scale;canvas.height=H*scale;
+  const ctx=canvas.getContext('2d',{alpha:false,willReadFrequently:false});
+  ctx.scale(scale,scale);
 
-  const warm=await html2canvas(screen,h2cOpts);
-  ctx.drawImage(warm,0,0,canvas.width,canvas.height);
+  // Animation state
+  const S={screen:'compose',typedText:'',styleText:'Choose Style',genGlow:false,
+    songTitle:title,initials:initials,duration:dur,progress:0,curTime:0,
+    wfBars:barHeights.slice()};
 
-  const FPS=12;
+  // Draw initial frame
+  drawCanvasFrame(ctx,W,H,S);
+
+  // Start recording at 30fps
+  const FPS=30;
   const videoStream=canvas.captureStream(FPS);
   const combinedStream=new MediaStream();
   videoStream.getVideoTracks().forEach(t=>combinedStream.addTrack(t));
-  // Add audio track from recording destination
   if(avRecDest&&avRecDest.stream.getAudioTracks().length>0){
     avRecDest.stream.getAudioTracks().forEach(t=>combinedStream.addTrack(t));
   }
   const mimeType=MediaRecorder.isTypeSupported('video/webm;codecs=vp9')?'video/webm;codecs=vp9':'video/webm';
-  avRecorder=new MediaRecorder(combinedStream,{mimeType,videoBitsPerSecond:8000000});
+  avRecorder=new MediaRecorder(combinedStream,{mimeType,videoBitsPerSecond:10000000});
   avChunks=[];
   avRecorder.ondataavailable=e=>{if(e.data.size>0)avChunks.push(e.data);};
   avRecorder.start(100);
 
+  // Render loop — 30fps, drawing directly to canvas
   let recording=true;
-  (async function renderLoop(){
-    while(recording){
-      try{const frame=await html2canvas(screen,h2cOpts);ctx.drawImage(frame,0,0,canvas.width,canvas.height);}catch(e){}
-      await new Promise(r=>setTimeout(r,30));
-    }
-  })();
+  function renderLoop(){
+    if(!recording)return;
+    ctx.save();ctx.setTransform(scale,0,0,scale,0,0);
+    drawCanvasFrame(ctx,W,H,S);
+    ctx.restore();
+    requestAnimationFrame(renderLoop);
+  }
+  requestAnimationFrame(renderLoop);
 
+  // ── ANIMATION SEQUENCE ──
   status.textContent='Typing message...';
   await new Promise(r=>setTimeout(r,500));
-  await animateTyping(msg,document.getElementById('avMsgText'),typingSpeed);
+
+  // Type message char by char
+  for(let i=0;i<msg.length;i++){
+    S.typedText=msg.slice(0,i+1);
+    // Update HTML phone too
+    document.getElementById('avMsgText').textContent=S.typedText;
+    document.getElementById('avMsgCount').textContent=S.typedText.length;
+    if(msg[i]!==' ') avTypeClick();
+    await new Promise(r=>setTimeout(r,typingSpeed));
+  }
   await new Promise(r=>setTimeout(r,300));
+
+  // Select style
+  S.styleText=style;
   document.getElementById('avStyleText').textContent=style;
   status.textContent='Selecting style...';
   await new Promise(r=>setTimeout(r,600));
+
+  // Generate glow
   status.textContent='Generating...';
-  const genBtn=screen.querySelector('.av-generate-btn');
+  S.genGlow=true;
+  const genBtn=document.querySelector('.av-generate-btn');
   genBtn.style.background='linear-gradient(135deg,#9B6FFF,#c77dff)';
   genBtn.style.boxShadow='0 0 40px rgba(155,111,255,.6)';
   await new Promise(r=>setTimeout(r,1200));
+  S.genGlow=false;
   genBtn.style.background='';genBtn.style.boxShadow='';
+
+  // Switch to player
+  S.screen='player';S.progress=0;S.curTime=0;
   compose.style.display='none';player.style.display='flex';
   status.textContent='Playing song...';
   await new Promise(r=>setTimeout(r,400));
-  startWaveform();
 
-  // Play real song or fallback to silent progress animation
+  // Animate waveform on canvas
+  const wfInt=setInterval(()=>{
+    S.wfBars=S.wfBars.map(()=>4+Math.random()*16);
+  },150);
+  startWaveform(); // also animate HTML waveform
+
+  // Play song or animate progress
   if(avSongUrl){
-    await avPlaySong(avSongUrl);
+    // Play real song and sync progress
+    await new Promise(res=>{
+      const audio=new Audio(avSongUrl);audio.volume=1;
+      try{const ac=avGetAC();const src=ac.createMediaElementSource(audio);const dest=avAudioDest();src.connect(dest);}catch(e){}
+      audio.addEventListener('loadedmetadata',()=>{S.duration=audio.duration;});
+      audio.play().catch(()=>res());
+      const pi=setInterval(()=>{
+        if(!audio.duration)return;
+        S.progress=audio.currentTime/audio.duration;S.curTime=audio.currentTime;
+        const fill=document.getElementById('avProgressFill');
+        const thumb=document.getElementById('avProgressThumb');
+        const tn=document.getElementById('avTimeNow');
+        fill.style.width=(S.progress*100)+'%';thumb.style.left=(S.progress*100)+'%';
+        const s=Math.floor(audio.currentTime);tn.textContent=Math.floor(s/60)+':'+(s%60<10?'0':'')+(s%60);
+      },80);
+      audio.addEventListener('ended',()=>{clearInterval(pi);res();});
+      audio.addEventListener('error',()=>{clearInterval(pi);res();});
+      setTimeout(()=>{try{audio.pause();}catch(e){}clearInterval(pi);res();},60000);
+    });
   } else {
-    await animateProgress(playDur);
+    // Fallback: animate progress over playDur
+    const start=Date.now();const totalMs=playDur*1000;
+    await new Promise(r=>{
+      function tick(){
+        const elapsed=Date.now()-start;S.progress=Math.min(elapsed/totalMs,1);
+        S.curTime=elapsed/1000;
+        const fill=document.getElementById('avProgressFill');
+        const thumb=document.getElementById('avProgressThumb');
+        const tn=document.getElementById('avTimeNow');
+        fill.style.width=(S.progress*100)+'%';thumb.style.left=(S.progress*100)+'%';
+        const s=Math.floor(S.curTime);tn.textContent=Math.floor(s/60)+':'+(s%60<10?'0':'')+(s%60);
+        if(elapsed<totalMs) requestAnimationFrame(tick); else r();
+      }
+      tick();
+    });
   }
-  stopWaveform();
+  clearInterval(wfInt);stopWaveform();
   await new Promise(r=>setTimeout(r,800));
 
   recording=false;
