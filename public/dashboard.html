@@ -303,7 +303,10 @@ select.input{cursor:pointer;appearance:none;background-image:url("data:image/svg
           <span class="sb-sub-icon">🎬</span><span class="sb-label">Video Ad Creator</span>
         </div>
         <div class="sb-sub-item" onclick="openModule('mkt-appvideo')">
-          <span class="sb-sub-icon">📱</span><span class="sb-label">In-App Video</span>
+          <span class="sb-sub-icon">📱</span><span class="sb-label">In-App Video V1</span>
+        </div>
+        <div class="sb-sub-item" onclick="openModule('mkt-appvideo2')">
+          <span class="sb-sub-icon">🎵</span><span class="sb-label">In-App Video V2</span>
         </div>
         <div class="sb-sub-item" onclick="openModule('mkt-gameplan')">
           <span class="sb-sub-icon">🗺</span><span class="sb-label">Game Plan</span>
@@ -566,6 +569,12 @@ select.input{cursor:pointer;appearance:none;background-image:url("data:image/svg
 </div>
 
 <script>
+/* Shared utility — rounded rect path */
+function drawRoundRect(ctx,x,y,w,h,r){
+  ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);
+  ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();
+}
 (function(){
 /* ── Waveform bars ── */
 const wf=document.getElementById('avWaveform');
@@ -825,12 +834,6 @@ let logoImg=null;
   logoImg.src='/TextTunes%20Marketing.png';
 })();
 
-function drawRoundRect(ctx,x,y,w,h,r){
-  ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
-  ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);
-  ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();
-}
-
 function drawCanvasFrame(ctx,W,H,state,yOff){
   // Background gradient — extend beyond H to cover any vertical padding
   const bg=ctx.createLinearGradient(0,-yOff,0,H+yOff);
@@ -907,33 +910,33 @@ function drawCanvasFrame(ctx,W,H,state,yOff){
   } else {
     // PLAYER SCREEN
     const cx=W/2;
-    // Album art
-    const aw=140,ah=140,ax=cx-aw/2,ay=72;
-    drawRoundRect(ctx,ax,ay,aw,ah,18);
+    // Album art — smaller
+    const aw=100,ah=100,ax=cx-aw/2,ay=80;
+    drawRoundRect(ctx,ax,ay,aw,ah,16);
     const ag=ctx.createLinearGradient(ax,ay,ax+aw,ay+ah);
     ag.addColorStop(0,'#c9a0dc');ag.addColorStop(0.4,'#e8c8e8');ag.addColorStop(1,'#d4a0d4');
     ctx.fillStyle=ag;ctx.fill();
-    ctx.shadowColor='rgba(0,0,0,.3)';ctx.shadowBlur=30;ctx.shadowOffsetY=10;ctx.fill();
+    ctx.shadowColor='rgba(0,0,0,.3)';ctx.shadowBlur=20;ctx.shadowOffsetY=8;ctx.fill();
     ctx.shadowBlur=0;ctx.shadowOffsetY=0;
     // Initials
-    ctx.textAlign='center';ctx.font='800 38px Inter,sans-serif';ctx.fillStyle='rgba(255,255,255,.6)';
-    ctx.fillText(state.initials||'TT',cx,ay+ah/2+14);
+    ctx.textAlign='center';ctx.font='800 28px Inter,sans-serif';ctx.fillStyle='rgba(255,255,255,.6)';
+    ctx.fillText(state.initials||'TT',cx,ay+ah/2+10);
     // Waveform
-    const wy=ay+ah+16;
+    const wy=ay+ah+14;
     ctx.fillStyle='rgba(255,255,255,.45)';
     const wfBars=state.wfBars||[];
     const totalW=wfBars.length*5;const wsx=cx-totalW/2;
     wfBars.forEach((h,i)=>{
-      const bh=h;const bx2=wsx+i*5;const by2=wy+12-bh/2;
+      const bh=h;const bx2=wsx+i*5;const by2=wy+10-bh/2;
       drawRoundRect(ctx,bx2,by2,3,bh,1.5);ctx.fill();
     });
     // Song title
-    ctx.font='800 20px Inter,sans-serif';ctx.fillStyle='#fff';
-    ctx.fillText(state.songTitle||'Untitled',cx,wy+38);
-    ctx.font='500 12px DM Sans,sans-serif';ctx.fillStyle='rgba(255,255,255,.4)';
-    ctx.fillText('TextTunes',cx,wy+54);
+    ctx.font='800 18px Inter,sans-serif';ctx.fillStyle='#fff';
+    ctx.fillText(state.songTitle||'Untitled',cx,wy+32);
+    ctx.font='500 11px DM Sans,sans-serif';ctx.fillStyle='rgba(255,255,255,.4)';
+    ctx.fillText('TextTunes',cx,wy+46);
     // Progress bar
-    const py=wy+68,pw=W-36,px=18;
+    const py=wy+58,pw=W-36,px=18;
     drawRoundRect(ctx,px,py,pw,3,2);ctx.fillStyle='rgba(255,255,255,.12)';ctx.fill();
     const prog=state.progress||0;
     if(prog>0){drawRoundRect(ctx,px,py,pw*prog,3,2);ctx.fillStyle='#fff';ctx.fill();}
@@ -941,18 +944,17 @@ function drawCanvasFrame(ctx,W,H,state,yOff){
     const tx=px+pw*prog;
     ctx.beginPath();ctx.arc(tx,py+1.5,6,0,Math.PI*2);ctx.fillStyle='#fff';
     ctx.shadowColor='rgba(0,0,0,.3)';ctx.shadowBlur=4;ctx.fill();ctx.shadowBlur=0;
-    // Time — always show clean integers
+    // Time
     const curSec=Math.floor(state.curTime||0);const durSec=Math.round(state.duration||12);
     ctx.font='400 11px DM Sans,sans-serif';ctx.textAlign='left';ctx.fillStyle='rgba(255,255,255,.35)';
     ctx.fillText(Math.floor(curSec/60)+':'+(curSec%60<10?'0':'')+(curSec%60),px,py+18);
     ctx.textAlign='right';
     ctx.fillText(Math.floor(durSec/60)+':'+(durSec%60<10?'0':'')+(durSec%60),px+pw,py+18);
-    // Controls
-    const cy2=py+46;ctx.textAlign='center';
-    // Play button only — no Restart/Remix
-    ctx.beginPath();ctx.arc(cx,cy2,28,0,Math.PI*2);ctx.fillStyle='#fff';
+    // Play button
+    const cy2=py+44;ctx.textAlign='center';
+    ctx.beginPath();ctx.arc(cx,cy2,26,0,Math.PI*2);ctx.fillStyle='#fff';
     ctx.shadowColor='rgba(0,0,0,.3)';ctx.shadowBlur=12;ctx.fill();ctx.shadowBlur=0;
-    ctx.beginPath();ctx.moveTo(cx-8,cy2-12);ctx.lineTo(cx-8,cy2+12);ctx.lineTo(cx+12,cy2);ctx.closePath();ctx.fillStyle='#1A0E33';ctx.fill();
+    ctx.beginPath();ctx.moveTo(cx-7,cy2-11);ctx.lineTo(cx-7,cy2+11);ctx.lineTo(cx+11,cy2);ctx.closePath();ctx.fillStyle='#1A0E33';ctx.fill();
     // Share / AirDrop buttons
     const by3=cy2+30;
     drawRoundRect(ctx,18,by3,W/2-24,36,12);ctx.fillStyle='rgba(255,255,255,.08)';ctx.fill();
@@ -1065,7 +1067,7 @@ window.avRecord=async function(){
   let recording=true;
   function renderLoop(){
     if(!recording)return;
-    ctx.save();ctx.setTransform(scale,0,0,scale,0,0);
+    ctx.save();ctx.setTransform(scale,0,0,scale,0,0);ctx.translate(0,yOff);
     drawCanvasFrame(ctx,W,H,S,yOff||0);
     ctx.restore();
     requestAnimationFrame(renderLoop);
@@ -1206,6 +1208,420 @@ window.avDownload=async function(){
     a.href=URL.createObjectURL(window._avMp4Blob);
     a.download='TextTunes_InApp_Ad.mp4';
     a.click();
+  }
+  dlBtn.disabled=false;dlBtn.textContent='⬇ Download ZIP (MP4 + MP3)';
+};
+})();
+</script>
+    </div>
+
+    <!-- In-App Video V2 — compose-only, song plays over typing -->
+    <div class="panel" id="panel-mkt-appvideo2">
+
+<div class="page-title">🎵 <em>In-App Video V2</em></div>
+<div class="page-sub">Song plays while the message types on the compose screen — no player screen.</div>
+
+<div class="av-wrap">
+  <div class="av-phone-col">
+    <div class="av-phone" id="av2Phone">
+      <div class="av-screen" id="av2Screen">
+        <div class="av-di"></div>
+        <div class="av-compose" id="av2Compose">
+          <div class="av-logo-img">
+            <img src="/TextTunes%20Marketing.png" alt="TextTunes" crossorigin="anonymous"/>
+          </div>
+          <div class="av-app-name">Text<em>Tunes</em></div>
+          <div class="av-tagline">Turn your message into a song</div>
+          <div class="av-msg-box">
+            <div class="av-msg-label">YOUR MESSAGE</div>
+            <div class="av-msg-text" id="av2MsgText">Hey, thinking of you. Hope your day is amazing...</div>
+            <div class="av-msg-count"><span id="av2MsgCount">0</span>/200</div>
+            <div class="av-style-btn">&#9835; <span id="av2StyleText">Choose Style</span></div>
+          </div>
+          <div class="av-generate-btn">&#10022; Generate Song</div>
+        </div>
+        <div class="av-tab-bar">
+          <div class="av-tab-bar-icon"><svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
+          <div class="av-tab-bar-center"><svg viewBox="0 0 24 24" fill="#1A0E33"><path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z"/></svg></div>
+          <div class="av-tab-bar-icon"><svg viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg></div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;" id="av2RecBtns">
+      <button class="btn-ai" onclick="av2Record()" id="av2RecordBtn">&#9210; Record Video</button>
+      <button class="btn-outline" onclick="av2Download()" id="av2DownloadBtn" style="display:none;">&#11015; Download ZIP (MP4 + MP3)</button>
+    </div>
+    <div class="status-msg" id="av2Status"></div>
+  </div>
+
+  <div class="av-controls-panel">
+    <div class="card">
+      <div class="card-title"><span class="ct-icon">&#9997;&#65039;</span> Customize</div>
+      <div class="av-field">
+        <label>Message Text</label>
+        <textarea class="input" id="av2InputMsg" rows="3" placeholder="Hey, thinking of you...">Hey, thinking of you. Hope your day is amazing...</textarea>
+      </div>
+      <div class="av-field">
+        <label>Music Style</label>
+        <select class="input" id="av2InputStyle">
+          <option value="">Choose Style</option>
+          <option value="Pop">Pop</option><option value="Hip-Hop">Hip-Hop</option>
+          <option value="R&B">R&B</option><option value="Country">Country</option>
+          <option value="Rock">Rock</option><option value="Reggae">Reggae</option>
+          <option value="Lo-Fi">Lo-Fi</option><option value="Jazz">Jazz</option>
+          <option value="EDM">EDM</option>
+        </select>
+      </div>
+      <div class="av-field">
+        <label>Song Title</label>
+        <input class="input" id="av2InputTitle" value="Yoyoyo Yo" placeholder="Song title"/>
+      </div>
+      <div class="av-field">
+        <label>Typing Speed (ms per char)</label>
+        <input class="input" id="av2TypingSpeed" type="number" value="120" min="20" max="300"/>
+      </div>
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">
+        <label style="display:block;font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.8px;text-transform:uppercase;margin-bottom:6px;">Voice</label>
+        <select class="input" id="av2InputVoice" style="margin-bottom:10px;">
+          <option value="female">Female</option>
+          <option value="male">Male</option>
+        </select>
+        <button class="btn-outline" onclick="av2PreviewSong()" id="av2GenSongBtn" style="width:100%;text-align:center;">&#9835; Generate &amp; Preview Song</button>
+        <div id="av2SongStatus" class="status-msg" style="margin-top:6px;"></div>
+        <audio id="av2SongPreview" controls style="display:none;width:100%;margin-top:8px;height:36px;"></audio>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px;">
+      <div class="card-title"><span class="ct-icon">&#127916;</span> Animation Flow</div>
+      <p style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:12px;">
+        Song starts playing immediately, then the message types over the music on the compose screen. No player screen transition.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+/* ── V2 Audio + Song state ── */
+let av2AC=null, av2RecDest=null, av2SongUrl=null, av2SongBlob=null;
+
+function av2GetAC(){
+  if(!av2AC) av2AC=new(window.AudioContext||window.webkitAudioContext)();
+  if(av2AC.state==='suspended') av2AC.resume();
+  if(!av2RecDest) av2RecDest=av2AC.createMediaStreamDestination();
+  return av2AC;
+}
+function av2AudioDest(){
+  const ac=av2GetAC();
+  const g=ac.createGain();g.gain.value=1;
+  g.connect(ac.destination);g.connect(av2RecDest);
+  return g;
+}
+function av2TypeClick(){
+  try{
+    const ac=av2GetAC(),now=ac.currentTime,dest=av2AudioDest();
+    const o=ac.createOscillator();const g=ac.createGain();
+    o.type='sine';
+    o.frequency.setValueAtTime(900+Math.random()*100,now);
+    o.frequency.exponentialRampToValueAtTime(600,now+0.012);
+    g.gain.setValueAtTime(0.03,now);
+    g.gain.exponentialRampToValueAtTime(0.001,now+0.025);
+    o.connect(g);g.connect(dest);o.start(now);o.stop(now+0.03);
+  }catch(e){}
+}
+
+async function av2GenerateSong(lyrics,title,style,voice){
+  const elevenKey=localStorage.getItem('tt_eleven')||'';
+  if(!elevenKey) return null;
+  try{
+    const genreMap={'Pop':'pop','Hip-Hop':'hip-hop','R&B':'r&b','Country':'country','Rock':'rock','Reggae':'reggae','Lo-Fi':'lo-fi','Jazz':'jazz','EDM':'edm'};
+    const genre=genreMap[style]||'pop';
+    const r=await fetch('/api/elevenlabs',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({lyrics,elevenKey,songTitle:title,voice:voice||'female',genre})
+    });
+    if(!r.ok) return null;
+    const blob=await r.blob();
+    if(blob.size<1000) return null;
+    av2SongBlob=blob;
+    return URL.createObjectURL(blob);
+  }catch(e){return null;}
+}
+
+/* Preview Song */
+window.av2PreviewSong=async function(){
+  const btn=document.getElementById('av2GenSongBtn');
+  const status=document.getElementById('av2SongStatus');
+  const audioEl=document.getElementById('av2SongPreview');
+  const msg=document.getElementById('av2InputMsg').value||'Hey, thinking of you.';
+  const title=document.getElementById('av2InputTitle').value||'Untitled';
+  const style=document.getElementById('av2InputStyle').value||'Pop';
+  const voice=document.getElementById('av2InputVoice').value||'female';
+  const elevenKey=localStorage.getItem('tt_eleven')||'';
+  if(!elevenKey){status.textContent='Add your ElevenLabs key in Settings first';status.style.color='#ff453a';return;}
+  btn.disabled=true;btn.textContent='Generating... (~30s)';
+  status.textContent='Sending to ElevenLabs...';status.style.color='var(--accent)';
+  audioEl.style.display='none';
+  const url=await av2GenerateSong(msg,title,style,voice);
+  if(url){
+    av2SongUrl=url;audioEl.src=url;audioEl.style.display='block';
+    status.textContent='Song ready! Press play to preview, then Record Video.';
+    status.style.color='var(--green)';
+  } else {
+    status.textContent='Generation failed — check your ElevenLabs key.';
+    status.style.color='#ff453a';
+  }
+  btn.disabled=false;btn.innerHTML='&#9835; Generate &amp; Preview Song';
+};
+
+/* ── Canvas renderer — compose screen only ── */
+let av2LogoImg=null;
+(function(){av2LogoImg=new Image();av2LogoImg.crossOrigin='anonymous';av2LogoImg.src='/TextTunes%20Marketing.png';})();
+
+function av2DrawFrame(ctx,W,H,state,yOff){
+  const bg=ctx.createLinearGradient(0,-yOff,0,H+yOff);
+  bg.addColorStop(0,'#6B3FA0');bg.addColorStop(0.3,'#3A1D6E');bg.addColorStop(0.65,'#1A0E3A');bg.addColorStop(1,'#0D0720');
+  ctx.fillStyle=bg;ctx.fillRect(0,-yOff,W,H+yOff*2);
+
+  // Dynamic Island
+  drawRoundRect(ctx,W/2-38,10,76,20,11);ctx.fillStyle='#000';ctx.fill();
+
+  const cx=W/2;
+  // Logo
+  const logoSize=62,logoR=17,logoX=cx-logoSize/2,logoY=118-logoSize/2;
+  ctx.save();
+  drawRoundRect(ctx,logoX,logoY,logoSize,logoSize,logoR);
+  if(av2LogoImg&&av2LogoImg.complete){ctx.clip();ctx.drawImage(av2LogoImg,logoX,logoY,logoSize,logoSize);}
+  else{const lg=ctx.createLinearGradient(logoX,logoY,logoX+logoSize,logoY+logoSize);lg.addColorStop(0,'#7C3AED');lg.addColorStop(1,'#9B6FFF');ctx.fillStyle=lg;ctx.fill();}
+  ctx.restore();
+  // App name
+  ctx.textAlign='center';
+  ctx.font='800 21px Inter,system-ui,sans-serif';
+  const tw1=ctx.measureText('Text').width;const tw2=ctx.measureText('Tunes').width;const totalTW=tw1+tw2;
+  ctx.fillStyle='#fff';ctx.fillText('Text',cx-totalTW/2+tw1/2,170);
+  ctx.fillStyle='#d4b8ff';ctx.fillText('Tunes',cx-totalTW/2+tw1+tw2/2,170);
+  // Tagline
+  ctx.font='500 10.5px DM Sans,sans-serif';ctx.fillStyle='rgba(255,255,255,.45)';ctx.fillText('Turn your message into a song',cx,184);
+  // Message box
+  const bx=16,by=198,bw=W-32,bh=200;
+  drawRoundRect(ctx,bx,by,bw,bh,16);ctx.fillStyle='rgba(255,255,255,.07)';ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,.10)';ctx.lineWidth=1;ctx.stroke();
+  ctx.textAlign='left';ctx.font='800 9px Inter,sans-serif';ctx.fillStyle='rgba(255,255,255,.65)';ctx.letterSpacing='1.2px';
+  ctx.fillText('YOUR MESSAGE',bx+14,by+22);ctx.letterSpacing='0px';
+  // Typed text with word wrap
+  ctx.font='400 13px DM Sans,sans-serif';ctx.fillStyle='rgba(255,255,255,.55)';
+  const words=(state.typedText||'').split(' ');let line='',ly=by+42;const maxW=bw-28;
+  words.forEach(w=>{const test=line?line+' '+w:w;if(ctx.measureText(test).width>maxW&&line){ctx.fillText(line,bx+14,ly);ly+=19;line=w;}else line=test;});
+  if(line)ctx.fillText(line,bx+14,ly);
+  // Count
+  ctx.textAlign='right';ctx.font='400 11px DM Sans,sans-serif';ctx.fillStyle='rgba(255,255,255,.25)';
+  ctx.fillText((state.typedText||'').length+'/200',bx+bw-14,by+bh-42);
+  // Style button
+  const sy=by+bh-30;
+  drawRoundRect(ctx,bx+10,sy,bw-20,28,10);ctx.fillStyle='rgba(255,255,255,.05)';ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,.08)';ctx.lineWidth=1;ctx.stroke();
+  ctx.textAlign='left';ctx.font='500 12px DM Sans,sans-serif';ctx.fillStyle='rgba(255,255,255,.45)';
+  ctx.fillText('♫  '+(state.styleText||'Choose Style'),bx+22,sy+18);
+  // Generate button
+  const gy=by+bh+12,gh=46;
+  drawRoundRect(ctx,bx,gy,bw,gh,16);
+  if(state.genGlow){
+    const gg=ctx.createLinearGradient(bx,gy,bx+bw,gy+gh);gg.addColorStop(0,'#9B6FFF');gg.addColorStop(1,'#c77dff');
+    ctx.fillStyle=gg;ctx.fill();ctx.shadowColor='rgba(155,111,255,.6)';ctx.shadowBlur=40;ctx.fill();ctx.shadowBlur=0;
+  } else {ctx.fillStyle='#fff';ctx.fill();}
+  ctx.textAlign='center';ctx.font='700 16px Inter,sans-serif';
+  ctx.fillStyle=state.genGlow?'#fff':'#1A0E33';
+  ctx.fillText('✦ Generate Song',cx,gy+29);
+
+  // Tab bar
+  const ty=H-48;
+  ctx.fillStyle='rgba(0,0,0,.25)';ctx.fillRect(0,ty,W,48);
+  ctx.strokeStyle='rgba(255,255,255,.06)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(0,ty);ctx.lineTo(W,ty);ctx.stroke();
+  // Music icon
+  ctx.save();ctx.strokeStyle='#fff';ctx.lineWidth=1.6;ctx.lineCap='round';
+  ctx.beginPath();ctx.moveTo(W/2-62+9,ty+12);ctx.lineTo(W/2-62+9,ty+25);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(W/2-62+9+12,ty+10);ctx.lineTo(W/2-62+9+12,ty+23);ctx.stroke();
+  ctx.beginPath();ctx.arc(W/2-62+6,ty+25,3,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();
+  ctx.beginPath();ctx.arc(W/2-62+18,ty+23,3,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.moveTo(W/2-62+9,ty+12);ctx.lineTo(W/2-62+21,ty+10);ctx.stroke();
+  ctx.restore();
+  // Center sparkle
+  ctx.beginPath();ctx.arc(cx,ty+18,23,0,Math.PI*2);ctx.fillStyle='#fff';
+  ctx.shadowColor='rgba(0,0,0,.25)';ctx.shadowBlur=10;ctx.fill();ctx.shadowBlur=0;
+  ctx.fillStyle='#1A0E33';ctx.font='18px serif';ctx.textAlign='center';ctx.fillText('✦',cx,ty+24);
+  // Menu icon
+  ctx.save();ctx.strokeStyle='#fff';ctx.lineWidth=1.6;ctx.lineCap='round';
+  const mx=W/2+60;
+  [ty+16,ty+22,ty+28].forEach(yy=>{ctx.beginPath();ctx.moveTo(mx-8,yy);ctx.lineTo(mx+8,yy);ctx.stroke();});
+  ctx.restore();
+}
+
+/* ── RECORD V2 ── */
+let av2Recorder=null,av2Chunks=[];
+
+window.av2Record=async function(){
+  const btn=document.getElementById('av2RecordBtn');
+  const dlBtn=document.getElementById('av2DownloadBtn');
+  const status=document.getElementById('av2Status');
+  btn.disabled=true;btn.textContent='Recording...';
+  dlBtn.style.display='none';
+  status.textContent='Starting recording...';
+
+  // Fresh audio destination
+  av2GetAC();
+  av2RecDest=av2AC.createMediaStreamDestination();
+
+  // Reset HTML phone
+  document.getElementById('av2MsgText').textContent='';
+  document.getElementById('av2MsgCount').textContent='0';
+  document.getElementById('av2StyleText').textContent='Choose Style';
+
+  const msg=document.getElementById('av2InputMsg').value||'Hey, thinking of you. Hope your day is amazing...';
+  const style=document.getElementById('av2InputStyle').value||'Pop';
+  const title=document.getElementById('av2InputTitle').value||'Untitled';
+  const typingSpeed=parseInt(document.getElementById('av2TypingSpeed').value)||120;
+  const voice=document.getElementById('av2InputVoice')?document.getElementById('av2InputVoice').value:'female';
+
+  // Generate song if needed
+  const elevenKey=localStorage.getItem('tt_eleven')||'';
+  if(elevenKey && !av2SongUrl){
+    status.textContent='Generating song... (~30s)';
+    av2SongUrl=await av2GenerateSong(msg,title,style,voice);
+    if(av2SongUrl) status.textContent='Song ready! Recording...';
+    else status.textContent='Song failed — recording without audio';
+  }
+
+  // Canvas — iPhone 17 Pro Max
+  const W=286,H=606;
+  const outW=1320,outH=2868;
+  const scale=outW/W;
+  const yOff=(outH/scale-H)/2;
+  const canvas=document.createElement('canvas');canvas.width=outW;canvas.height=outH;
+  const ctx=canvas.getContext('2d',{alpha:false,willReadFrequently:false});
+  ctx.scale(scale,scale);ctx.translate(0,yOff);
+  ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
+
+  const S={typedText:'',styleText:'Choose Style',genGlow:false};
+
+  av2DrawFrame(ctx,W,H,S,yOff||0);
+
+  // Start recording
+  const FPS=30;
+  const videoStream=canvas.captureStream(FPS);
+  const combinedStream=new MediaStream();
+  videoStream.getVideoTracks().forEach(t=>combinedStream.addTrack(t));
+  if(av2RecDest&&av2RecDest.stream.getAudioTracks().length>0){
+    av2RecDest.stream.getAudioTracks().forEach(t=>combinedStream.addTrack(t));
+  }
+  const mimeType=MediaRecorder.isTypeSupported('video/webm;codecs=vp9')?'video/webm;codecs=vp9':'video/webm';
+  av2Recorder=new MediaRecorder(combinedStream,{mimeType,videoBitsPerSecond:15000000});
+  av2Chunks=[];
+  av2Recorder.ondataavailable=e=>{if(e.data.size>0)av2Chunks.push(e.data);};
+  av2Recorder.start(100);
+
+  let recording=true;
+  function renderLoop(){
+    if(!recording)return;
+    ctx.save();ctx.setTransform(scale,0,0,scale,0,0);ctx.translate(0,yOff);
+    av2DrawFrame(ctx,W,H,S,yOff||0);
+    ctx.restore();
+    requestAnimationFrame(renderLoop);
+  }
+  requestAnimationFrame(renderLoop);
+
+  // ── ANIMATION: Start song immediately, then type over it ──
+  await new Promise(r=>setTimeout(r,300));
+
+  // Start song playing (don't await — it plays in background)
+  let songAudio=null;
+  if(av2SongUrl){
+    songAudio=new Audio(av2SongUrl);songAudio.volume=1;
+    try{const ac=av2GetAC();const src=ac.createMediaElementSource(songAudio);const dest=av2AudioDest();src.connect(dest);}catch(e){}
+    songAudio.play().catch(()=>{});
+    status.textContent='Playing song + typing...';
+  } else {
+    status.textContent='Typing message...';
+  }
+
+  await new Promise(r=>setTimeout(r,400));
+
+  // Type message char by char while song plays
+  for(let i=0;i<msg.length;i++){
+    S.typedText=msg.slice(0,i+1);
+    document.getElementById('av2MsgText').textContent=S.typedText;
+    document.getElementById('av2MsgCount').textContent=S.typedText.length;
+    if(msg[i]!==' ' && i<msg.length-1) av2TypeClick();
+    await new Promise(r=>setTimeout(r,typingSpeed));
+  }
+  await new Promise(r=>setTimeout(r,400));
+
+  // Select style
+  S.styleText=style;
+  document.getElementById('av2StyleText').textContent=style;
+  status.textContent='Selecting style...';
+  await new Promise(r=>setTimeout(r,600));
+
+  // Generate glow
+  S.genGlow=true;
+  await new Promise(r=>setTimeout(r,1200));
+  S.genGlow=false;
+
+  // Wait for song to finish (if playing)
+  if(songAudio){
+    await new Promise(res=>{
+      if(songAudio.ended){res();return;}
+      songAudio.addEventListener('ended',()=>res());
+      songAudio.addEventListener('error',()=>res());
+      // Safety timeout
+      setTimeout(()=>{try{songAudio.pause();}catch(e){}res();},60000);
+    });
+  }
+
+  await new Promise(r=>setTimeout(r,500));
+
+  // Stop recording
+  recording=false;
+  status.textContent='Processing...';
+  av2Recorder.stop();
+  await new Promise(r=>{av2Recorder.onstop=r;});
+
+  // Convert to MP4
+  const blob=new Blob(av2Chunks,{type:mimeType});
+  const reader=new FileReader();
+  reader.readAsDataURL(blob);
+  reader.onloadend=async()=>{
+    const b64=reader.result.split(',')[1];
+    try{
+      const resp=await fetch('/api/convert-mp4',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({video:b64})});
+      if(!resp.ok)throw new Error('fail');
+      window._av2Mp4Blob=await resp.blob();
+      window._av2Mp3Blob=av2SongBlob||null;
+      dlBtn.style.display='inline-flex';
+      status.textContent='Ready! Click Download for ZIP (MP4'+(window._av2Mp3Blob?' + MP3':'')+').';
+    }catch(e){
+      window._av2Mp4Blob=blob;
+      window._av2Mp3Blob=av2SongBlob||null;
+      dlBtn.style.display='inline-flex';
+      status.textContent='MP4 conversion failed, WebM available in ZIP.';
+    }
+    btn.disabled=false;btn.textContent='Record Video';
+  };
+};
+
+window.av2Download=async function(){
+  if(!window._av2Mp4Blob)return;
+  const dlBtn=document.getElementById('av2DownloadBtn');
+  dlBtn.disabled=true;dlBtn.textContent='Zipping...';
+  try{
+    const zip=new JSZip();
+    const ext=window._av2Mp4Blob.type.includes('mp4')?'mp4':'webm';
+    zip.file('TextTunes_V2_Ad.'+ext,window._av2Mp4Blob);
+    if(window._av2Mp3Blob) zip.file('TextTunes_Song.mp3',window._av2Mp3Blob);
+    const content=await zip.generateAsync({type:'blob'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(content);a.download='TextTunes_V2_Ad.zip';a.click();
+  }catch(e){
+    const a=document.createElement('a');a.href=URL.createObjectURL(window._av2Mp4Blob);a.download='TextTunes_V2_Ad.mp4';a.click();
   }
   dlBtn.disabled=false;dlBtn.textContent='⬇ Download ZIP (MP4 + MP3)';
 };
