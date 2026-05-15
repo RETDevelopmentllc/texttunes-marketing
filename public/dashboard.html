@@ -513,13 +513,25 @@ select.input{cursor:pointer;appearance:none;background-image:url("data:image/svg
           <option value="">Choose Style</option>
           <option value="Pop">Pop</option>
           <option value="Hip-Hop">Hip-Hop</option>
+          <option value="Rap">Rap</option>
           <option value="R&B">R&B</option>
           <option value="Country">Country</option>
           <option value="Rock">Rock</option>
+          <option value="Punk">Punk</option>
+          <option value="Metal">Metal</option>
           <option value="Reggae">Reggae</option>
           <option value="Lo-Fi">Lo-Fi</option>
           <option value="Jazz">Jazz</option>
+          <option value="Soul">Soul</option>
+          <option value="Funk">Funk</option>
+          <option value="Gospel">Gospel</option>
           <option value="EDM">EDM</option>
+          <option value="Techno">Techno</option>
+          <option value="Latin">Latin</option>
+          <option value="Afrobeat">Afrobeat</option>
+          <option value="K-Pop">K-Pop</option>
+          <option value="Indie">Indie</option>
+          <option value="Acoustic">Acoustic</option>
         </select>
       </div>
       <div class="av-field">
@@ -621,7 +633,7 @@ async function avGenerateSong(lyrics,title,style,voice){
   const elevenKey=localStorage.getItem('tt_eleven')||'';
   if(!elevenKey){console.log('No ElevenLabs key');return null;}
   try{
-    const genreMap={'Pop':'pop','Hip-Hop':'hip-hop','R&B':'r&b','Country':'country','Rock':'rock','Reggae':'reggae','Lo-Fi':'lo-fi','Jazz':'jazz','EDM':'edm'};
+    const genreMap={'Pop':'pop','Hip-Hop':'hip-hop','Rap':'rap','R&B':'r&b','Country':'country','Rock':'rock','Punk':'punk','Metal':'metal','Reggae':'reggae','Lo-Fi':'lo-fi','Jazz':'jazz','Soul':'soul','Funk':'funk','Gospel':'gospel','EDM':'edm','Techno':'techno','Latin':'latin','Afrobeat':'afrobeat','K-Pop':'kpop','Indie':'indie','Acoustic':'acoustic'};
     const genre=genreMap[style]||'pop';
     console.log('Calling /api/elevenlabs with genre:',genre,'title:',title);
     const r=await fetch('/api/elevenlabs',{
@@ -1333,7 +1345,7 @@ async function av2GenerateSong(lyrics,title,style,voice){
   const elevenKey=localStorage.getItem('tt_eleven')||'';
   if(!elevenKey) return null;
   try{
-    const genreMap={'Pop':'pop','Hip-Hop':'hip-hop','R&B':'r&b','Country':'country','Rock':'rock','Reggae':'reggae','Lo-Fi':'lo-fi','Jazz':'jazz','EDM':'edm'};
+    const genreMap={'Pop':'pop','Hip-Hop':'hip-hop','Rap':'rap','R&B':'r&b','Country':'country','Rock':'rock','Punk':'punk','Metal':'metal','Reggae':'reggae','Lo-Fi':'lo-fi','Jazz':'jazz','Soul':'soul','Funk':'funk','Gospel':'gospel','EDM':'edm','Techno':'techno','Latin':'latin','Afrobeat':'afrobeat','K-Pop':'kpop','Indie':'indie','Acoustic':'acoustic'};
     const genre=genreMap[style]||'pop';
     const r=await fetch('/api/elevenlabs',{
       method:'POST',headers:{'Content-Type':'application/json'},
