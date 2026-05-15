@@ -443,7 +443,7 @@ select.input{cursor:pointer;appearance:none;background-image:url("data:image/svg
   <div class="av-phone-col">
     <div class="av-phone" id="avPhone">
       <div class="av-screen" id="avScreen">
-        <div class="av-di"></div>
+        <!-- dynamic island removed -->
 
         <!-- Compose Screen -->
         <div class="av-compose" id="avCompose">
@@ -840,8 +840,7 @@ function drawCanvasFrame(ctx,W,H,state,yOff){
   bg.addColorStop(0,'#6B3FA0');bg.addColorStop(0.3,'#3A1D6E');bg.addColorStop(0.65,'#1A0E3A');bg.addColorStop(1,'#0D0720');
   ctx.fillStyle=bg;ctx.fillRect(0,-yOff,W,H+yOff*2);
 
-  // Dynamic Island
-  drawRoundRect(ctx,W/2-38,10,76,20,11);ctx.fillStyle='#000';ctx.fill();
+  // Dynamic Island removed
 
   if(state.screen==='compose'){
     const cx=W/2;
@@ -1225,7 +1224,7 @@ window.avDownload=async function(){
   <div class="av-phone-col">
     <div class="av-phone" id="av2Phone">
       <div class="av-screen" id="av2Screen">
-        <div class="av-di"></div>
+        <!-- dynamic island removed -->
         <div class="av-compose" id="av2Compose">
           <div class="av-logo-img">
             <img src="/TextTunes%20Marketing.png" alt="TextTunes" crossorigin="anonymous"/>
@@ -1383,8 +1382,7 @@ function av2DrawFrame(ctx,W,H,state,yOff){
   bg.addColorStop(0,'#6B3FA0');bg.addColorStop(0.3,'#3A1D6E');bg.addColorStop(0.65,'#1A0E3A');bg.addColorStop(1,'#0D0720');
   ctx.fillStyle=bg;ctx.fillRect(0,-yOff,W,H+yOff*2);
 
-  // Dynamic Island
-  drawRoundRect(ctx,W/2-38,10,76,20,11);ctx.fillStyle='#000';ctx.fill();
+  // Dynamic Island removed
 
   const cx=W/2;
   // Logo
