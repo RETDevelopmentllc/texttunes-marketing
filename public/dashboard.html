@@ -569,6 +569,10 @@ select.input{cursor:pointer;appearance:none;background-image:url("data:image/svg
         4. Song "plays" with progress bar + waveform animation
       </p>
       <div class="av-field">
+        <label>Start Delay (sec)</label>
+        <input class="input" id="avStartDelay" type="number" value="1" min="0" max="10" step="0.5"/>
+      </div>
+      <div class="av-field">
         <label>Typing Speed (ms per char)</label>
         <input class="input" id="avTypingSpeed" type="number" value="120" min="20" max="300"/>
       </div>
@@ -1086,8 +1090,9 @@ window.avRecord=async function(){
   requestAnimationFrame(renderLoop);
 
   // ── ANIMATION SEQUENCE ──
+  const startDelay=parseFloat(document.getElementById('avStartDelay').value)||1;
   status.textContent='Typing message...';
-  await new Promise(r=>setTimeout(r,500));
+  await new Promise(r=>setTimeout(r,startDelay*1000));
 
   // Type message char by char
   for(let i=0;i<msg.length;i++){
@@ -1302,6 +1307,10 @@ window.avDownload=async function(){
       <div class="av-field">
         <label>Song Title</label>
         <input class="input" id="av2InputTitle" value="Yoyoyo Yo" placeholder="Song title"/>
+      </div>
+      <div class="av-field">
+        <label>Start Delay (sec)</label>
+        <input class="input" id="av2StartDelay" type="number" value="1" min="0" max="10" step="0.5"/>
       </div>
       <div class="av-field">
         <label>Typing Speed (ms per char)</label>
@@ -1557,7 +1566,8 @@ window.av2Record=async function(){
   requestAnimationFrame(renderLoop);
 
   // ── ANIMATION: Start song immediately, then type over it ──
-  await new Promise(r=>setTimeout(r,300));
+  const startDelay=parseFloat(document.getElementById('av2StartDelay').value)||1;
+  await new Promise(r=>setTimeout(r,startDelay*1000));
 
   // Start song playing (don't await — it plays in background)
   let songAudio=null;
