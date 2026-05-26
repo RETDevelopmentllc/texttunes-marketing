@@ -983,17 +983,19 @@ function drawCanvasFrame(ctx,W,H,state,yOff){
   const tby=H-48;
   ctx.fillStyle='rgba(0,0,0,.25)';ctx.fillRect(0,tby,W,48);
   ctx.strokeStyle='rgba(255,255,255,.06)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(0,tby);ctx.lineTo(W,tby);ctx.stroke();
-  // Music note icon (left)
-  ctx.strokeStyle='#fff';ctx.lineWidth=1.6;ctx.beginPath();ctx.moveTo(W*0.22,tby+28);ctx.lineTo(W*0.22,tby+12);ctx.lineTo(W*0.22+10,tby+10);ctx.lineTo(W*0.22+10,tby+24);ctx.stroke();
-  ctx.beginPath();ctx.arc(W*0.22-3,tby+28,3,0,Math.PI*2);ctx.stroke();
-  ctx.beginPath();ctx.arc(W*0.22+7,tby+24,3,0,Math.PI*2);ctx.stroke();
+  // Music note icon (left) — spread wider
+  const mni=W*0.15;
+  ctx.strokeStyle='#fff';ctx.lineWidth=1.6;ctx.beginPath();ctx.moveTo(mni,tby+28);ctx.lineTo(mni,tby+12);ctx.lineTo(mni+10,tby+10);ctx.lineTo(mni+10,tby+24);ctx.stroke();
+  ctx.beginPath();ctx.arc(mni-3,tby+28,3,0,Math.PI*2);ctx.stroke();
+  ctx.beginPath();ctx.arc(mni+7,tby+24,3,0,Math.PI*2);ctx.stroke();
   // Center button (sparkle)
   ctx.beginPath();ctx.arc(W/2,tby-2,23,0,Math.PI*2);ctx.fillStyle='#fff';
   ctx.shadowColor='rgba(0,0,0,.3)';ctx.shadowBlur=10;ctx.fill();ctx.shadowBlur=0;
   ctx.fillStyle='#1A0E33';ctx.font='bold 16px sans-serif';ctx.textAlign='center';ctx.fillText('✦',W/2,tby+4);
-  // Hamburger (right)
+  // Hamburger (right) — spread wider
+  const hmi=W*0.85-16;
   ctx.strokeStyle='#fff';ctx.lineWidth=1.6;
-  [tby+16,tby+22,tby+28].forEach(y=>{ctx.beginPath();ctx.moveTo(W*0.75,y);ctx.lineTo(W*0.75+16,y);ctx.stroke();});
+  [tby+16,tby+22,tby+28].forEach(y=>{ctx.beginPath();ctx.moveTo(hmi,y);ctx.lineTo(hmi+16,y);ctx.stroke();});
   ctx.textAlign='left';
 }
 
@@ -1473,22 +1475,21 @@ function av2DrawFrame(ctx,W,H,state,yOff){
   ctx.fillStyle='rgba(0,0,0,.25)';ctx.fillRect(0,ty,W,48);
   ctx.strokeStyle='rgba(255,255,255,.06)';ctx.lineWidth=1;
   ctx.beginPath();ctx.moveTo(0,ty);ctx.lineTo(W,ty);ctx.stroke();
-  // Music icon
+  // Music icon — spread wider
+  const mni2=W*0.15;
   ctx.save();ctx.strokeStyle='#fff';ctx.lineWidth=1.6;ctx.lineCap='round';
-  ctx.beginPath();ctx.moveTo(W/2-62+9,ty+12);ctx.lineTo(W/2-62+9,ty+25);ctx.stroke();
-  ctx.beginPath();ctx.moveTo(W/2-62+9+12,ty+10);ctx.lineTo(W/2-62+9+12,ty+23);ctx.stroke();
-  ctx.beginPath();ctx.arc(W/2-62+6,ty+25,3,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();
-  ctx.beginPath();ctx.arc(W/2-62+18,ty+23,3,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.moveTo(W/2-62+9,ty+12);ctx.lineTo(W/2-62+21,ty+10);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(mni2,ty+28);ctx.lineTo(mni2,ty+12);ctx.lineTo(mni2+10,ty+10);ctx.lineTo(mni2+10,ty+24);ctx.stroke();
+  ctx.beginPath();ctx.arc(mni2-3,ty+28,3,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();
+  ctx.beginPath();ctx.arc(mni2+7,ty+24,3,0,Math.PI*2);ctx.fill();
   ctx.restore();
   // Center sparkle
   ctx.beginPath();ctx.arc(cx,ty+18,23,0,Math.PI*2);ctx.fillStyle='#fff';
   ctx.shadowColor='rgba(0,0,0,.25)';ctx.shadowBlur=10;ctx.fill();ctx.shadowBlur=0;
   ctx.fillStyle='#1A0E33';ctx.font='18px serif';ctx.textAlign='center';ctx.fillText('✦',cx,ty+24);
-  // Menu icon
+  // Menu icon — spread wider
+  const hmi2=W*0.85-16;
   ctx.save();ctx.strokeStyle='#fff';ctx.lineWidth=1.6;ctx.lineCap='round';
-  const mx=W/2+60;
-  [ty+16,ty+22,ty+28].forEach(yy=>{ctx.beginPath();ctx.moveTo(mx-8,yy);ctx.lineTo(mx+8,yy);ctx.stroke();});
+  [ty+16,ty+22,ty+28].forEach(yy=>{ctx.beginPath();ctx.moveTo(hmi2,yy);ctx.lineTo(hmi2+16,yy);ctx.stroke();});
   ctx.restore();
 }
 
